@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "utility": "cpp",
+        "cstring": "cpp",
+        "cstdint": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "ios": "cpp",
+        "exception": "cpp"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
+}

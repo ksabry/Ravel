@@ -1,7 +1,0 @@
-[add, orb, xorb, orl]:() => imm:(0)
-
-[mul, mulu, andb, andl]:() => imm:(1)
-
-[add, mul, mulu, andb, orb, xorb, andl, orl]:(@a) => @a
-
-[add, orb, xorb, orl]@t:{imm:(0)+, *@r} => @t:(@r)
