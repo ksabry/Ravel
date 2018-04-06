@@ -25,8 +25,8 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 CXXFLAGS_DEBUG := -g -Og
 LDFLAGS_DEBUG := -g -Og
-CXXFLAGS_RELEASE := -Ofast
-LDFLAGS_RELEASE := -Ofast
+CXXFLAGS_RELEASE := -g -Ofast
+LDFLAGS_RELEASE := -g -Ofast
 
 ifeq ($(CONFIG),DEBUG)
 CXXFLAGS := -std=c++17 $(CXXFLAGS_DEBUG)

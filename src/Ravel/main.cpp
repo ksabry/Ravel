@@ -8,7 +8,7 @@ int main(int argc, const char * argv[])
 	SubML::Tokenizer * tokenizer = new SubML::Tokenizer();
 
 	std::vector<SubML::Token> output;
-	auto err = tokenizer->Tokenize("test.subml", &output);
+	auto err = tokenizer->Tokenize("bin/test.subml", &output);
 	if (err)
 	{
 		std::cout << *err << std::endl;
@@ -16,7 +16,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 	{
-		std::cout << "Successful" << std::endl;
+ 		std::cout << "Successful" << std::endl;
 	}
 
 	return 0;
