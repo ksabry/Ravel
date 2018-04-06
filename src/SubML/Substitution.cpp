@@ -2,13 +2,13 @@
 
 namespace Ravel
 {
-    namespace SubML
-    {
-        Substitution::Substitution()
-        {
-        }
-        Substitution::~Substitution()
-        {
-        }
-    }
+	namespace SubML
+	{
+		Substitution::Substitution()
+		{
+		}
+		Substitution::~Substitution()
+		{
+		}
+	}
 }

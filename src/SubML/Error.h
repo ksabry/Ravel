@@ -7,33 +7,33 @@
 
 namespace Ravel
 {
-    namespace SubML
-    {
-        enum ErrorType
-        {
-            ERR_INVALID_FILE,
-            ERR_INVALID_TOKEN,
-        };
+	namespace SubML
+	{
+		enum ErrorType
+		{
+			ERR_INVALID_FILE,
+			ERR_INVALID_TOKEN,
+		};
 
-        std::ostream & operator<<(std::ostream & output, ErrorType error_type);
+		std::ostream & operator<<(std::ostream & output, ErrorType error_type);
 
-        class Error
-        {
-        public:
-            template<typename... TArgs>
-            Error(ErrorType type, char const * const format, TArgs... args)
-                : Error(type)
-            {
-                this->message = Formatted(format, args...);
-            }
+		class Error
+		{
+		public:
+			template<typename... TArgs>
+			Error(ErrorType type, char const * const format, TArgs... args)
+				: Error(type)
+			{
+				this->message = Formatted(format, args...);
+			}
 
-            Error(ErrorType type);
-            ~Error();
+			Error(ErrorType type);
+			~Error();
 
-            friend std::ostream & operator<<(std::ostream & output, const Error & error);
+			friend std::ostream & operator<<(std::ostream & output, const Error & error);
 
-            ErrorType type;
-            char * message;
-        };
-    }
+			ErrorType type;
+			char * message;
+		};
+	}
 }

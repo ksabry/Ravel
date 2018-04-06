@@ -4,18 +4,18 @@
 
 namespace Ravel
 {
-    namespace SubML
-    {
-        class Program
-        {
-        public:
-            Program();
-            ~Program();
+	namespace SubML
+	{
+		class Program
+		{
+		public:
+			Program();
+			~Program();
 
-        private:
-            // std::vector<Substitution *> substitutions;
-            // std::vector<std::string> capture_names;
+		private:
+			// std::vector<Substitution *> substitutions;
+			// std::vector<std::string> capture_names;
 
-        };
-    }
+		};
+	}
 }

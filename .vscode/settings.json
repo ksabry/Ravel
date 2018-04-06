@@ -8,8 +8,30 @@
         "ios": "cpp",
         "exception": "cpp",
         "fstream": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "string_view": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
-    "python.linting.pylintEnabled": false
+    "python.linting.pylintEnabled": false,
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false
 }

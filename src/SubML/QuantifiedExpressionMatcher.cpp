@@ -2,21 +2,21 @@
 
 namespace Ravel
 {
-    namespace SubML
-    {
-        QuantifiedExpressionMatcher::QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture)
-            : expression(expression), quantifier(quantifier), capture(capture)
-        {
-        }
+	namespace SubML
+	{
+		QuantifiedExpressionMatcher::QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture)
+			: expression(expression), quantifier(quantifier), capture(capture)
+		{
+		}
 
-        void QuantifiedExpressionMatcher::BeginInternal()
-        {
-        }
+		void QuantifiedExpressionMatcher::BeginInternal()
+		{
+		}
 
-        void ** QuantifiedExpressionMatcher::NextInternal()
-        {
-            return nullptr;
-        }
-    }
+		void ** QuantifiedExpressionMatcher::NextInternal()
+		{
+			return nullptr;
+		}
+	}
 }
 

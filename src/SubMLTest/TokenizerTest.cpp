@@ -2,13 +2,13 @@
 
 // namespace SubMLTest
 // {
-//     TEST_CLASS(TokenizerTest)
-//     {
-//     public:
+//	 TEST_CLASS(TokenizerTest)
+//	 {
+//	 public:
 
-//         TEST_METHOD(TestMethod1)
-//         {
-//             Assert::IsTrue(true);
-//         }
-//     };
+//		 TEST_METHOD(TestMethod1)
+//		 {
+//			 Assert::IsTrue(true);
+//		 }
+//	 };
 // }

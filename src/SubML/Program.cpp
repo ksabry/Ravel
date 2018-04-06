@@ -2,10 +2,10 @@
 
 namespace Ravel
 {
-    namespace SubML
-    {
-        Program::Program()
-        {
-        }
-    }
+	namespace SubML
+	{
+		Program::Program()
+		{
+		}
+	}
 }

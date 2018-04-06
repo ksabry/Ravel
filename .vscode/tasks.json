@@ -4,14 +4,17 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build debug",
             "type": "shell",
             "command": "make CONFIG=DEBUG",
             "args": [],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build release",
+            "type": "shell",
+            "command": "make CONFIG=RELEASE",
+            "args": [],
             "problemMatcher": "$msCompile"
         },
         {

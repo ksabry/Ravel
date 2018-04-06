@@ -5,18 +5,18 @@
 
 namespace Ravel
 {
-    using namespace Semantic;
+	using namespace Semantic;
 
-    namespace SubML
-    {
-        class ArgsMatcher : public Matcher<Expression **, size_t>
-        {
-        public:
-            ArgsMatcher();
+	namespace SubML
+	{
+		class ArgsMatcher : public Matcher<Expression **, size_t>
+		{
+		public:
+			ArgsMatcher();
 
-        protected:
-            virtual void BeginInternal() override;
-            virtual void ** NextInternal() override;
-        };
-    }
+		protected:
+			virtual void BeginInternal() override;
+			virtual void ** NextInternal() override;
+		};
+	}
 }
