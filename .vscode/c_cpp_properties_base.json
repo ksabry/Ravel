@@ -3,13 +3,14 @@
         {
             "name": "Linux",
             
-            "includePathRecursive": [
+            "includePath": [
                 "/usr/include",
-                "/usr/local/include",
+                "/usr/local/include"
+            ],
+            "includePathRecursive": [
                 "${workspaceRoot}/src"
             ],
-            "includePathExcludeRegex": ".*experimental.*",
-            
+                        
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
@@ -31,8 +32,8 @@
             "name": "Win32",
             
             "includePathRecursive": [
-                "${workspaceRoot}/src",
-                "C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include"
+                "C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
+                "${workspaceRoot}/src"
             ],
             "includePathExcludeRegex": ".*experimental.*",
             
@@ -44,8 +45,8 @@
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "${workspaceRoot}/src",
-                    "C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include"
+                    "C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
+                    "${workspaceRoot}/src"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

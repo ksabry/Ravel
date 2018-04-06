@@ -6,6 +6,15 @@ namespace Ravel
 {
     namespace SubML
     {
+        Error::Error(ErrorType type)
+            : type(type), message(nullptr)
+        {
+        }
+        Error::~Error()
+        {
+            delete[] message;
+        }
+
         std::ostream & operator<<(std::ostream & output, ErrorType error_type)
         {
             switch (error_type)
@@ -18,15 +27,6 @@ namespace Ravel
                 break;
             }
             return output;
-        }
-
-        Error::Error(ErrorType type)
-            : type(type), message(nullptr)
-        {
-        }
-        Error::~Error()
-        {
-            delete[] message;
         }
 
         std::ostream & operator<<(std::ostream & output, const Error & error) {

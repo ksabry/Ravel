@@ -6,7 +6,10 @@
         "iostream": "cpp",
         "ostream": "cpp",
         "ios": "cpp",
-        "exception": "cpp"
+        "exception": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp"
     },
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
+    "C_Cpp.intelliSenseEngineFallback": "Enabled",
+    "python.linting.pylintEnabled": false
 }

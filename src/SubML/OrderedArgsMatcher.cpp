@@ -125,7 +125,7 @@ namespace Ravel
             }
 
             void ** captures = captures_stack + (match_capture_count * stack_idx);
-            memcpy_s(captures, match_capture_count * sizeof(void *), new_captures, match_capture_count * sizeof(void *));
+            memcpy(captures, new_captures, match_capture_count * sizeof(void *));
 
             return SetupStack(bounds_set);
         }

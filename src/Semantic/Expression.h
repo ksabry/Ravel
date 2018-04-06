@@ -2,6 +2,7 @@
 
 #include "ExpressionOperator.h"
 #include "DataType.h"
+#include "BitCast.h"
 
 namespace Ravel
 {
@@ -43,7 +44,7 @@ namespace Ravel
                 return args;
             }
 
-            inline size_t ArgCount() const
+            inline uint32_t ArgCount() const
             {
                 return arg_count;
             }
@@ -69,7 +70,7 @@ namespace Ravel
             template<typename T>
             inline T GetDataAs() const
             {
-                return *reinterpret_cast<T *>(&data);
+                return bit_cast<T>(data);
             }
 
             friend bool operator==(Expression const & left, Expression const & right);
@@ -81,8 +82,8 @@ namespace Ravel
         private:
             ExpressionOperator oper;
             Expression ** args;
-            size_t arg_count;
-            size_t arg_container_count;
+            uint32_t arg_count;
+            uint32_t arg_container_count;
             DataType data_type;
             uint64_t data;
         };

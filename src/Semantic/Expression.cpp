@@ -21,7 +21,7 @@ namespace Ravel
             }
             else
             {
-                for (size_t i = 0; i < left.ArgCount(); i++)
+                for (uint32_t i = 0; i < left.ArgCount(); i++)
                 {
                     if (left.args[i] == nullptr && right.args[i] == nullptr) continue;
                     if (left.args[i] == nullptr || right.args[i] == nullptr) return false;

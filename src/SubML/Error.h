@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstring>
 
+#include "String.h"
+
 namespace Ravel
 {
     namespace SubML
@@ -22,12 +24,7 @@ namespace Ravel
             Error(ErrorType type, char const * const format, TArgs... args)
                 : Error(type)
             {
-                char buffer[1024];
-                sprintf_s(buffer, format, args...);
-
-                size_t length = strlen(buffer);
-                this->message = new char[length + 1];
-                strcpy(this->message, buffer);
+                this->message = Formatted(format, args...);
             }
 
             Error(ErrorType type);

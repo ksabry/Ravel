@@ -11,10 +11,13 @@ int main(int argc, const char * argv[])
     auto err = tokenizer->Tokenize("test.subml", &output);
     if (err)
     {
-        std::cout << *err;
+        std::cout << *err << std::endl;
         delete err;
+    }
+    else
+    {
+        std::cout << "Successful" << std::endl;
     }
 
     return 0;
 }
-    
