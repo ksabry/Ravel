@@ -4,34 +4,31 @@
 #include "CaptureMatcher.h"
 #include "Quantifier.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	class QuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
-		class QuantifiedExpressionMatcher : public Matcher<Expression **, size_t>
+	public:
+		QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture);
+		
+		inline virtual Quantifier GetQuantifier()
 		{
-		public:
-			QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture);
-			
-			inline virtual Quantifier GetQuantifier()
-			{
-				return quantifier;
-			}
+			return quantifier;
+		}
 
-			inline size_t MatchLength()
-			{
-				return match_length;
-			}
+		inline uint32_t MatchLength()
+		{
+			return match_length;
+		}
 
-		protected:
-			virtual void BeginInternal() override;
-			virtual void ** NextInternal() override;
+	protected:
+		virtual void BeginInternal() override;
+		virtual void ** NextInternal() override;
 
-		private:
-			ExpressionMatcher * expression;
-			Quantifier quantifier;
-			CaptureMatcher * capture;
-			size_t match_length;
-		};
-	}
+	private:
+		ExpressionMatcher * expression;
+		Quantifier quantifier;
+		CaptureMatcher * capture;
+		uint32_t match_length;
+	};
 }

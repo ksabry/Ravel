@@ -4,22 +4,19 @@
 #include "ArgsMatcher.h"
 #include "OperatorMatcher.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	class ExpressionMatcher : public Matcher<Expression *>
 	{
-		class ExpressionMatcher : public Matcher<Expression *>
-		{
-		public:
-			ExpressionMatcher(OperatorMatcher * oper, ArgsMatcher * groupMatcher);
-			
-		protected:
-			virtual void BeginInternal() override;
-			virtual void ** NextInternal() override;
+	public:
+		ExpressionMatcher(OperatorMatcher * oper, ArgsMatcher * groupMatcher);
+		
+	protected:
+		virtual void BeginInternal() override;
+		virtual void ** NextInternal() override;
 
-		private:
-			OperatorMatcher * oper;
-			ArgsMatcher * groupMatcher;
-		};
-	}
+	private:
+		OperatorMatcher * oper;
+		ArgsMatcher * groupMatcher;
+	};
 }

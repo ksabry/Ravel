@@ -1,14 +1,11 @@
 #include "Substitution.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	Substitution::Substitution()
 	{
-		Substitution::Substitution()
-		{
-		}
-		Substitution::~Substitution()
-		{
-		}
+	}
+	Substitution::~Substitution()
+	{
 	}
 }

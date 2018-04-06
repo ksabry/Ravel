@@ -7,24 +7,21 @@
 #include "Program.h"
 #include "Tokenizer.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	class Compiler
 	{
-		class Compiler
-		{
-		public:
-			Compiler();
-			~Compiler();
+	public:
+		Compiler();
+		~Compiler();
 
-			Error * Compile(char const * const input_filename, Program * result);
-			Error * Compile(std::istream * input, Program * result);
+		Error * Compile(char const * const input_filename, Program * result);
+		Error * Compile(std::istream * input, Program * result);
 
-		private:
-			Tokenizer* tokenizer;
-			TokenList tokens;
+	private:
+		Tokenizer* tokenizer;
+		TokenList tokens;
 
-			Error * CompileTokens(Program * result);
-		};
-	}
+		Error * CompileTokens(Program * result);
+	};
 }

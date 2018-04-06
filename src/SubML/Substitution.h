@@ -4,21 +4,18 @@
 #include "Matcher.h"
 #include "Populator.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
 	using namespace Semantic;
 
-	namespace SubML
+	class Substitution
 	{
-		class Substitution
-		{
-		public:
-			Substitution();
-			~Substitution();
+	public:
+		Substitution();
+		~Substitution();
 
-		private:
-			Matcher<Expression *> * matcher;
-			Populator * populator;
-		};
-	}
+	private:
+		Matcher<Expression *> * matcher;
+		Populator * populator;
+	};
 }

@@ -1,26 +1,22 @@
 #include "ArgsSlotPlaceHolder.h"
+#include "Assert.h"
 
-#include <assert.h>
-
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	ArgsSlotPlaceHolder::ArgsSlotPlaceHolder(size_t size)
+		: size(size)
 	{
-		ArgsSlotPlaceHolder::ArgsSlotPlaceHolder(size_t size)
-			: size(size)
-		{
-		}
+	}
 
-		void ArgsSlotPlaceHolder::BeginInternal()
-		{
-			// This should never be reached
-			assert(false);
-		}
+	void ArgsSlotPlaceHolder::BeginInternal()
+	{
+		// This should never be reached
+		assert(false);
+	}
 
-		void ** ArgsSlotPlaceHolder::NextInternal()
-		{
-			// This should never be reached
-			return nullptr;
-		}
+	void ** ArgsSlotPlaceHolder::NextInternal()
+	{
+		// This should never be reached
+		return nullptr;
 	}
 }

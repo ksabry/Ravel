@@ -1,11 +1,8 @@
 #include "Program.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	Program::Program()
 	{
-		Program::Program()
-		{
-		}
 	}
 }

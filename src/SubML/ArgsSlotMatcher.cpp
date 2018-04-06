@@ -1,17 +1,13 @@
 #include "ArgsSlotMatcher.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	void ArgsSlotMatcher::BeginInternal()
 	{
-		void ArgsSlotMatcher::BeginInternal()
-		{
-		}
+	}
 
-		void ** ArgsSlotMatcher::NextInternal()
-		{
-			return nullptr;
-		}
+	void ** ArgsSlotMatcher::NextInternal()
+	{
+		return nullptr;
 	}
 }
-

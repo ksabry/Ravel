@@ -2,41 +2,37 @@
 
 #include <cstring>
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	CaptureMatcher::CaptureMatcher(uint32_t capture_idx)
+		: capture_idx(capture_idx)
 	{
-		CaptureMatcher::CaptureMatcher(size_t capture_idx)
-			: capture_idx(capture_idx)
-		{
-		}
-		CaptureMatcher::~CaptureMatcher()
-		{
-		}
+	}
+	CaptureMatcher::~CaptureMatcher()
+	{
+	}
 
-		void CaptureMatcher::BeginInternal()
+	void CaptureMatcher::BeginInternal()
+	{
+	}
+
+	void ** CaptureMatcher::NextInternal()
+	{
+		if (match_captures[capture_idx] == nullptr)
 		{
+			auto new_captures = new void* [match_capture_count];
+			memcpy(new_captures, match_captures, match_capture_count * sizeof(void*));
+			new_captures[capture_idx] = MatchArgument<0>();
+
+			Finish();
+			return new_captures;
 		}
-
-		void ** CaptureMatcher::NextInternal()
+		else
 		{
-			if (match_captures[capture_idx] == nullptr)
-			{
-				auto new_captures = new void* [match_capture_count];
-				memcpy(new_captures, match_captures, match_capture_count * sizeof(void*));
-				new_captures[capture_idx] = MatchArgument<0>();
-
-				Finish();
-				return new_captures;
-			}
-			else
-			{
-				if (match_captures[capture_idx] == MatchArgument<0>()) return match_captures;
-				
-				Finish();
-				return nullptr;
-			}
+			if (match_captures[capture_idx] == MatchArgument<0>()) return match_captures;
+			
+			Finish();
+			return nullptr;
 		}
 	}
 }
-

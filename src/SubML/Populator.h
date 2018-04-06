@@ -2,17 +2,14 @@
 
 #include "Expression.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
 	using namespace Semantic;
 
-	namespace SubML
+	class Populator
 	{
-		class Populator
-		{
-		public:
-			virtual Expression * Populate(void ** captures, size_t capture_count) = 0;
+	public:
+		virtual Expression * Populate(void ** captures, uint32_t capture_count) = 0;
 
-		};
-	}
+	};
 }

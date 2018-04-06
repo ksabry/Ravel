@@ -5,35 +5,32 @@
 
 #include "String.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	enum ErrorType
 	{
-		enum ErrorType
+		ERR_INVALID_FILE,
+		ERR_INVALID_TOKEN,
+	};
+
+	std::ostream & operator<<(std::ostream & output, ErrorType error_type);
+
+	class Error
+	{
+	public:
+		template<typename... TArgs>
+		Error(ErrorType type, char const * const format, TArgs... args)
+			: Error(type)
 		{
-			ERR_INVALID_FILE,
-			ERR_INVALID_TOKEN,
-		};
+			this->message = Formatted(format, args...);
+		}
 
-		std::ostream & operator<<(std::ostream & output, ErrorType error_type);
+		Error(ErrorType type);
+		~Error();
 
-		class Error
-		{
-		public:
-			template<typename... TArgs>
-			Error(ErrorType type, char const * const format, TArgs... args)
-				: Error(type)
-			{
-				this->message = Formatted(format, args...);
-			}
+		friend std::ostream & operator<<(std::ostream & output, const Error & error);
 
-			Error(ErrorType type);
-			~Error();
-
-			friend std::ostream & operator<<(std::ostream & output, const Error & error);
-
-			ErrorType type;
-			char * message;
-		};
-	}
+		ErrorType type;
+		char * message;
+	};
 }

@@ -2,20 +2,17 @@
 
 #include "Substitution.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	class Program
 	{
-		class Program
-		{
-		public:
-			Program();
-			~Program();
+	public:
+		Program();
+		~Program();
 
-		private:
-			// std::vector<Substitution *> substitutions;
-			// std::vector<std::string> capture_names;
+	private:
+		// std::vector<Substitution *> substitutions;
+		// std::vector<std::string> capture_names;
 
-		};
-	}
+	};
 }

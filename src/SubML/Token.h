@@ -3,117 +3,114 @@
 #include <cstdint>
 #include <cstring>
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	enum TokenType
 	{
-		enum TokenType
+		TOK_IDENTIFIER,
+		TOK_INTEGER,
+		TOK_STRING,
+		TOK_OPERATOR,
+		TOK_EVAL
+	};
+
+	enum TokenOperator
+	{
+		OP_NONE,
+		OP_DOUBLE_RIGHT_ARROW,
+		OP_RIGHT_ARROW,
+		OP_LEFT_ARROW,
+		OP_DOUBLE_DOLLAR,
+		OP_LEFT_PAREN,
+		OP_RIGHT_PAREN,
+		OP_LEFT_CURLY,
+		OP_RIGHT_CURLY,
+		OP_LEFT_SQUARE,
+		OP_RIGHT_SQUARE,
+		OP_LEFT_ANGLE,
+		OP_RIGHT_ANGLE,
+		OP_AMPERSAT,
+		OP_STAR,
+		OP_PLUS,
+		OP_BANG,
+		OP_COMMA,
+		OP_QUESTION_MARK,
+		OP_COLON,
+		OP_MINUS,
+		OP_EQUALS,
+		OP_SEMICOLON,
+		OP_FORWARD_SLASH,
+		OP_DOLLAR,
+		OP_TILDE,
+		OP_BAR
+	};
+
+	struct Token
+	{
+		Token(TokenType type, uint32_t line, uint32_t column)
+			: type(type), line(line), column(column)
 		{
-			TOK_IDENTIFIER,
-			TOK_INTEGER,
-			TOK_STRING,
-			TOK_OPERATOR,
-			TOK_EVAL
-		};
+		}
 
-		enum TokenOperator
+		TokenType type;
+
+		uint32_t line;
+		uint32_t column;
+	};
+
+	struct IdentifierToken : public Token
+	{
+		IdentifierToken(char const * const string, uint32_t line, uint32_t column)
+			: Token(TOK_IDENTIFIER, line, column)
 		{
-			OP_NONE,
-			OP_DOUBLE_RIGHT_ARROW,
-			OP_RIGHT_ARROW,
-			OP_LEFT_ARROW,
-			OP_DOUBLE_DOLLAR,
-			OP_LEFT_PAREN,
-			OP_RIGHT_PAREN,
-			OP_LEFT_CURLY,
-			OP_RIGHT_CURLY,
-			OP_LEFT_SQUARE,
-			OP_RIGHT_SQUARE,
-			OP_LEFT_ANGLE,
-			OP_RIGHT_ANGLE,
-			OP_AMPERSAT,
-			OP_STAR,
-			OP_PLUS,
-			OP_BANG,
-			OP_COMMA,
-			OP_QUESTION_MARK,
-			OP_COLON,
-			OP_MINUS,
-			OP_EQUALS,
-			OP_SEMICOLON,
-			OP_FORWARD_SLASH,
-			OP_DOLLAR,
-			OP_TILDE,
-			OP_BAR
-		};
+			uint32_t length = strlen(string);
+			this->string = new char[length + 1];
+			strcpy(this->string, string);
+		}
 
-		struct Token
+		~IdentifierToken()
 		{
-			Token(TokenType type, size_t line, size_t column)
-				: type(type), line(line), column(column)
-			{
-			}
+			delete[] string;
+		}
 
-			TokenType type;
+		char * string;
+	};
 
-			size_t line;
-			size_t column;
-		};
-
-		struct IdentifierToken : public Token
+	struct IntegerToken : public Token
+	{
+		IntegerToken(uint32_t value, uint32_t line, uint32_t column)
+			: Token(TOK_INTEGER, line, column), value(value)
 		{
-			IdentifierToken(char const * const string, size_t line, size_t column)
-				: Token(TOK_IDENTIFIER, line, column)
-			{
-				size_t length = strlen(string);
-				this->string = new char[length + 1];
-				strcpy(this->string, string);
-			}
+		}
 
-			~IdentifierToken()
-			{
-				delete[] string;
-			}
+		uint32_t value;
+	};
 
-			char * string;
-		};
-
-		struct IntegerToken : public Token
+	struct StringToken : public Token
+	{
+		StringToken(char const * const string, uint32_t line, uint32_t column)
+			: Token(TOK_STRING, line, column)
 		{
-			IntegerToken(uint32_t value, size_t line, size_t column)
-				: Token(TOK_INTEGER, line, column), value(value)
-			{
-			}
+			uint32_t length = strlen(string);
+			this->string = new char[length + 1];
+			strcpy(this->string, string);
+		}
 
-			uint32_t value;
-		};
-
-		struct StringToken : public Token
+		~StringToken()
 		{
-			StringToken(char const * const string, size_t line, size_t column)
-				: Token(TOK_STRING, line, column)
-			{
-				size_t length = strlen(string);
-				this->string = new char[length + 1];
-				strcpy(this->string, string);
-			}
+			delete[] string;
+		}
 
-			~StringToken()
-			{
-				delete[] string;
-			}
+		char * string;
+	};
 
-			char * string;
-		};
-
-		struct OperatorToken : public Token
+	struct OperatorToken : public Token
+	{
+		OperatorToken(TokenOperator oper, uint32_t line, uint32_t column)
+			: Token(TOK_OPERATOR, line, column), oper(oper)
 		{
-			OperatorToken(TokenOperator oper, size_t line, size_t column)
-				: Token(TOK_OPERATOR, line, column), oper(oper)
-			{
-			}
+		}
 
-			TokenOperator oper;
-		};
-	}
+		TokenOperator oper;
+	};
 }

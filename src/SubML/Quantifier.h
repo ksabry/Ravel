@@ -2,16 +2,13 @@
 
 #include <cstdint>
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	struct Quantifier
 	{
-		struct Quantifier
-		{
-			uint32_t low;
-			uint32_t high;
+		uint32_t low;
+		uint32_t high;
 
-			static const uint32_t infinity = 100000000;
-		};
-	}
+		static const uint32_t infinity = 100000000;
+	};
 }

@@ -2,31 +2,28 @@
 
 #include "ArgsSlotMatcher.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	class ArgsSlotPlaceHolder : public ArgsSlotMatcher
 	{
-		class ArgsSlotPlaceHolder : public ArgsSlotMatcher
+	public:
+		ArgsSlotPlaceHolder(size_t size);
+
+		inline virtual Quantifier GetQuantifier() override
 		{
-		public:
-			ArgsSlotPlaceHolder(size_t size);
+			return Quantifier{ size, size };
+		}
+		
+		inline virtual bool IsPlaceHolder() override
+		{
+			return true;
+		}
 
-			inline virtual Quantifier GetQuantifier() override
-			{
-				return Quantifier{ size, size };
-			}
-			
-			inline virtual bool IsPlaceHolder() override
-			{
-				return true;
-			}
+	protected:
+		virtual void BeginInternal() override;
+		virtual void ** NextInternal() override;
 
-		protected:
-			virtual void BeginInternal() override;
-			virtual void ** NextInternal() override;
-
-		private:
-			size_t size;
-		};
-	}
+	private:
+		size_t size;
+	};
 }
