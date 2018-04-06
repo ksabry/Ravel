@@ -1,10 +1,10 @@
 #pragma once
 
 #include <fstream>
-#include <vector>
 
 #include "Token.h"
 #include "Error.h"
+#include "TokenList.h"
 
 namespace Ravel
 {
@@ -16,8 +16,8 @@ namespace Ravel
 			Tokenizer();
 			~Tokenizer();
 
-			Error * Tokenize(std::istream * input, std::vector<Token> * output);
-			Error * Tokenize(char const * const input_filename, std::vector<Token> * output);
+			Error * Tokenize(std::istream * input, TokenList * output);
+			Error * Tokenize(char const * const input_filename, TokenList * output);
 
 		private:
 			static char const * const whitespace_chars;
@@ -69,12 +69,12 @@ namespace Ravel
 			bool ConsumeWhitespace();
 			char ConsumeEscapeChar();
 
-			bool TryTokenizeComment(std::vector<Token> * output);
-			bool TryTokenizeIdentifier(std::vector<Token> * output);
-			bool TryTokenizeInteger(std::vector<Token> * output);
-			bool TryTokenizeString(std::vector<Token> * output);
-			bool TryTokenizeOperator(std::vector<Token> * output);
-			bool TryTokenizeEval(std::vector<Token> * output);
+			bool TryTokenizeComment(TokenList * output);
+			bool TryTokenizeIdentifier(TokenList * output);
+			bool TryTokenizeInteger(TokenList * output);
+			bool TryTokenizeString(TokenList * output);
+			bool TryTokenizeOperator(TokenList * output);
+			bool TryTokenizeEval(TokenList * output);
 		};
 	}
 }

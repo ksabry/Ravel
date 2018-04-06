@@ -18,7 +18,7 @@ namespace Ravel
 			}
 		}
 
-		Error * Tokenizer::Tokenize(std::istream * input, std::vector<Token> * output)
+		Error * Tokenizer::Tokenize(std::istream * input, TokenList * output)
 		{
 			this->input = input;
 			line = column = 1;
@@ -38,7 +38,7 @@ namespace Ravel
 			return nullptr;
 		}
 
-		Error * Tokenizer::Tokenize(char const * const input_filename, std::vector<Token> * output)
+		Error * Tokenizer::Tokenize(char const * const input_filename, TokenList * output)
 		{
 			infile = new std::ifstream;
 			infile->open(input_filename);
@@ -113,7 +113,7 @@ namespace Ravel
 			return static_cast<char>(result);
 		}
 
-		bool Tokenizer::TryTokenizeComment(std::vector<Token> *)
+		bool Tokenizer::TryTokenizeComment(TokenList *)
 		{
 			if (Peek() != '#') return false;
 
@@ -126,7 +126,7 @@ namespace Ravel
 			return true;
 		}
 
-		bool Tokenizer::TryTokenizeIdentifier(std::vector<Token> * output)
+		bool Tokenizer::TryTokenizeIdentifier(TokenList * output)
 		{
 			if (!PeekIsAlpha()) return false;
 
@@ -140,11 +140,11 @@ namespace Ravel
 				Next();
 			}
 
-			output->push_back(IdentifierToken(identifier.str().c_str(), start_line, start_column));
+			output->Add(new IdentifierToken(identifier.str().c_str(), start_line, start_column));
 			return true;
 		}
 
-		bool Tokenizer::TryTokenizeInteger(std::vector<Token> * output)
+		bool Tokenizer::TryTokenizeInteger(TokenList * output)
 		{
 			if (!PeekIsNumeric()) return false;
 
@@ -177,11 +177,11 @@ namespace Ravel
 				value = value * base + digit;
 			}
 
-			output->push_back(IntegerToken(value, start_line, start_column));
+			output->Add(new IntegerToken(value, start_line, start_column));
 			return true;
 		}
 
-		bool Tokenizer::TryTokenizeString(std::vector<Token> * output)
+		bool Tokenizer::TryTokenizeString(TokenList * output)
 		{
 			if (Peek() != '\'' && Peek() != '"') return false;
 
@@ -202,11 +202,11 @@ namespace Ravel
 				string << static_cast<char>(chr);
 			}
 
-			output->push_back(StringToken(string.str().c_str(), start_line, start_column));
+			output->Add(new StringToken(string.str().c_str(), start_line, start_column));
 			return true;
 		}
 
-		bool Tokenizer::TryTokenizeOperator(std::vector<Token>* output)
+		bool Tokenizer::TryTokenizeOperator(TokenList * output)
 		{
 			static char const * op_strings[] = { "=>", "->", "<-", "$$", "(", ")", "{", "}", "[", "]", "<", ">", "@", "*", "+", "!", ",", "?", ":", "-", "=", ";", "/", "$", "~", "|" };
 			static TokenOperator op_values[] = { OP_DOUBLE_RIGHT_ARROW, OP_RIGHT_ARROW, OP_LEFT_ARROW, OP_DOUBLE_DOLLAR, OP_LEFT_PAREN, OP_RIGHT_PAREN, OP_LEFT_CURLY, OP_RIGHT_CURLY,
@@ -249,7 +249,7 @@ namespace Ravel
 			}
 
 			if (result == OP_NONE) return false;
-			output->push_back(OperatorToken(result, start_line, start_column));
+			output->Add(new OperatorToken(result, start_line, start_column));
 			return true;
 		}
 	}

@@ -1,20 +1,17 @@
 #include "ArgsMatcher.h"
 
-namespace Ravel
+namespace Ravel::SubML
 {
-	namespace SubML
+	ArgsMatcher::ArgsMatcher()
 	{
-		ArgsMatcher::ArgsMatcher()
-		{
-		}
+	}
 
-		void ArgsMatcher::BeginInternal()
-		{
-		}
+	void ArgsMatcher::BeginInternal()
+	{
+	}
 
-		void ** ArgsMatcher::NextInternal()
-		{
-			return nullptr;
-		}
+	void ** ArgsMatcher::NextInternal()
+	{
+		return nullptr;
 	}
 }

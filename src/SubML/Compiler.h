@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "Error.h"
 #include "Program.h"
@@ -23,7 +22,7 @@ namespace Ravel
 
 		private:
 			Tokenizer* tokenizer;
-			std::vector<Token> tokens;
+			TokenList tokens;
 
 			Error * CompileTokens(Program * result);
 		};

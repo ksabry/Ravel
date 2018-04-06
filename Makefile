@@ -23,10 +23,10 @@ SRC_SUBDIRS := $(wildcard $(SRC_DIR)/**)
 SRC_FILES := $(wildcard $(SRC_DIR)/**/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
-CXXFLAGS_DEBUG := -g -Og
-LDFLAGS_DEBUG := -g -Og
-CXXFLAGS_RELEASE := -g -Ofast
-LDFLAGS_RELEASE := -g -Ofast
+CXXFLAGS_DEBUG := -g -Og -D_DEBUG
+LDFLAGS_DEBUG := 
+CXXFLAGS_RELEASE := -g -Ofast -D_NDEBUG
+LDFLAGS_RELEASE := 
 
 ifeq ($(CONFIG),DEBUG)
 CXXFLAGS := -std=c++17 $(CXXFLAGS_DEBUG)
