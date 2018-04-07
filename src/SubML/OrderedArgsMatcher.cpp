@@ -12,6 +12,12 @@ namespace Ravel::SubML
 
 	OrderedArgsMatcher::~OrderedArgsMatcher()
 	{
+		for (uint32_t idx = 0; idx < matcher_count; idx++)
+		{
+			delete matchers[idx];
+		}
+		delete[] matchers;
+
 		if (matchers_idx_stack) delete[] matchers_idx_stack;
 		if (exprs_bounds_stack) delete[] exprs_bounds_stack;
 		if (exprs_stack) delete[] exprs_stack;
@@ -21,8 +27,9 @@ namespace Ravel::SubML
 
 	void OrderedArgsMatcher::BeginInternal()
 	{
-		Expression ** exprs = MatchArgument<0>();
-		uint32_t expr_count = MatchArgument<1>();
+		Expression * parent = MatchArgument<0>();
+		Expression ** exprs = parent->Args();
+		uint32_t expr_count = parent->ArgCount();
 
 		stack_idx = 0;
 		matchers_idx_stack = new uint32_t [matcher_count] { 0 };
@@ -38,7 +45,7 @@ namespace Ravel::SubML
 
 	void ** OrderedArgsMatcher::NextInternal()
 	{
-		uint32_t expr_count = MatchArgument<1>();
+		uint32_t expr_count = MatchArgument<0>()->ArgCount();
 
 		void ** result = nullptr;
 		while (!result)
@@ -99,7 +106,7 @@ namespace Ravel::SubML
 
 	bool OrderedArgsMatcher::PushStack(void ** new_captures, Bounds exprs_bounds)
 	{
-		uint32_t expr_count = MatchArgument<1>();
+		uint32_t expr_count = MatchArgument<0>()->ArgCount();
 
 		Expression ** old_exprs = exprs_stack + (expr_count * stack_idx);
 		uint32_t old_matchers_idx = matchers_idx_stack[stack_idx];
@@ -130,7 +137,7 @@ namespace Ravel::SubML
 
 	bool OrderedArgsMatcher::SetupStack(bool bounds_set)
 	{
-		uint32_t expr_count = MatchArgument<1>();
+		uint32_t expr_count = MatchArgument<0>()->ArgCount();
 
 		Bounds * bounds = bounds_stack + (matcher_count * stack_idx);
 		Expression ** exprs = exprs_stack + (expr_count * stack_idx);

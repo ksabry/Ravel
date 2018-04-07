@@ -7,7 +7,7 @@ namespace Ravel::SubML
 {
 	using namespace Semantic;
 	
-	class ArgsMatcher : public Matcher<Expression **, size_t>
+	class ArgsMatcher : public Matcher<Expression *>
 	{
 	public:
 		ArgsMatcher();

@@ -15,7 +15,7 @@ namespace Ravel
 				return false;
 			}
 
-			if (left.GetDataType() != TYPE_UNKNOWN)
+			if (left.GetDataType() != DataType::UNKNOWN)
 			{
 				if (!DataEqual(left.GetDataType(), left.GetData(), right.GetData())) return false;
 			}

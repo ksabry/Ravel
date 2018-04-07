@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Expression.h"
-#include "Matcher.h"
+#include "QuantifiedExpressionMatcher.h"
 #include "Populator.h"
 
 namespace Ravel::SubML
@@ -11,11 +11,11 @@ namespace Ravel::SubML
 	class Substitution
 	{
 	public:
-		Substitution();
+		Substitution(QuantifiedExpressionMatcher * matcher, Populator * populator);
 		~Substitution();
 
 	private:
-		Matcher<Expression *> * matcher;
+		QuantifiedExpressionMatcher * matcher;
 		Populator * populator;
 	};
 }

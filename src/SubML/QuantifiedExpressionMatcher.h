@@ -10,7 +10,8 @@ namespace Ravel::SubML
 	{
 	public:
 		QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture);
-		
+		~QuantifiedExpressionMatcher();
+
 		inline virtual Quantifier GetQuantifier()
 		{
 			return quantifier;

@@ -2,7 +2,8 @@
 
 namespace Ravel::SubML
 {
-	Substitution::Substitution()
+	Substitution::Substitution(QuantifiedExpressionMatcher * matcher, Populator * populator)
+		: matcher(matcher), populator(populator)
 	{
 	}
 	Substitution::~Substitution()

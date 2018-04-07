@@ -6,6 +6,8 @@
 #include "Error.h"
 #include "Program.h"
 #include "Tokenizer.h"
+#include "Substitution.h"
+#include "QuantifiedExpressionMatcher.h"
 
 namespace Ravel::SubML
 {
@@ -21,7 +23,20 @@ namespace Ravel::SubML
 	private:
 		Tokenizer* tokenizer;
 		TokenList tokens;
+		uint32_t token_idx;
+		Program * program;
 
-		Error * CompileTokens(Program * result);
+		Error * CompileTokens(uint32_t token_idx = 0);
+
+		Error * ParseSubstitution(Substitution * & output);
+		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
+		Error * ParseExpressionMatcher(ExpressionMatcher * & output);
+		Error * TryParseOperatorMatcher(OperatorMatcher * & output);
+		Error * TryParseOperatorMatcherValue(OperatorMatcher * & output);
+
+		Error * TryParseArgsMatcher(ArgsMatcher * & output);
+		Error * TryParseQuantifier(Quantifier & output);
+		Error * TryParseCaptureMatcher(CaptureMatcher * & output);
+		Error * ParseMultiExpressionPopulator(Populator * & output);
 	};
 }

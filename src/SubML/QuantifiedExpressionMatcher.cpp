@@ -6,6 +6,11 @@ namespace Ravel::SubML
 		: expression(expression), quantifier(quantifier), capture(capture)
 	{
 	}
+	QuantifiedExpressionMatcher::~QuantifiedExpressionMatcher()
+	{
+		delete expression;
+		delete capture;
+	}
 
 	void QuantifiedExpressionMatcher::BeginInternal()
 	{

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Assert.h"
 #include "ArrCpy.h"
 #include "Numeric.h"
@@ -8,8 +10,8 @@ namespace Ravel::SubML
 	class DynamicArray
 	{
 	public:
-		DynamicArray(uint32_t initialCapacity = 256)
-			: capacity(initialCapacity), arr(nullptr), count(0)
+		DynamicArray(uint32_t initial_capacity = 256)
+			: capacity(initial_capacity), arr(nullptr), count(0)
 		{
 			arr = new T * [capacity];
 		}
@@ -43,13 +45,13 @@ namespace Ravel::SubML
 			arr[idx] = element;
 		}
 
-		void Resize(uint32_t newCapacity)
+		void Resize(uint32_t new_capacity)
 		{
-			T ** newArr = new T * [newCapacity];
-			ArrCpy(newArr, arr, Min(capacity, newCapacity));
+			T ** new_arr = new T * [new_capacity];
+			ArrCpy(new_arr, arr, Min(capacity, new_capacity));
 			delete[] arr;
-			arr = newArr;
-			capacity = newCapacity;
+			arr = new_arr;
+			capacity = new_capacity;
 		}
 
 		void Add(T * element)

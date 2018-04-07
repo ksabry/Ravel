@@ -13,7 +13,7 @@ namespace Ravel
 		public:
 			template<typename... TArgs>
 			Expression(ExpressionOperator oper, TArgs... args)
-				: oper(oper), data_type(TYPE_UNKNOWN), args{ args... }
+				: oper(oper), data_type(DataType::UNKNOWN), args{ args... }
 			{
 			}
 			template<typename... TArgs>

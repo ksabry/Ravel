@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Substitution.h"
+#include "DynamicArray.h"
 
 namespace Ravel::SubML
 {
@@ -10,9 +11,8 @@ namespace Ravel::SubML
 		Program();
 		~Program();
 
-	private:
-		// std::vector<Substitution *> substitutions;
-		// std::vector<std::string> capture_names;
-
+		DynamicArray<Substitution> substitutions;
+		DynamicArray<char *> capture_names;
+		uint32_t capture_count;
 	};
 }

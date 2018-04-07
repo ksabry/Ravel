@@ -207,16 +207,16 @@ namespace Ravel::SubML
 	bool Tokenizer::TryTokenizeOperator(TokenList * output)
 	{
 		static char const * op_strings[] = { "=>", "->", "<-", "$$", "(", ")", "{", "}", "[", "]", "<", ">", "@", "*", "+", "!", ",", "?", ":", "-", "=", ";", "/", "$", "~", "|" };
-		static TokenOperator op_values[] = { OP_DOUBLE_RIGHT_ARROW, OP_RIGHT_ARROW, OP_LEFT_ARROW, OP_DOUBLE_DOLLAR, OP_LEFT_PAREN, OP_RIGHT_PAREN, OP_LEFT_CURLY, OP_RIGHT_CURLY,
-												OP_LEFT_SQUARE, OP_RIGHT_SQUARE, OP_LEFT_ANGLE, OP_RIGHT_ANGLE, OP_AMPERSAT, OP_STAR, OP_PLUS, OP_BANG, OP_COMMA, OP_QUESTION_MARK,
-												OP_COLON, OP_MINUS, OP_EQUALS, OP_SEMICOLON, OP_FORWARD_SLASH, OP_DOLLAR, OP_TILDE, OP_BAR };
+		static TokenOperator op_values[] = { TokenOperator::DOUBLE_RIGHT_ARROW, TokenOperator::RIGHT_ARROW, TokenOperator::LEFT_ARROW, TokenOperator::DOUBLE_DOLLAR, TokenOperator::LEFT_PAREN, TokenOperator::RIGHT_PAREN, TokenOperator::LEFT_CURLY, TokenOperator::RIGHT_CURLY,
+												TokenOperator::LEFT_SQUARE, TokenOperator::RIGHT_SQUARE, TokenOperator::LEFT_ANGLE, TokenOperator::RIGHT_ANGLE, TokenOperator::AMPERSAT, TokenOperator::STAR, TokenOperator::PLUS, TokenOperator::BANG, TokenOperator::COMMA, TokenOperator::QUESTION_MARK,
+												TokenOperator::COLON, TokenOperator::MINUS, TokenOperator::EQUALS, TokenOperator::SEMICOLON, TokenOperator::FORWARD_SLASH, TokenOperator::DOLLAR, TokenOperator::TILDE, TokenOperator::BAR };
 		static uint32_t op_count = sizeof(op_values) / sizeof(TokenOperator);
 
 		auto start_pos = input->tellg();
 		uint32_t start_line = line;
 		uint32_t start_column = column;
 
-		TokenOperator result = OP_NONE;
+		TokenOperator result = TokenOperator::NONE;
 		for (int32_t i = 0; i < op_count; i++)
 		{
 			bool matched = true;
@@ -246,7 +246,7 @@ namespace Ravel::SubML
 			column = start_column;
 		}
 
-		if (result == OP_NONE) return false;
+		if (result == TokenOperator::NONE) return false;
 		output->Add(new OperatorToken(result, start_line, start_column));
 		return true;
 	}

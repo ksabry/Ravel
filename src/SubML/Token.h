@@ -5,44 +5,44 @@
 
 namespace Ravel::SubML
 {
-	enum TokenType
+	enum class TokenType
 	{
-		TOK_IDENTIFIER,
-		TOK_INTEGER,
-		TOK_STRING,
-		TOK_OPERATOR,
-		TOK_EVAL
+		IDENTIFIER,
+		INTEGER,
+		STRING,
+		OPERATOR,
+		EVAL
 	};
 
-	enum TokenOperator
+	enum class TokenOperator
 	{
-		OP_NONE,
-		OP_DOUBLE_RIGHT_ARROW,
-		OP_RIGHT_ARROW,
-		OP_LEFT_ARROW,
-		OP_DOUBLE_DOLLAR,
-		OP_LEFT_PAREN,
-		OP_RIGHT_PAREN,
-		OP_LEFT_CURLY,
-		OP_RIGHT_CURLY,
-		OP_LEFT_SQUARE,
-		OP_RIGHT_SQUARE,
-		OP_LEFT_ANGLE,
-		OP_RIGHT_ANGLE,
-		OP_AMPERSAT,
-		OP_STAR,
-		OP_PLUS,
-		OP_BANG,
-		OP_COMMA,
-		OP_QUESTION_MARK,
-		OP_COLON,
-		OP_MINUS,
-		OP_EQUALS,
-		OP_SEMICOLON,
-		OP_FORWARD_SLASH,
-		OP_DOLLAR,
-		OP_TILDE,
-		OP_BAR
+		NONE,
+		DOUBLE_RIGHT_ARROW,
+		RIGHT_ARROW,
+		LEFT_ARROW,
+		DOUBLE_DOLLAR,
+		LEFT_PAREN,
+		RIGHT_PAREN,
+		LEFT_CURLY,
+		RIGHT_CURLY,
+		LEFT_SQUARE,
+		RIGHT_SQUARE,
+		LEFT_ANGLE,
+		RIGHT_ANGLE,
+		AMPERSAT,
+		STAR,
+		PLUS,
+		BANG,
+		COMMA,
+		QUESTION_MARK,
+		COLON,
+		MINUS,
+		EQUALS,
+		SEMICOLON,
+		FORWARD_SLASH,
+		DOLLAR,
+		TILDE,
+		BAR
 	};
 
 	struct Token
@@ -61,7 +61,7 @@ namespace Ravel::SubML
 	struct IdentifierToken : public Token
 	{
 		IdentifierToken(char const * const string, uint32_t line, uint32_t column)
-			: Token(TOK_IDENTIFIER, line, column)
+			: Token(TokenType::IDENTIFIER, line, column)
 		{
 			uint32_t length = strlen(string);
 			this->string = new char[length + 1];
@@ -79,7 +79,7 @@ namespace Ravel::SubML
 	struct IntegerToken : public Token
 	{
 		IntegerToken(uint32_t value, uint32_t line, uint32_t column)
-			: Token(TOK_INTEGER, line, column), value(value)
+			: Token(TokenType::INTEGER, line, column), value(value)
 		{
 		}
 
@@ -89,7 +89,7 @@ namespace Ravel::SubML
 	struct StringToken : public Token
 	{
 		StringToken(char const * const string, uint32_t line, uint32_t column)
-			: Token(TOK_STRING, line, column)
+			: Token(TokenType::STRING, line, column)
 		{
 			uint32_t length = strlen(string);
 			this->string = new char[length + 1];
@@ -107,10 +107,15 @@ namespace Ravel::SubML
 	struct OperatorToken : public Token
 	{
 		OperatorToken(TokenOperator oper, uint32_t line, uint32_t column)
-			: Token(TOK_OPERATOR, line, column), oper(oper)
+			: Token(TokenType::OPERATOR, line, column), oper(oper)
 		{
 		}
 
 		TokenOperator oper;
 	};
+
+	bool IsOperatorToken (const Token & token, TokenOperator oper)
+	{
+		return token.type == TokenType::OPERATOR && reinterpret_cast<const OperatorToken*>(&token)->oper == oper;
+	}
 }

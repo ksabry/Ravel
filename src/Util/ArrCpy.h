@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstring>
 
 template<typename T, uint32_t COUNT>
