@@ -449,5 +449,25 @@ namespace Ravel::SubML
 		}
 	}
 
+	Error * Compiler::TryParseCaptureMatcher(CaptureMatcher * & output)
+	{
+		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::AMPERSAT))
+		{
+			return nullptr;
+		}
+		token_idx++;
 
+		if (token_idx >= tokens.size())
+		{
+			return new Error(ERR_PARSE, "Unexpected EOF after capture token at %s in file %s", LineInfo(), input_filename);
+		}
+		if (tokens[token_idx].type != TokenType::IDENTIFIER)
+		{
+			return new Error(ERR_PARSE, "Expected identifier after captuer token at %s in file %s", LineInfo(), input_filename);
+		}
+
+		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+		output = new CaptureMatcher(OperatorFromString(iden_tok.string));
+		return nullptr;
+	}
 }

@@ -41,10 +41,10 @@ namespace Ravel::SubML
 		Error * TryParseOperatorMatcherAlternation(OperatorValueMatcher * & output);
 		Error * TryParseOperationMatcherSingle(OperatorValueMatcher * & output);
 		Error * TryParseArgsMatcher(ArgsMatcher * & output);
-
 		Error * TryParseQuantifier(Quantifier & output);
 
 		Error * TryParseCaptureMatcher(CaptureMatcher * & output);
+		
 		Error * ParseMultiExpressionPopulator(Populator * & output);
 	};
 }
