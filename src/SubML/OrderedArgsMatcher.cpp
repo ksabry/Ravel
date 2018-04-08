@@ -1,6 +1,7 @@
 #include "OrderedArgsMatcher.h"
 
 #include <cstring>
+#include "ArrCpy.h"
 
 namespace Ravel::SubML
 {
@@ -36,22 +37,22 @@ namespace Ravel::SubML
 		exprs_bounds_stack = new Bounds [matcher_count];
 		exprs_stack = new Expression *[expr_count * matcher_count];
 		bounds_stack = new Bounds [matcher_count * matcher_count];
-		captures_stack = new void *[match_capture_count * matcher_count] { nullptr };
+		captures_stack = new uint64_t [match_capture_count * matcher_count] { 0 };
 
 		memcpy(exprs_stack, exprs, expr_count * sizeof(Expression *));
 		SetupStack(false);
 		PushStackUntilLast();
 	}
 
-	void ** OrderedArgsMatcher::NextInternal()
+	uint64_t * OrderedArgsMatcher::NextInternal()
 	{
 		uint32_t expr_count = MatchArgument<0>()->ArgCount();
 
-		void ** result = nullptr;
+		uint64_t * result = nullptr;
 		while (!result)
 		{
 			uint32_t matchers_idx = matchers_idx_stack[stack_idx];
-			void ** result = matchers[matchers_idx]->Next();
+			uint64_t * result = matchers[matchers_idx]->Next();
 			if (!result)
 			{
 				stack_idx--;
@@ -88,7 +89,7 @@ namespace Ravel::SubML
 			}
 
 			uint32_t matchers_idx = matchers_idx_stack[stack_idx];
-			void ** next_captures = matchers[matchers_idx]->Next();
+			uint64_t * next_captures = matchers[matchers_idx]->Next();
 			if (!next_captures)
 			{
 				stack_idx--;
@@ -104,7 +105,7 @@ namespace Ravel::SubML
 		return true;
 	}
 
-	bool OrderedArgsMatcher::PushStack(void ** new_captures, Bounds exprs_bounds)
+	bool OrderedArgsMatcher::PushStack(uint64_t * new_captures, Bounds exprs_bounds)
 	{
 		uint32_t expr_count = MatchArgument<0>()->ArgCount();
 
@@ -129,8 +130,8 @@ namespace Ravel::SubML
 			bounds_set = true;
 		}
 
-		void ** captures = captures_stack + (match_capture_count * stack_idx);
-		memcpy(captures, new_captures, match_capture_count * sizeof(void *));
+		uint64_t * captures = captures_stack + (match_capture_count * stack_idx);
+		ArrCpy(captures, new_captures, match_capture_count);
 
 		return SetupStack(bounds_set);
 	}
@@ -141,7 +142,7 @@ namespace Ravel::SubML
 
 		Bounds * bounds = bounds_stack + (matcher_count * stack_idx);
 		Expression ** exprs = exprs_stack + (expr_count * stack_idx);
-		void ** captures = captures_stack + (match_capture_count * stack_idx);
+		uint64_t * captures = captures_stack + (match_capture_count * stack_idx);
 
 		if (!bounds_set &&
 			!CalculateBounds(expr_count, bounds))

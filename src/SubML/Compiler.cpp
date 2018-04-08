@@ -7,6 +7,14 @@
 #include "OrderedArgsMatcher.h"
 #include "UnorderedArgsMatcher.h"
 #include "ImmediateMatcher.h"
+#include "ExpressionMatcher.h"
+#include "OperatorMatcher.h"
+#include "MultiExpressionPopulator.h"
+#include "CapturePopulator.h"
+#include "OperatorValuePopulator.h"
+#include "ArgsPopulator.h"
+
+//TODO: ensure things are cleaned up even when errors are thrown
 
 namespace Ravel::SubML
 {
@@ -81,7 +89,7 @@ namespace Ravel::SubML
 		}
 
 		token_idx++;
-		Populator * populator;
+		Populator<Expression ** &, uint32_t &> * populator;
 		err = ParseMultiExpressionPopulator(populator);
 		if (err) return err;
 
@@ -91,7 +99,7 @@ namespace Ravel::SubML
 
 	Error * Compiler::ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output)
 	{
-		ExpressionMatcher * expression_matcher;
+		Matcher<Expression *> * expression_matcher;
 		Error * err = ParseExpressionMatcher(expression_matcher);
 		if (err) return err;
 		
@@ -99,21 +107,22 @@ namespace Ravel::SubML
 		err = TryParseQuantifier(quantifier);
 		if (err) return err;
 
-		CaptureMatcher * capture_matcher = nullptr;
-		err = TryParseCaptureMatcher(capture_matcher);
+		uint32_t capture_idx;
+		err = TryParseCapture(capture_idx);
 		if (err) return err;
+		CaptureMatcher<Expression *> * capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
 		
 		output = new QuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 		return nullptr;
 	}
 
-	Error * Compiler::ParseExpressionMatcher(ExpressionMatcher * & output)
+	Error * Compiler::ParseExpressionMatcher(Matcher<Expression *> * & output)
 	{
-		OperatorMatcher * oper_matcher = nullptr;
+		Matcher<ExpressionOperator> * oper_matcher = nullptr;
 		Error * err = TryParseOperatorMatcher(oper_matcher);
 		if (err) return err;
 
-		ArgsMatcher * args_matcher = nullptr;
+		Matcher<Expression *> * args_matcher = nullptr;
 		err = TryParseArgsMatcher(args_matcher);
 		if (err) return err;
 
@@ -121,23 +130,24 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Compiler::TryParseOperatorMatcher(OperatorMatcher * & output)
+	Error * Compiler::TryParseOperatorMatcher(Matcher<ExpressionOperator> * & output)
 	{
 		uint32_t old_idx = token_idx;
 
-		OperatorValueMatcher * value_matcher = nullptr;
+		Matcher<ExpressionOperator> * value_matcher = nullptr;
 		Error * err = TryParseOperatorMatcherAlternation(value_matcher);
 		if (err) return err;
 
 		if (!value_matcher)
 		{
-			err = TryParseOperationMatcherSingle(value_matcher);
+			err = TryParseOperatorMatcherSingle(value_matcher);
 			if (err) return err;
 		}
 
-		CaptureMatcher * capture_matcher = nullptr;
-		err = TryParseCaptureMatcher(capture_matcher);
+		uint32_t capture_idx;
+		err = TryParseCapture(capture_idx);
 		if (err) return err;
+		CaptureMatcher<ExpressionOperator> * capture_matcher = new CaptureMatcher<ExpressionOperator>(capture_idx);
 
 		OperatorMatcher * result = new OperatorMatcher(value_matcher, capture_matcher);
 	
@@ -153,7 +163,7 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Compiler::TryParseOperatorMatcherAlternation(OperatorValueMatcher * & output)
+	Error * Compiler::TryParseOperatorMatcherAlternation(Matcher<ExpressionOperator> * & output)
 	{
 		if (token_idx >= tokens.size())
 		{
@@ -223,7 +233,7 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Compiler::TryParseOperationMatcherSingle(OperatorValueMatcher * & output)
+	Error * Compiler::TryParseOperatorMatcherSingle(Matcher<ExpressionOperator> * & output)
 	{
 		if (token_idx >= tokens.size())
 		{
@@ -252,7 +262,7 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Compiler::TryParseArgsMatcher(ArgsMatcher * & output)
+	Error * Compiler::TryParseArgsMatcher(Matcher<Expression *> * & output)
 	{
 		if (token_idx >= tokens.size())
 		{
@@ -444,12 +454,174 @@ namespace Ravel::SubML
 				}
 			}
 
-			output = Quantifier{low, high};
+			output = Quantifier{static_cast<uint32_t>(low), static_cast<uint32_t>(high)};
 			return nullptr;
 		}
 	}
 
-	Error * Compiler::TryParseCaptureMatcher(CaptureMatcher * & output)
+	Error * Compiler::ParseMultiExpressionPopulator(Populator<Expression ** &, uint32_t &> * & output)
+	{
+		if (token_idx >= tokens.size())
+		{
+			return new Error(ERR_PARSE, "Unexpected EOF while expecting populator at %s in file %s", LineInfo(), input_filename);
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::TILDE))
+		{
+			token_idx++;
+			output = new MultiExpressionPopulator(nullptr, 0);
+			return nullptr;
+		}
+
+		std::vector<Populator<Expression * &> *> populators;
+
+		Populator<Expression * &> * expr_populator;
+		Error * err = ParseExpressionPopulator(expr_populator);
+		if (err) return err;
+		populators.push_back(expr_populator);
+
+		while (token_idx < tokens.size() && IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+		{
+			token_idx++;
+			err = ParseExpressionPopulator(expr_populator);
+			if (err) return err;
+			populators.push_back(expr_populator);
+		}
+		
+		auto arr = new Populator<Expression * &> * [populators.size()];
+		ArrCpy<>(arr, &populators[0], populators.size());
+		output = new MultiExpressionPopulator(arr, populators.size());
+		return nullptr;
+	}
+
+	Error * Compiler::ParseExpressionPopulator(Populator<Expression * &> * & output)
+	{
+		Populator<ExpressionOperator &> * oper_populator = nullptr;
+		Error * err = TryParseOperatorPopulator(oper_populator);
+		if (err) return err;
+
+		Populator<Expression * &> * args_populator = nullptr;
+		err = TryParseArgsPopulator(args_populator);
+		if (err) return err;
+
+		if (!oper_populator && !args_populator)
+		{
+			uint32_t capture_idx = 0;
+			err = TryParseCapture(capture_idx);
+			if (err) return err;
+
+			if (!capture_idx)
+			{
+				return new Error(ERR_PARSE, "Expected populator at %s in file %s", LineInfo(), input_filename);
+			}
+			auto capture_populator = new CapturePopulator<Expression * &>(capture_idx);
+			output = capture_populator;
+			return nullptr;
+		}
+
+		output = new ExpressionPopulator(oper_populator, args_populator);
+	}
+
+	Error * Compiler::TryParseOperatorPopulator(Populator<ExpressionOperator &> * & output)
+	{
+		uint32_t old_idx = token_idx;
+		
+		Populator<ExpressionOperator &> * value_populator = nullptr;
+		Error * err = TryParseOperationPopulatorSingle(value_populator);
+		if (err) return err;
+
+		if (!value_populator)
+		{
+			uint32_t capture_idx = 0;
+			err = TryParseCapture(capture_idx);
+			if (err) return err;
+
+			if (capture_idx)
+			{
+				value_populator = new CapturePopulator<ExpressionOperator &>(capture_idx);
+			}
+		}
+
+		if (!value_populator || token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::COLON))
+		{
+			if (value_populator) delete value_populator;
+			token_idx = old_idx;
+			return nullptr;
+		}
+
+		token_idx++;
+		output = value_populator;
+		return nullptr;
+	}
+
+	Error * Compiler::TryParseOperationPopulatorSingle(Populator<ExpressionOperator &> * & output)
+	{
+		if (token_idx >= tokens.size() || tokens[token_idx].type != TokenType::IDENTIFIER)
+		{
+			return nullptr;
+		}
+
+		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+		ExpressionOperator oper = OperatorFromString(iden_tok.string);
+		output = new OperatorValuePopulator(oper);
+		return nullptr;
+	}
+
+	Error * Compiler::TryParseArgsPopulator(Populator<Expression * &> * & output)
+	{
+		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_PAREN))
+		{
+			return nullptr;
+		}
+		token_idx++;
+
+		if (token_idx >= tokens.size())
+		{
+			return new Error(ERR_PARSE, "Unexpected EOF while parsing populator arguments at %s in file %s", LineInfo(), input_filename);
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_PAREN))
+		{
+			token_idx++;
+			output = new ArgsPopulator(nullptr, 0);
+			return nullptr;
+		}
+
+		std::vector<Populator<Expression * &> *> populators;
+		while (true)
+		{
+			Populator<Expression * &> * populator;
+			Error * err = ParseExpressionPopulator(populator);
+			if (err) return err;
+			populators.push_back(populator);
+
+			if (token_idx >= tokens.size())
+			{
+				return new Error(ERR_PARSE, "Unexpected EOF while parsing populator arguments at %s in file %s", LineInfo(), input_filename);
+			}
+			
+			if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_PAREN))
+			{
+				token_idx++;
+				break;
+			}
+
+			if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			{
+				return new Error(ERR_PARSE, "Expected comma or right paren at %s in file %s", LineInfo(), input_filename);
+			}
+
+			token_idx++;
+		}
+
+		auto ** arr = new Populator<Expression * &> * [populators.size()];
+		ArrCpy(arr, &populators[0], populators.size());
+		output = new ArgsPopulator(arr, populators.size());
+		return nullptr;
+	}
+
+	
+	Error * Compiler::TryParseCapture(uint32_t & output)
 	{
 		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::AMPERSAT))
 		{
@@ -467,7 +639,7 @@ namespace Ravel::SubML
 		}
 
 		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
-		output = new CaptureMatcher(OperatorFromString(iden_tok.string));
+		output = OperatorFromString(iden_tok.string);
 		return nullptr;
 	}
 }

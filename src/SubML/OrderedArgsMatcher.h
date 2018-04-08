@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ArgsMatcher.h"
+#include "Matcher.h"
 #include "QuantifiedExpressionMatcher.h"
 
 namespace Ravel::SubML
@@ -11,7 +11,7 @@ namespace Ravel::SubML
 		uint32_t end;
 	};
 
-	class OrderedArgsMatcher : public ArgsMatcher
+	class OrderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
 		OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
@@ -19,7 +19,7 @@ namespace Ravel::SubML
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 
 	private:
 		QuantifiedExpressionMatcher ** matchers;
@@ -31,10 +31,10 @@ namespace Ravel::SubML
 		Bounds * exprs_bounds_stack;
 		Expression ** exprs_stack;
 		Bounds * bounds_stack;
-		void ** captures_stack;
+		uint64_t * captures_stack;
 
 		bool PushStackUntilLast();
-		bool PushStack(void ** new_captures, Bounds exprs_bounds);
+		bool PushStack(uint64_t * new_captures, Bounds exprs_bounds);
 		bool SetupStack(bool bounds_set);
 
 		bool CalculateBounds(uint32_t max_length, Bounds * result);

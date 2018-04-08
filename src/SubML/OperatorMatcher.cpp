@@ -2,21 +2,21 @@
 
 namespace Ravel::SubML
 {
-	OperatorMatcher::OperatorMatcher(OperatorValueMatcher * value_matcher, CaptureMatcher * capture)
-		: value_matcher(value_matcher), capture(capture)
+	OperatorMatcher::OperatorMatcher(Matcher<ExpressionOperator> * value_matcher, CaptureMatcher<ExpressionOperator> * capture_matcher)
+		: value_matcher(value_matcher), capture_matcher(capture_matcher)
 	{
 	}
 	OperatorMatcher::~OperatorMatcher()
 	{
 		delete value_matcher;
-		delete capture;
+		delete capture_matcher;
 	}
 
 	void OperatorMatcher::BeginInternal()
 	{
 	}
 
-	void ** OperatorMatcher::NextInternal()
+	uint64_t * OperatorMatcher::NextInternal()
 	{
 		return nullptr;
 	}

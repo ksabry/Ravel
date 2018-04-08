@@ -9,15 +9,15 @@ namespace Ravel::SubML
 	class OperatorMatcher : public Matcher<ExpressionOperator>
 	{
 	public:
-		OperatorMatcher(OperatorValueMatcher * value_matcher, CaptureMatcher * capture);
+		OperatorMatcher(Matcher<ExpressionOperator> * value_matcher, CaptureMatcher<ExpressionOperator> * capture_matcher);
 		~OperatorMatcher();
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 
 	private:
-		OperatorValueMatcher * value_matcher;
-		CaptureMatcher * capture;
+		Matcher<ExpressionOperator> * value_matcher;
+		CaptureMatcher<ExpressionOperator> * capture_matcher;
 	};
 }

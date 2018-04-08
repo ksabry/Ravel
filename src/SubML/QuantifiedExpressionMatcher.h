@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ExpressionMatcher.h"
 #include "CaptureMatcher.h"
 #include "Quantifier.h"
 
@@ -9,7 +8,7 @@ namespace Ravel::SubML
 	class QuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
 	public:
-		QuantifiedExpressionMatcher(ExpressionMatcher * expression, Quantifier quantifier, CaptureMatcher * capture);
+		QuantifiedExpressionMatcher(Matcher<Expression *> * expression, Quantifier quantifier, CaptureMatcher<Expression *> * capture);
 		~QuantifiedExpressionMatcher();
 
 		inline virtual Quantifier GetQuantifier()
@@ -24,12 +23,12 @@ namespace Ravel::SubML
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 
 	private:
-		ExpressionMatcher * expression;
+		Matcher<Expression *> * expression;
 		Quantifier quantifier;
-		CaptureMatcher * capture;
+		CaptureMatcher<Expression *> * capture;
 		uint32_t match_length;
 	};
 }

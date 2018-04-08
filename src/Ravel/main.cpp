@@ -9,7 +9,7 @@ int main(int argc, const char * argv[])
 {
 	SubML::Tokenizer * tokenizer = new SubML::Tokenizer();
 
-	SubML::TokenList output;
+	std::vector<SubML::Token> output;
 	auto err = tokenizer->Tokenize("bin/test.subml", &output);
 	if (err)
 	{

@@ -15,7 +15,7 @@ namespace Ravel::SubML
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 	
 	private:
 		ExpressionOperator * opers;

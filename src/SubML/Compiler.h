@@ -7,8 +7,9 @@
 #include "Program.h"
 #include "Tokenizer.h"
 #include "Substitution.h"
+#include "Matcher.h"
+#include "Populator.h"
 #include "QuantifiedExpressionMatcher.h"
-#include "OperatorMatcher.h"
 
 namespace Ravel::SubML
 {
@@ -35,16 +36,19 @@ namespace Ravel::SubML
 		Error * CompileTokens(uint32_t token_idx = 0);
 
 		Error * ParseSubstitution(Substitution * & output);
-		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
-		Error * ParseExpressionMatcher(ExpressionMatcher * & output);
-		Error * TryParseOperatorMatcher(OperatorMatcher * & output);
-		Error * TryParseOperatorMatcherAlternation(OperatorValueMatcher * & output);
-		Error * TryParseOperationMatcherSingle(OperatorValueMatcher * & output);
-		Error * TryParseArgsMatcher(ArgsMatcher * & output);
-		Error * TryParseQuantifier(Quantifier & output);
-
-		Error * TryParseCaptureMatcher(CaptureMatcher * & output);
 		
-		Error * ParseMultiExpressionPopulator(Populator * & output);
+		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
+		Error * ParseExpressionMatcher(Matcher<Expression *> * & output);
+		Error * TryParseOperatorMatcher(Matcher<ExpressionOperator> * & output);
+		Error * TryParseOperatorMatcherAlternation(Matcher<ExpressionOperator> * & output);
+		Error * TryParseOperatorMatcherSingle(Matcher<ExpressionOperator> * & output);
+		Error * TryParseArgsMatcher(Matcher<Expression *> * & output);
+		Error * TryParseQuantifier(Quantifier & output);
+		Error * ParseMultiExpressionPopulator(Populator<Expression ** &, uint32_t &> * & output);
+		Error * ParseExpressionPopulator(Populator<Expression * &> * & output);
+		Error * TryParseOperatorPopulator(Populator<ExpressionOperator &> * & output);
+		Error * TryParseOperationPopulatorSingle(Populator<ExpressionOperator &> * & output);
+		Error * TryParseArgsPopulator(Populator<Expression * &> * & output);
+		Error * TryParseCapture(uint32_t & output);
 	};
 }

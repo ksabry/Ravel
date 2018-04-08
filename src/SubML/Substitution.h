@@ -11,11 +11,11 @@ namespace Ravel::SubML
 	class Substitution
 	{
 	public:
-		Substitution(QuantifiedExpressionMatcher * matcher, Populator * populator);
+		Substitution(QuantifiedExpressionMatcher * matcher, Populator<Expression ** &, uint32_t &> * populator);
 		~Substitution();
 
 	private:
 		QuantifiedExpressionMatcher * matcher;
-		Populator * populator;
+		Populator<Expression ** &, uint32_t &> * populator;
 	};
 }

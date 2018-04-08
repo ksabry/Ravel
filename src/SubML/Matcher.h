@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TypePackElement.h"
+#include "BitCast.h"
 
 namespace Ravel::SubML
 {
@@ -16,7 +17,7 @@ namespace Ravel::SubML
 		{
 		}
 
-		void Begin(void ** captures, uint32_t capture_count, TArgs... values)
+		void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
 		{
 			begun = true;
 			SetMatchArguments(0, values...);
@@ -25,11 +26,11 @@ namespace Ravel::SubML
 			BeginInternal();
 		}
 
-		void ** Next()
+		uint64_t * Next()
 		{
 			if (result_queue[result_queue_idx])
 			{
-				void ** result = result_queue[result_queue_idx];
+				uint64_t * result = result_queue[result_queue_idx];
 				result_queue[result_queue_idx] = nullptr;
 				result_queue_idx = (result_queue_idx + 1) % result_queue_size;
 				return result;
@@ -41,7 +42,7 @@ namespace Ravel::SubML
 			}
 		}
 
-		bool AddToResultQueue(void ** result)
+		bool AddToResultQueue(uint64_t * result)
 		{
 			if (result[result_queue_add_idx]) return false;
 			
@@ -58,7 +59,7 @@ namespace Ravel::SubML
 		template<uint32_t idx>
 		inline type_pack_element<idx, TArgs...> MatchArgument()
 		{
-			return reinterpret_cast<type_pack_element<idx, TArgs...>>(match_arguments[idx]);
+			return bit_cast<type_pack_element<idx, TArgs...>>(match_arguments[idx]);
 		}
 
 		inline bool HasBegun()
@@ -72,18 +73,18 @@ namespace Ravel::SubML
 		}
 
 	protected:
-		void * match_arguments[sizeof...(TArgs)];
-		void ** match_captures;
+		uint64_t match_arguments[sizeof...(TArgs)];
+		uint64_t * match_captures;
 		uint32_t match_capture_count;
 		
 		bool begun;
 		bool finished;
 
 		virtual void BeginInternal() = 0;
-		virtual void ** NextInternal() = 0;
+		virtual uint64_t * NextInternal() = 0;
 
 		static const uint32_t result_queue_size = 8;
-		void ** result_queue[result_queue_size];
+		uint64_t * result_queue[result_queue_size];
 		uint32_t result_queue_idx;
 		uint32_t result_queue_add_idx;
 
@@ -91,15 +92,15 @@ namespace Ravel::SubML
 		template<typename Head, typename... Tail>
 		inline void SetMatchArguments(uint32_t idx, Head head, Tail... tail)
 		{
-			static_assert(sizeof(Head) <= sizeof(void *), "Matcher arguments must not be larger than the size of a pointer (likely 4 bytes)");
-			match_arguments[idx] = reinterpret_cast<void *>(head);
+			static_assert(sizeof(Head) <= sizeof(uint64_t), "Matcher arguments must not be larger than the size of a pointer (likely 4 bytes)");
+			match_arguments[idx] = bit_cast<uint64_t>(head);
 			SetMatchArguments(idx + 1, tail...);
 		}
 		template<typename Head>
 		inline void SetMatchArguments(uint32_t idx, Head head)
 		{
-			static_assert(sizeof(Head) <= sizeof(void *), "Matcher arguments must not be larger than the size of a pointer (likely 4 bytes)");
-			match_arguments[idx] = reinterpret_cast<void *>(head);
+			static_assert(sizeof(Head) <= sizeof(uint64_t), "Matcher arguments must not be larger than the size of a pointer (likely 4 bytes)");
+			match_arguments[idx] = bit_cast<uint64_t>(head);
 		}
 	};
 }

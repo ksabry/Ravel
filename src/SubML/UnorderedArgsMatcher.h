@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ArgsMatcher.h"
+#include "Matcher.h"
 #include "QuantifiedExpressionMatcher.h"
 
 namespace Ravel::SubML
 {
-	class UnorderedArgsMatcher : public ArgsMatcher
+	class UnorderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
 		UnorderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
@@ -13,7 +13,7 @@ namespace Ravel::SubML
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 
 	private:
 		QuantifiedExpressionMatcher ** matchers;

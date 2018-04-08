@@ -1,23 +1,24 @@
 #pragma once
 
 #include "Matcher.h"
-#include "ArgsMatcher.h"
-#include "OperatorMatcher.h"
+#include "Expression.h"
 
 namespace Ravel::SubML
 {
+	using namespace Semantic;
+
 	class ExpressionMatcher : public Matcher<Expression *>
 	{
 	public:
-		ExpressionMatcher(OperatorMatcher * oper, ArgsMatcher * group_matcher);
+		ExpressionMatcher(Matcher<ExpressionOperator> * oper_matcher, Matcher<Expression *> * group_matcher);
 		~ExpressionMatcher();
 		
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 	
 	private:
-		OperatorMatcher * oper;
-		ArgsMatcher * group_matcher;
+		Matcher<ExpressionOperator> * oper_matcher;
+		Matcher<Expression *> * group_matcher;
 	};
 }

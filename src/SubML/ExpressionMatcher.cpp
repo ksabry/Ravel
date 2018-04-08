@@ -2,38 +2,38 @@
 
 namespace Ravel::SubML
 {
-	ExpressionMatcher::ExpressionMatcher(OperatorMatcher * oper, ArgsMatcher * group_matcher)
-		: oper(oper), group_matcher(group_matcher)
+	ExpressionMatcher::ExpressionMatcher(Matcher<ExpressionOperator> * oper_matcher, Matcher<Expression *> * group_matcher)
+		: oper_matcher(oper_matcher), group_matcher(group_matcher)
 	{
 	}
 
 	ExpressionMatcher::~ExpressionMatcher()
 	{
-		delete oper;
+		delete oper_matcher;
 		delete group_matcher;
 	}
 
 	void ExpressionMatcher::BeginInternal()
 	{
 		Expression * expr = MatchArgument<0>();
-		oper->Begin(match_captures, match_capture_count, expr->Oper());
-		group_matcher->Begin(oper->Next(), match_capture_count, expr);
+		oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
+		group_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
 	}
 
-	void ** ExpressionMatcher::NextInternal()
+	uint64_t * ExpressionMatcher::NextInternal()
 	{
 		auto group_captures = group_matcher->Next();
 		while (!group_captures)
 		{
-			auto oper_aptures = oper->Next();
-			if (!oper_aptures)
+			auto oper_captures = oper_matcher->Next();
+			if (!oper_captures)
 			{
 				Finish();
 				return nullptr;
 			}
 
 			Expression * expr = MatchArgument<0>();
-			group_matcher->Begin(oper_aptures, match_capture_count, expr);
+			group_matcher->Begin(oper_captures, match_capture_count, expr);
 			group_captures = group_matcher->Next();
 		}
 		return group_captures;

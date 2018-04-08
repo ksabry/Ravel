@@ -16,7 +16,7 @@ namespace Ravel::SubML
 	{
 	}
 
-	void ** NextInternal()
+	uint64_t * NextInternal()
 	{
 		return nullptr;
 	}

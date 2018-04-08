@@ -15,7 +15,7 @@ namespace Ravel::SubML
 	{
 	}
 
-	void ** ImmediateMatcher::NextInternal()
+	uint64_t * ImmediateMatcher::NextInternal()
 	{
 		Expression * expr = MatchArgument<0>();
 		if (expr->GetDataType() != data_type || !DataEqual(data_type, expr->GetData(), data)) 

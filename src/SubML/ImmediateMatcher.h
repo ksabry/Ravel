@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ArgsMatcher.h"
+#include "Matcher.h"
 
 namespace Ravel::SubML
 {
-	class ImmediateMatcher : public ArgsMatcher
+	class ImmediateMatcher : public Matcher<Expression *>
 	{
 	public:
 		ImmediateMatcher(DataType data_type, uint64_t data);
@@ -12,7 +12,7 @@ namespace Ravel::SubML
 	
 	protected:
 		virtual void BeginInternal() override;
-		virtual void ** NextInternal() override;
+		virtual uint64_t * NextInternal() override;
 
 	private:
 		DataType data_type;
