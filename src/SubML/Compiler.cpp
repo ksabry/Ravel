@@ -155,6 +155,11 @@ namespace Ravel::SubML
 
 	Error * Compiler::TryParseOperatorMatcherAlternation(OperatorValueMatcher * & output)
 	{
+		if (token_idx >= tokens.size())
+		{
+			return nullptr;
+		}
+
 		uint32_t old_idx = token_idx;
 
 		bool neg = false;
@@ -220,6 +225,11 @@ namespace Ravel::SubML
 
 	Error * Compiler::TryParseOperationMatcherSingle(OperatorValueMatcher * & output)
 	{
+		if (token_idx >= tokens.size())
+		{
+			return nullptr;
+		}
+
 		uint32_t old_idx = token_idx;
 		
 		bool neg = false;
@@ -244,6 +254,11 @@ namespace Ravel::SubML
 
 	Error * Compiler::TryParseArgsMatcher(ArgsMatcher * & output)
 	{
+		if (token_idx >= tokens.size())
+		{
+			return nullptr;
+		}
+
 		bool ordered;
 		TokenOperator delim;
 		if (IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_PAREN))
@@ -327,5 +342,112 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	
+	Error * Compiler::TryParseQuantifier(Quantifier & output)
+	{
+		if (token_idx >= tokens.size())
+		{
+			return nullptr;
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::STAR))
+		{
+			token_idx++;
+			output = Quantifier{0, Quantifier::infinity};
+			return nullptr;
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::PLUS))
+		{
+			token_idx++;
+			output = Quantifier{1, Quantifier::infinity};
+			return nullptr;
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::QUESTION_MARK))
+		{
+			token_idx++;
+			output = Quantifier{0, 1};
+			return nullptr;
+		}
+
+		if (IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_ANGLE))
+		{
+			token_idx++;
+			if (token_idx >= tokens.size())
+			{
+				return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
+			}
+
+			int32_t low = -1, high = -1;
+			if (IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			{
+				low = 0;
+				token_idx++;
+			}
+			else if (tokens[token_idx].type == TokenType::INTEGER)
+			{
+				low = static_cast<IntegerToken &>(tokens[token_idx]).value;
+				token_idx++;
+				if (token_idx >= tokens.size())
+				{
+					return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
+				}
+				
+				if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+				{
+					high = low;
+					token_idx++;
+				}
+				else
+				{
+					if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+					{
+						return new Error(ERR_PARSE, "Expected comma or right angle bracket at %s in file %s", LineInfo(), input_filename);
+					}
+					token_idx++;
+				}
+			}
+			else
+			{
+				return new Error(ERR_PARSE, "Expected integer or comma at %s in file %s", LineInfo(), input_filename);
+			}
+
+			if (high == -1)
+			{
+				if (token_idx >= tokens.size())
+				{
+					return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
+				}
+
+				if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+				{
+					high = Quantifier::infinity;
+					token_idx++;
+				}
+				else if (tokens[token_idx].type == TokenType::INTEGER)
+				{
+					high = static_cast<IntegerToken &>(tokens[token_idx]).value;
+					token_idx++;
+					if (token_idx >= tokens.size())
+					{
+						return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
+					}
+					if (!IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+					{
+						return new Error(ERR_PARSE, "Expected right angle bracket at %s in file %s", LineInfo(), input_filename);
+					}
+					token_idx++;
+				}
+				else
+				{
+					return new Error(ERR_PARSE, "Expected integer or right angle bracket at %s in file %s", LineInfo(), input_filename);
+				}
+			}
+
+			output = Quantifier{low, high};
+			return nullptr;
+		}
+	}
+
+
 }
