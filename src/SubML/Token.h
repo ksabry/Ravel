@@ -116,6 +116,6 @@ namespace Ravel::SubML
 
 	bool IsOperatorToken (const Token & token, TokenOperator oper)
 	{
-		return token.type == TokenType::OPERATOR && reinterpret_cast<const OperatorToken*>(&token)->oper == oper;
+		return token.type == TokenType::OPERATOR && static_cast<const OperatorToken &>(token).oper == oper;
 	}
 }

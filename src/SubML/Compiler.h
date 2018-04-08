@@ -8,6 +8,7 @@
 #include "Tokenizer.h"
 #include "Substitution.h"
 #include "QuantifiedExpressionMatcher.h"
+#include "OperatorMatcher.h"
 
 namespace Ravel::SubML
 {
@@ -21,10 +22,15 @@ namespace Ravel::SubML
 		Error * Compile(std::istream * input, Program * result);
 
 	private:
+		char const * input_filename;
+		char * line_info;
+
 		Tokenizer* tokenizer;
-		TokenList tokens;
+		std::vector<Token> tokens;
 		uint32_t token_idx;
 		Program * program;
+
+		char * LineInfo();
 
 		Error * CompileTokens(uint32_t token_idx = 0);
 
@@ -32,9 +38,11 @@ namespace Ravel::SubML
 		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
 		Error * ParseExpressionMatcher(ExpressionMatcher * & output);
 		Error * TryParseOperatorMatcher(OperatorMatcher * & output);
-		Error * TryParseOperatorMatcherValue(OperatorMatcher * & output);
-
+		Error * TryParseOperatorMatcherAlternation(OperatorValueMatcher * & output);
+		Error * TryParseOperationMatcherSingle(OperatorValueMatcher * & output);
+		
 		Error * TryParseArgsMatcher(ArgsMatcher * & output);
+		
 		Error * TryParseQuantifier(Quantifier & output);
 		Error * TryParseCaptureMatcher(CaptureMatcher * & output);
 		Error * ParseMultiExpressionPopulator(Populator * & output);

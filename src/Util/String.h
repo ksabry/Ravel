@@ -20,5 +20,5 @@ namespace Ravel
 			snprintf(result, default_size, format, args...);
 		}
 		return result;
-	}	
+	}
 }

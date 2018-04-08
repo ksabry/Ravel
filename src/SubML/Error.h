@@ -11,6 +11,7 @@ namespace Ravel::SubML
 	{
 		ERR_INVALID_FILE,
 		ERR_INVALID_TOKEN,
+		ERR_PARSE
 	};
 
 	std::ostream & operator<<(std::ostream & output, ErrorType error_type);

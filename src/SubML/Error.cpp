@@ -21,6 +21,8 @@ namespace Ravel::SubML
 		case ERR_INVALID_TOKEN:
 			output << "ERR_INVALID_TOKEN";
 			break;
+		case ERR_PARSE:
+			output << "ERR_PARSE";
 		}
 		return output;
 	}

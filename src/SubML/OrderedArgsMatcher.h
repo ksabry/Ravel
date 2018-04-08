@@ -14,7 +14,7 @@ namespace Ravel::SubML
 	class OrderedArgsMatcher : public ArgsMatcher
 	{
 	public:
-		OrderedArgsMatcher(bool ordered, QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
+		OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
 		~OrderedArgsMatcher();
 
 	protected:
@@ -22,7 +22,6 @@ namespace Ravel::SubML
 		virtual void ** NextInternal() override;
 
 	private:
-		bool ordered;
 		QuantifiedExpressionMatcher ** matchers;
 		uint32_t matcher_count;
 

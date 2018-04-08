@@ -4,8 +4,8 @@
 
 namespace Ravel::SubML
 {
-	OrderedArgsMatcher::OrderedArgsMatcher(bool ordered, QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
-		: ordered(ordered), matchers(matchers), matcher_count(matcher_count), 
+	OrderedArgsMatcher::OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
+		: matchers(matchers), matcher_count(matcher_count), 
 			stack_idx(0), matchers_idx_stack(nullptr), exprs_bounds_stack(nullptr), exprs_stack(nullptr), bounds_stack(nullptr), captures_stack(nullptr)
 	{
 	}
