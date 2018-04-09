@@ -12,11 +12,11 @@ namespace Ravel::SubML
 		delete[] opers;
 	}
 
-	void BeginInternal()
+	void OperatorValueMatcher::BeginInternal()
 	{
 	}
 
-	uint64_t * NextInternal()
+	uint64_t * OperatorValueMatcher::NextInternal()
 	{
 		return nullptr;
 	}

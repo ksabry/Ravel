@@ -17,7 +17,7 @@ OBJ_DIR := ./obj
 OUT_DIR := ./bin
 endif
 
-OUT_EXE := $(OUT_DIR)/main.exe
+OUT_EXE := $(OUT_DIR)/main
 
 SRC_SUBDIRS := $(wildcard $(SRC_DIR)/**)
 SRC_FILES := $(wildcard $(SRC_DIR)/**/*.cpp)

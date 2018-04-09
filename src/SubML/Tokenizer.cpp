@@ -16,7 +16,7 @@ namespace Ravel::SubML
 		}
 	}
 
-	Error * Tokenizer::Tokenize(std::istream * input, std::vector<Token> * output)
+	Error * Tokenizer::Tokenize(std::istream * input, std::vector<Token *> * output)
 	{
 		this->input = input;
 		line = column = 1;
@@ -36,7 +36,7 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Tokenizer::Tokenize(char const * const input_filename, std::vector<Token> * output)
+	Error * Tokenizer::Tokenize(char const * const input_filename, std::vector<Token *> * output)
 	{
 		infile = new std::ifstream;
 		infile->open(input_filename);
@@ -111,7 +111,7 @@ namespace Ravel::SubML
 		return static_cast<char>(result);
 	}
 
-	bool Tokenizer::TryTokenizeComment(std::vector<Token> *)
+	bool Tokenizer::TryTokenizeComment(std::vector<Token *> *)
 	{
 		if (Peek() != '#') return false;
 
@@ -124,7 +124,7 @@ namespace Ravel::SubML
 		return true;
 	}
 
-	bool Tokenizer::TryTokenizeIdentifier(std::vector<Token> * output)
+	bool Tokenizer::TryTokenizeIdentifier(std::vector<Token *> * output)
 	{
 		if (!PeekIsAlpha()) return false;
 
@@ -134,15 +134,15 @@ namespace Ravel::SubML
 		std::stringstream identifier;
 		while (PeekIsAlpha() || PeekIsNumeric())
 		{
-			identifier << Peek();
+			identifier << static_cast<char>(Peek());
 			Next();
 		}
 
-		output->push_back(IdentifierToken(identifier.str().c_str(), start_line, start_column));
+		output->push_back(new IdentifierToken(identifier.str().c_str(), start_line, start_column));
 		return true;
 	}
 
-	bool Tokenizer::TryTokenizeInteger(std::vector<Token> * output)
+	bool Tokenizer::TryTokenizeInteger(std::vector<Token *> * output)
 	{
 		if (!PeekIsNumeric()) return false;
 
@@ -175,11 +175,11 @@ namespace Ravel::SubML
 			value = value * base + digit;
 		}
 
-		output->push_back(IntegerToken(value, start_line, start_column));
+		output->push_back(new IntegerToken(value, start_line, start_column));
 		return true;
 	}
 
-	bool Tokenizer::TryTokenizeString(std::vector<Token> * output)
+	bool Tokenizer::TryTokenizeString(std::vector<Token *> * output)
 	{
 		if (Peek() != '\'' && Peek() != '"') return false;
 
@@ -200,16 +200,16 @@ namespace Ravel::SubML
 			string << static_cast<char>(chr);
 		}
 
-		output->push_back(StringToken(string.str().c_str(), start_line, start_column));
+		output->push_back(new StringToken(string.str().c_str(), start_line, start_column));
 		return true;
 	}
 
-	bool Tokenizer::TryTokenizeOperator(std::vector<Token> * output)
+	bool Tokenizer::TryTokenizeOperator(std::vector<Token *> * output)
 	{
 		static char const * op_strings[] = { "=>", "->", "<-", "$$", "(", ")", "{", "}", "[", "]", "<", ">", "@", "*", "+", "!", ",", "?", ":", "-", "=", ";", "/", "$", "~", "|" };
 		static TokenOperator op_values[] = { TokenOperator::DOUBLE_RIGHT_ARROW, TokenOperator::RIGHT_ARROW, TokenOperator::LEFT_ARROW, TokenOperator::DOUBLE_DOLLAR, TokenOperator::LEFT_PAREN, TokenOperator::RIGHT_PAREN, TokenOperator::LEFT_CURLY, TokenOperator::RIGHT_CURLY,
-												TokenOperator::LEFT_SQUARE, TokenOperator::RIGHT_SQUARE, TokenOperator::LEFT_ANGLE, TokenOperator::RIGHT_ANGLE, TokenOperator::AMPERSAT, TokenOperator::STAR, TokenOperator::PLUS, TokenOperator::BANG, TokenOperator::COMMA, TokenOperator::QUESTION_MARK,
-												TokenOperator::COLON, TokenOperator::MINUS, TokenOperator::EQUALS, TokenOperator::SEMICOLON, TokenOperator::FORWARD_SLASH, TokenOperator::DOLLAR, TokenOperator::TILDE, TokenOperator::BAR };
+											TokenOperator::LEFT_SQUARE, TokenOperator::RIGHT_SQUARE, TokenOperator::LEFT_ANGLE, TokenOperator::RIGHT_ANGLE, TokenOperator::AMPERSAT, TokenOperator::STAR, TokenOperator::PLUS, TokenOperator::BANG, TokenOperator::COMMA, 
+											TokenOperator::QUESTION_MARK, TokenOperator::COLON, TokenOperator::MINUS, TokenOperator::EQUALS, TokenOperator::SEMICOLON, TokenOperator::FORWARD_SLASH, TokenOperator::DOLLAR, TokenOperator::TILDE, TokenOperator::BAR };
 		static uint32_t op_count = sizeof(op_values) / sizeof(TokenOperator);
 
 		auto start_pos = input->tellg();
@@ -247,7 +247,7 @@ namespace Ravel::SubML
 		}
 
 		if (result == TokenOperator::NONE) return false;
-		output->push_back(OperatorToken(result, start_line, start_column));
+		output->push_back(new OperatorToken(result, start_line, start_column));
 		return true;
 	}
 }

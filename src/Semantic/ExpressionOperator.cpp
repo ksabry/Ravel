@@ -8,7 +8,7 @@ namespace Ravel
 	{
 		ExpressionOperator OperatorFromString(char const * const string)
 		{
-			static std::unordered_map<std::string, ExpressionOperator> cache;
+			static std::unordered_map<std::string, ExpressionOperator> cache = { { "unknown", ExpressionOperator_UNKOWN }, { "imm", ExpressionOperator_IMM } };
 			std::string str = std::string(string);
 
 			auto result = cache.find(str);

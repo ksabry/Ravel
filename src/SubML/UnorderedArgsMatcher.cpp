@@ -14,4 +14,13 @@ namespace Ravel::SubML
 		}
 		delete[] matchers;
 	}
+
+	void UnorderedArgsMatcher::BeginInternal()
+	{
+	}
+
+	uint64_t * UnorderedArgsMatcher::NextInternal()
+	{
+		return nullptr;
+	}
 }

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 
 namespace Ravel::SubML
 {
@@ -118,4 +119,8 @@ namespace Ravel::SubML
 	{
 		return token.type == TokenType::OPERATOR && static_cast<const OperatorToken &>(token).oper == oper;
 	}
+
+	std::ostream & operator<<(std::ostream & os, TokenType const & token_type);
+	std::ostream & operator<<(std::ostream & os, TokenOperator const & oper);
+	std::ostream & operator<<(std::ostream & os, Token const & token);
 }

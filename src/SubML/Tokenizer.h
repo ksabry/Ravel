@@ -14,8 +14,8 @@ namespace Ravel::SubML
 		Tokenizer();
 		~Tokenizer();
 
-		Error * Tokenize(std::istream * input, std::vector<Token> * output);
-		Error * Tokenize(char const * const input_filename, std::vector<Token> * output);
+		Error * Tokenize(std::istream * input, std::vector<Token *> * output);
+		Error * Tokenize(char const * const input_filename, std::vector<Token *> * output);
 
 	private:
 		static char const * const whitespace_chars;
@@ -67,11 +67,11 @@ namespace Ravel::SubML
 		bool ConsumeWhitespace();
 		char ConsumeEscapeChar();
 
-		bool TryTokenizeComment(std::vector<Token> * output);
-		bool TryTokenizeIdentifier(std::vector<Token> * output);
-		bool TryTokenizeInteger(std::vector<Token> * output);
-		bool TryTokenizeString(std::vector<Token> * output);
-		bool TryTokenizeOperator(std::vector<Token> * output);
-		bool TryTokenizeEval(std::vector<Token> * output);
+		bool TryTokenizeComment(std::vector<Token *> * output);
+		bool TryTokenizeIdentifier(std::vector<Token *> * output);
+		bool TryTokenizeInteger(std::vector<Token *> * output);
+		bool TryTokenizeString(std::vector<Token *> * output);
+		bool TryTokenizeOperator(std::vector<Token *> * output);
+		bool TryTokenizeEval(std::vector<Token *> * output);
 	};
 }

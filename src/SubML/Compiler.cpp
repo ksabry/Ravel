@@ -13,6 +13,7 @@
 #include "CapturePopulator.h"
 #include "OperatorValuePopulator.h"
 #include "ArgsPopulator.h"
+#include "ImmediatePopulator.h"
 
 //TODO: ensure things are cleaned up even when errors are thrown
 
@@ -26,13 +27,14 @@ namespace Ravel::SubML
 	Compiler::~Compiler()
 	{
 		delete tokenizer;
+		for (Token * tok : tokens) delete tok; 
 		if (line_info) delete[] line_info;
 	}
 
 	char * Compiler::LineInfo()
 	{
 		if (line_info) delete[] line_info;
-		line_info = Formatted("%d : %d", tokens[token_idx].line, tokens[token_idx].column);
+		line_info = Formatted("%d : %d", Tok().line, Tok().column);
 		return line_info;
 	}
 
@@ -83,7 +85,7 @@ namespace Ravel::SubML
 		{
 			return new Error(ERR_PARSE, "Left side of substitution must not be quantified at %s in file %s", LineInfo(), input_filename);
 		}
-		if (!IsOperatorToken(tokens[token_idx], TokenOperator::DOUBLE_RIGHT_ARROW))
+		if (!IsOperatorToken(Tok(), TokenOperator::DOUBLE_RIGHT_ARROW))
 		{
 			return new Error(ERR_PARSE, "Expected substitute token `=>` at %s in file %s", LineInfo(), input_filename);
 		}
@@ -103,7 +105,7 @@ namespace Ravel::SubML
 		Error * err = ParseExpressionMatcher(expression_matcher);
 		if (err) return err;
 		
-		Quantifier quantifier;
+		Quantifier quantifier {1, 1};
 		err = TryParseQuantifier(quantifier);
 		if (err) return err;
 
@@ -151,7 +153,7 @@ namespace Ravel::SubML
 
 		OperatorMatcher * result = new OperatorMatcher(value_matcher, capture_matcher);
 	
-		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::COLON))
+		if (token_idx >= tokens.size() || !IsOperatorToken(Tok(), TokenOperator::COLON))
 		{
 			delete result;
 			token_idx = old_idx;
@@ -173,20 +175,20 @@ namespace Ravel::SubML
 		uint32_t old_idx = token_idx;
 
 		bool neg = false;
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::BANG))
+		if (IsOperatorToken(Tok(), TokenOperator::BANG))
 		{
 			neg = true;
 			token_idx++;
 		}
 		
-		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_SQUARE))
+		if (token_idx >= tokens.size() || !IsOperatorToken(Tok(), TokenOperator::LEFT_SQUARE))
 		{
 			token_idx = old_idx;
 			return nullptr;
 		}
 		token_idx++;
 
-		if (token_idx < tokens.size() && IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_SQUARE))
+		if (token_idx < tokens.size() && IsOperatorToken(Tok(), TokenOperator::RIGHT_SQUARE))
 		{
 			token_idx++;
 			output = new OperatorValueMatcher(nullptr, 0, neg);
@@ -200,12 +202,12 @@ namespace Ravel::SubML
 			{
 				return new Error(ERR_PARSE, "Unexpected EOF while parsing operator alternation in file %s", input_filename);
 			}
-			else if (tokens[token_idx].type != TokenType::IDENTIFIER)
+			else if (Tok().type != TokenType::IDENTIFIER)
 			{
 				return new Error(ERR_PARSE, "Invalid operator in alternation at %s in file %s", LineInfo(), input_filename);
 			}
 
-			IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+			IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
 			opers.push_back(OperatorFromString(iden_tok.string));
 			token_idx++;
 			
@@ -214,12 +216,12 @@ namespace Ravel::SubML
 				return new Error(ERR_PARSE, "Unexpected EOF while parsing operator alternation in file %s", input_filename);
 			}
 			
-			if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_SQUARE))
+			if (IsOperatorToken(Tok(), TokenOperator::RIGHT_SQUARE))
 			{
 				token_idx++;
 				break;
 			}
-			if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			if (!IsOperatorToken(Tok(), TokenOperator::COMMA))
 			{
 				return new Error(ERR_PARSE, "Expected comma or right square bracket at %s in file %s", LineInfo(), input_filename);
 			}
@@ -243,22 +245,23 @@ namespace Ravel::SubML
 		uint32_t old_idx = token_idx;
 		
 		bool neg = false;
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::BANG))
+		if (IsOperatorToken(Tok(), TokenOperator::BANG))
 		{
 			neg = true;
 			token_idx++;
 		}
 
-		if (token_idx >= tokens.size() || tokens[token_idx].type != TokenType::IDENTIFIER)
+		if (token_idx >= tokens.size() || Tok().type != TokenType::IDENTIFIER)
 		{
 			token_idx = old_idx;
 			return nullptr;
 		}
 
 		ExpressionOperator * arr = new ExpressionOperator[1];
-		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
 		arr[0] = OperatorFromString(iden_tok.string);
 		output = new OperatorValueMatcher(arr, 1, neg);
+		token_idx++;
 		return nullptr;
 	}
 
@@ -271,12 +274,12 @@ namespace Ravel::SubML
 
 		bool ordered;
 		TokenOperator delim;
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_PAREN))
+		if (IsOperatorToken(Tok(), TokenOperator::LEFT_PAREN))
 		{
 			ordered = true;
 			delim = TokenOperator::RIGHT_PAREN;
 		}
-		else if (IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_CURLY))
+		else if (IsOperatorToken(Tok(), TokenOperator::LEFT_CURLY))
 		{
 			ordered = false;
 			delim = TokenOperator::RIGHT_CURLY;
@@ -292,7 +295,7 @@ namespace Ravel::SubML
 			return new Error(ERR_PARSE, "Unexpected EOF while parsing expression arguments at %s in file %s", LineInfo(), input_filename);
 		}
 
-		if (IsOperatorToken(tokens[token_idx], delim))
+		if (IsOperatorToken(Tok(), delim))
 		{
 			token_idx++;
 			output = new OrderedArgsMatcher(nullptr, 0);
@@ -300,20 +303,20 @@ namespace Ravel::SubML
 		}
 
 		// TODO: floats? signed?
-		if (tokens[token_idx].type == TokenType::INTEGER)
+		if (Tok().type == TokenType::INTEGER)
 		{
+			IntegerToken & int_tok = static_cast<IntegerToken &>(Tok());
+			
 			token_idx++;
 			if (token_idx >= tokens.size())
 			{
 				return new Error(ERR_PARSE, "Unexpected EOF while parsing expression arguments at %s in file %s", LineInfo(), input_filename);
 			}
-			if (!IsOperatorToken(tokens[token_idx], delim))
+			if (!IsOperatorToken(Tok(), delim))
 			{
 				return new Error(ERR_PARSE, "May not have immediate values among multiple expression arguments at %s in file %s", LineInfo(), input_filename);
 			}
-			
 			token_idx++;
-			IntegerToken & int_tok = static_cast<IntegerToken &>(tokens[token_idx]);
 			output = new ImmediateMatcher(DataType::UINT32, int_tok.value);
 			return nullptr;
 		}
@@ -331,13 +334,13 @@ namespace Ravel::SubML
 				return new Error(ERR_PARSE, "Unexpected EOF while parsing expression arguments at %s in file %s", LineInfo(), input_filename);
 			}
 			
-			if (IsOperatorToken(tokens[token_idx], delim))
+			if (IsOperatorToken(Tok(), delim))
 			{
 				token_idx++;
 				break;
 			}
 
-			if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			if (!IsOperatorToken(Tok(), TokenOperator::COMMA))
 			{
 				return new Error(ERR_PARSE, "Expected comma or %s at %s in file %s", ordered ? "right paren" : "right curly", LineInfo(), input_filename);
 			}
@@ -359,28 +362,25 @@ namespace Ravel::SubML
 			return nullptr;
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::STAR))
+		if (IsOperatorToken(Tok(), TokenOperator::STAR))
 		{
 			token_idx++;
 			output = Quantifier{0, Quantifier::infinity};
-			return nullptr;
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::PLUS))
+		else if (IsOperatorToken(Tok(), TokenOperator::PLUS))
 		{
 			token_idx++;
 			output = Quantifier{1, Quantifier::infinity};
-			return nullptr;
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::QUESTION_MARK))
+		else if (IsOperatorToken(Tok(), TokenOperator::QUESTION_MARK))
 		{
 			token_idx++;
 			output = Quantifier{0, 1};
-			return nullptr;
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_ANGLE))
+		else if (IsOperatorToken(Tok(), TokenOperator::LEFT_ANGLE))
 		{
 			token_idx++;
 			if (token_idx >= tokens.size())
@@ -389,28 +389,28 @@ namespace Ravel::SubML
 			}
 
 			int32_t low = -1, high = -1;
-			if (IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			if (IsOperatorToken(Tok(), TokenOperator::COMMA))
 			{
 				low = 0;
 				token_idx++;
 			}
-			else if (tokens[token_idx].type == TokenType::INTEGER)
+			else if (Tok().type == TokenType::INTEGER)
 			{
-				low = static_cast<IntegerToken &>(tokens[token_idx]).value;
+				low = static_cast<IntegerToken &>(Tok()).value;
 				token_idx++;
 				if (token_idx >= tokens.size())
 				{
 					return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
 				}
 				
-				if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+				if (IsOperatorToken(Tok(), TokenOperator::RIGHT_ANGLE))
 				{
 					high = low;
 					token_idx++;
 				}
 				else
 				{
-					if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+					if (!IsOperatorToken(Tok(), TokenOperator::COMMA))
 					{
 						return new Error(ERR_PARSE, "Expected comma or right angle bracket at %s in file %s", LineInfo(), input_filename);
 					}
@@ -429,20 +429,20 @@ namespace Ravel::SubML
 					return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
 				}
 
-				if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+				if (IsOperatorToken(Tok(), TokenOperator::RIGHT_ANGLE))
 				{
 					high = Quantifier::infinity;
 					token_idx++;
 				}
-				else if (tokens[token_idx].type == TokenType::INTEGER)
+				else if (Tok().type == TokenType::INTEGER)
 				{
-					high = static_cast<IntegerToken &>(tokens[token_idx]).value;
+					high = static_cast<IntegerToken &>(Tok()).value;
 					token_idx++;
 					if (token_idx >= tokens.size())
 					{
 						return new Error(ERR_PARSE, "Unexpected EOF while parsing quantifier at %s in file %s", LineInfo(), input_filename);
 					}
-					if (!IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_ANGLE))
+					if (!IsOperatorToken(Tok(), TokenOperator::RIGHT_ANGLE))
 					{
 						return new Error(ERR_PARSE, "Expected right angle bracket at %s in file %s", LineInfo(), input_filename);
 					}
@@ -455,8 +455,9 @@ namespace Ravel::SubML
 			}
 
 			output = Quantifier{static_cast<uint32_t>(low), static_cast<uint32_t>(high)};
-			return nullptr;
 		}
+
+		return nullptr;
 	}
 
 	Error * Compiler::ParseMultiExpressionPopulator(Populator<Expression ** &, uint32_t &> * & output)
@@ -466,7 +467,7 @@ namespace Ravel::SubML
 			return new Error(ERR_PARSE, "Unexpected EOF while expecting populator at %s in file %s", LineInfo(), input_filename);
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::TILDE))
+		if (IsOperatorToken(Tok(), TokenOperator::TILDE))
 		{
 			token_idx++;
 			output = new MultiExpressionPopulator(nullptr, 0);
@@ -480,7 +481,7 @@ namespace Ravel::SubML
 		if (err) return err;
 		populators.push_back(expr_populator);
 
-		while (token_idx < tokens.size() && IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+		while (token_idx < tokens.size() && IsOperatorToken(Tok(), TokenOperator::COMMA))
 		{
 			token_idx++;
 			err = ParseExpressionPopulator(expr_populator);
@@ -520,6 +521,7 @@ namespace Ravel::SubML
 		}
 
 		output = new ExpressionPopulator(oper_populator, args_populator);
+		return nullptr;
 	}
 
 	Error * Compiler::TryParseOperatorPopulator(Populator<ExpressionOperator &> * & output)
@@ -542,7 +544,7 @@ namespace Ravel::SubML
 			}
 		}
 
-		if (!value_populator || token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::COLON))
+		if (!value_populator || token_idx >= tokens.size() || !IsOperatorToken(Tok(), TokenOperator::COLON))
 		{
 			if (value_populator) delete value_populator;
 			token_idx = old_idx;
@@ -556,20 +558,21 @@ namespace Ravel::SubML
 
 	Error * Compiler::TryParseOperationPopulatorSingle(Populator<ExpressionOperator &> * & output)
 	{
-		if (token_idx >= tokens.size() || tokens[token_idx].type != TokenType::IDENTIFIER)
+		if (token_idx >= tokens.size() || Tok().type != TokenType::IDENTIFIER)
 		{
 			return nullptr;
 		}
 
-		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
 		ExpressionOperator oper = OperatorFromString(iden_tok.string);
 		output = new OperatorValuePopulator(oper);
+		token_idx++;
 		return nullptr;
 	}
 
 	Error * Compiler::TryParseArgsPopulator(Populator<Expression * &> * & output)
 	{
-		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::LEFT_PAREN))
+		if (token_idx >= tokens.size() || !IsOperatorToken(Tok(), TokenOperator::LEFT_PAREN))
 		{
 			return nullptr;
 		}
@@ -580,10 +583,28 @@ namespace Ravel::SubML
 			return new Error(ERR_PARSE, "Unexpected EOF while parsing populator arguments at %s in file %s", LineInfo(), input_filename);
 		}
 
-		if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_PAREN))
+		if (IsOperatorToken(Tok(), TokenOperator::RIGHT_PAREN))
 		{
 			token_idx++;
 			output = new ArgsPopulator(nullptr, 0);
+			return nullptr;
+		}
+
+		if (Tok().type == TokenType::INTEGER)
+		{
+			IntegerToken & int_tok = static_cast<IntegerToken &>(Tok());
+			
+			token_idx++;
+			if (token_idx >= tokens.size())
+			{
+				return new Error(ERR_PARSE, "Unexpected EOF while parsing expression arguments at %s in file %s", LineInfo(), input_filename);
+			}
+			if (!IsOperatorToken(Tok(), TokenOperator::RIGHT_PAREN))
+			{
+				return new Error(ERR_PARSE, "May not have immediate values among multiple expression arguments at %s in file %s", LineInfo(), input_filename);
+			}
+			token_idx++;
+			output = new ImmediatePopulator(DataType::UINT32, int_tok.value);
 			return nullptr;
 		}
 
@@ -600,13 +621,13 @@ namespace Ravel::SubML
 				return new Error(ERR_PARSE, "Unexpected EOF while parsing populator arguments at %s in file %s", LineInfo(), input_filename);
 			}
 			
-			if (IsOperatorToken(tokens[token_idx], TokenOperator::RIGHT_PAREN))
+			if (IsOperatorToken(Tok(), TokenOperator::RIGHT_PAREN))
 			{
 				token_idx++;
 				break;
 			}
 
-			if (!IsOperatorToken(tokens[token_idx], TokenOperator::COMMA))
+			if (!IsOperatorToken(Tok(), TokenOperator::COMMA))
 			{
 				return new Error(ERR_PARSE, "Expected comma or right paren at %s in file %s", LineInfo(), input_filename);
 			}
@@ -623,7 +644,7 @@ namespace Ravel::SubML
 	
 	Error * Compiler::TryParseCapture(uint32_t & output)
 	{
-		if (token_idx >= tokens.size() || !IsOperatorToken(tokens[token_idx], TokenOperator::AMPERSAT))
+		if (token_idx >= tokens.size() || !IsOperatorToken(Tok(), TokenOperator::AMPERSAT))
 		{
 			return nullptr;
 		}
@@ -633,13 +654,14 @@ namespace Ravel::SubML
 		{
 			return new Error(ERR_PARSE, "Unexpected EOF after capture token at %s in file %s", LineInfo(), input_filename);
 		}
-		if (tokens[token_idx].type != TokenType::IDENTIFIER)
+		if (Tok().type != TokenType::IDENTIFIER)
 		{
 			return new Error(ERR_PARSE, "Expected identifier after captuer token at %s in file %s", LineInfo(), input_filename);
 		}
 
-		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(tokens[token_idx]);
+		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
 		output = OperatorFromString(iden_tok.string);
+		token_idx++;
 		return nullptr;
 	}
 }

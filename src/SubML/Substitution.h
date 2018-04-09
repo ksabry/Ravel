@@ -13,7 +13,7 @@ namespace Ravel::SubML
 	public:
 		Substitution(QuantifiedExpressionMatcher * matcher, Populator<Expression ** &, uint32_t &> * populator);
 		~Substitution();
-
+		
 	private:
 		QuantifiedExpressionMatcher * matcher;
 		Populator<Expression ** &, uint32_t &> * populator;

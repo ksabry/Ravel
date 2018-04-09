@@ -2,15 +2,17 @@
 
 #include "Tokenizer.h"
 #include "Assert.h"
+#include "Compiler.h"
+#include "Program.h"
 
 using namespace Ravel;
 
 int main(int argc, const char * argv[])
 {
-	SubML::Tokenizer * tokenizer = new SubML::Tokenizer();
+	SubML::Compiler compiler;
+	SubML::Program program;
 
-	std::vector<SubML::Token> output;
-	auto err = tokenizer->Tokenize("bin/test.subml", &output);
+	auto err = compiler.Compile("bin/test.subml", &program);
 	if (err)
 	{
 		std::cout << *err << std::endl;
@@ -18,7 +20,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 	{
-		std::cout << "Successful" << std::endl;
+		std::cout << std::endl;
 	}
 
 	return 0;

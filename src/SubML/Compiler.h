@@ -26,12 +26,16 @@ namespace Ravel::SubML
 		char const * input_filename;
 		char * line_info;
 
-		Tokenizer* tokenizer;
-		std::vector<Token> tokens;
+		Tokenizer * tokenizer;
+		std::vector<Token *> tokens;
 		uint32_t token_idx;
 		Program * program;
 
 		char * LineInfo();
+		inline Token & Tok()
+		{
+			return *tokens[token_idx];
+		}
 
 		Error * CompileTokens(uint32_t token_idx = 0);
 
