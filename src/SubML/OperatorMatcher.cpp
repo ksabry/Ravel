@@ -26,9 +26,11 @@ namespace Ravel::SubML
 		output << "OperatorMatcher {\n";
 
 		std::stringstream inner;
-		value_matcher->PPrint(inner);
+		if (value_matcher) value_matcher->PPrint(inner);
+		else inner << "NULL";
 		inner << ",\n";
-		capture_matcher->PPrint(inner);
+		if (capture_matcher) capture_matcher->PPrint(inner);
+		else inner << "NULL";
 		output << Indent() << inner.str();
 
 		output << "\n}";

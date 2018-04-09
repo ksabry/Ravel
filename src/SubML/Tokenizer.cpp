@@ -10,9 +10,10 @@ namespace Ravel::SubML
 	}
 	Tokenizer::~Tokenizer()
 	{
-		if (infile && infile->is_open())
+		if (infile)
 		{
-			infile->close();
+			if (infile->is_open()) infile->close();
+			delete infile;
 		}
 	}
 
@@ -38,6 +39,8 @@ namespace Ravel::SubML
 
 	Error * Tokenizer::Tokenize(char const * const input_filename, std::vector<Token *> * output)
 	{
+		if (infile) delete infile;
+
 		infile = new std::ifstream;
 		infile->open(input_filename);
 
@@ -48,7 +51,6 @@ namespace Ravel::SubML
 
 		Error * result = Tokenize(infile, output);
 		infile->close();
-		delete infile;
 
 		return result;
 	}

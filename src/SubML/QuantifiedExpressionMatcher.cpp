@@ -26,10 +26,15 @@ namespace Ravel::SubML
 		output << "QuantifiedExpressionMatcher {\n";
 
 		std::stringstream inner;
-		expression->PPrint(inner);
+		if (expression) expression->PPrint(inner);
+		else inner << "NULL";
 		inner << ",\n";
 		quantifier.PPrint(inner);
 		inner << ",\n";
-		capture->PPrint(inner);
+		if (capture) capture->PPrint(inner);
+		else inner << "NULL";
+		output << Indent() << inner.str();
+		
+		output << "\n}";
 	}
 }

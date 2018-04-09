@@ -109,10 +109,12 @@ namespace Ravel::SubML
 		err = TryParseQuantifier(quantifier);
 		if (err) return err;
 
-		uint32_t capture_idx;
+		uint32_t capture_idx = 0;
 		err = TryParseCapture(capture_idx);
 		if (err) return err;
-		CaptureMatcher<Expression *> * capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
+
+		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		if (capture_idx) capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
 		
 		output = new QuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 		return nullptr;
@@ -146,10 +148,12 @@ namespace Ravel::SubML
 			if (err) return err;
 		}
 
-		uint32_t capture_idx;
+		uint32_t capture_idx = 0;
 		err = TryParseCapture(capture_idx);
 		if (err) return err;
-		CaptureMatcher<ExpressionOperator> * capture_matcher = new CaptureMatcher<ExpressionOperator>(capture_idx);
+
+		CaptureMatcher<ExpressionOperator> * capture_matcher = nullptr;
+		if (capture_idx) capture_matcher = new CaptureMatcher<ExpressionOperator>(capture_idx);
 
 		OperatorMatcher * result = new OperatorMatcher(value_matcher, capture_matcher);
 	

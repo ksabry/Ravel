@@ -45,9 +45,11 @@ namespace Ravel::SubML
 		output << "ExpressionMatcher {\n";
 		
 		std::stringstream inner;
-		oper_matcher->PPrint(inner);
+		if (oper_matcher) oper_matcher->PPrint(inner);
+		else inner << "NULL";
 		inner << ",\n";
-		group_matcher->PPrint(inner);
+		if (group_matcher) group_matcher->PPrint(inner);
+		else inner << "NULL";
 		output << Indent() << inner.str();
 
 		output << "\n}";
