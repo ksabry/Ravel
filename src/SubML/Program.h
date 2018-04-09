@@ -1,6 +1,8 @@
 #pragma once
 
+#include <ostream>
 #include <vector>
+
 #include "Substitution.h"
 
 namespace Ravel::SubML
@@ -12,7 +14,7 @@ namespace Ravel::SubML
 		~Program();
 
 		std::vector<Substitution *> substitutions;
-		std::vector<char *> capture_names;
-		uint32_t capture_count;
+
+		void PPrint(std::ostream & output);
 	};
 }

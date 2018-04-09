@@ -23,4 +23,20 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void UnorderedArgsMatcher::PPrint(std::ostream & output)
+	{
+		output << "UnorderedArgsMatcher {\n";
+		
+		std::stringstream inner;
+		if (matcher_count > 0) matchers[0]->PPrint(inner);
+		for (uint32_t i = 1; i < matcher_count; i++)
+		{
+			inner << ",\n";
+			matchers[i]->PPrint(inner);
+		}
+		output << Indent() << inner.str();
+
+		output << "\n}";
+	}
 }

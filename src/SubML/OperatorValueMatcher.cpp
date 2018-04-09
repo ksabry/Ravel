@@ -20,4 +20,19 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void OperatorValueMatcher::PPrint(std::ostream & output)
+	{
+		output << "OperatorValueMatcher(";
+
+		if (neg) output << "! ";
+
+		if (oper_count > 0) output << StringFromOperator(opers[0]);
+		for (uint32_t i = 1; i < oper_count; i++)
+		{
+			output << ", " << StringFromOperator(opers[i]);
+		}
+
+		output << ")";
+	}
 }

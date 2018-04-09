@@ -11,6 +11,8 @@ namespace Ravel::SubML
 		QuantifiedExpressionMatcher(Matcher<Expression *> * expression, Quantifier quantifier, CaptureMatcher<Expression *> * capture);
 		~QuantifiedExpressionMatcher();
 
+		virtual void PPrint(std::ostream & output) override;
+
 		inline virtual Quantifier GetQuantifier()
 		{
 			return quantifier;

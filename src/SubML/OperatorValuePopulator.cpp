@@ -15,4 +15,9 @@ namespace Ravel::SubML
 		output = oper;
 		return nullptr;
 	}
+
+	void OperatorValuePopulator::PPrint(std::ostream & output)
+	{
+		output << "OperationValuePopulator(" << StringFromOperator(oper) << ")";
+	}
 }

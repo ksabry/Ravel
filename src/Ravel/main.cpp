@@ -20,6 +20,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 	{
+		program.PPrint(std::cout);
 		std::cout << std::endl;
 	}
 

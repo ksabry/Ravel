@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <unordered_map>
 
 namespace Ravel
 {
@@ -12,5 +13,6 @@ namespace Ravel
 		static ExpressionOperator ExpressionOperator_IMM = 1;
 
 		ExpressionOperator OperatorFromString(char const * const string);
+		char const * StringFromOperator(ExpressionOperator oper); 
 	}
 }

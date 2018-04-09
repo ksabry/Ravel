@@ -65,5 +65,6 @@ namespace Ravel
 		static IndentProxy & Create(uint32_t size);
 	};
 
-	IndentProxy & Indent(uint32_t);
+	static const uint32_t DEFAULT_INDENT = 4;
+	IndentProxy & Indent(uint32_t size = DEFAULT_INDENT);
 }

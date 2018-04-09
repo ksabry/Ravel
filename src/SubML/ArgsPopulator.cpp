@@ -19,4 +19,19 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void ArgsPopulator::PPrint(std::ostream & output)
+	{
+		output << "ArgsPopulator {\n";
+		
+		std::stringstream inner;
+		for (uint32_t i = 0; i < populator_count; i++)
+		{
+			populators[i]->PPrint(inner);
+			inner << ",\n";
+		}
+
+		output << Indent() << inner.str();
+		output << "\n}";
+	}
 }

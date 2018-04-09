@@ -231,4 +231,20 @@ namespace Ravel::SubML
 			*low = *high = matchers[idx]->MatchLength();
 		}
 	}
+
+	void OrderedArgsMatcher::PPrint(std::ostream & output)
+	{
+		output << "OrderedArgsmatcher {\n";
+
+		std::stringstream inner;
+		if (matcher_count > 0) matchers[0]->PPrint(inner);
+		for (uint32_t i = 1; i < matcher_count; i++)
+		{
+			inner << ",\n";
+			matchers[i]->PPrint(inner);
+		}
+		output << Indent() << inner.str();
+
+		output << "\n}";
+	}
 }

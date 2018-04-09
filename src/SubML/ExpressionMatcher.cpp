@@ -1,4 +1,5 @@
 #include "ExpressionMatcher.h"
+#include "String.h"
 
 namespace Ravel::SubML
 {
@@ -37,5 +38,18 @@ namespace Ravel::SubML
 			group_captures = group_matcher->Next();
 		}
 		return group_captures;
+	}
+
+	void ExpressionMatcher::PPrint(std::ostream & output)
+	{
+		output << "ExpressionMatcher {\n";
+		
+		std::stringstream inner;
+		oper_matcher->PPrint(inner);
+		inner << ",\n";
+		group_matcher->PPrint(inner);
+		output << Indent() << inner.str();
+
+		output << "\n}";
 	}
 }

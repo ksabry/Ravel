@@ -25,4 +25,9 @@ namespace Ravel::SubML
 		}
 		return match_captures;
 	}
+
+	void ImmediateMatcher::PPrint(std::ostream & output)
+	{
+		output << "ImmediateMatcher(" << data << ")";
+	}
 }

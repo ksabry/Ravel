@@ -14,4 +14,9 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void ImmediatePopulator::PPrint(std::ostream & output)
+	{
+		output << "ImmediatePopulator(" << data << ")";
+	}
 }

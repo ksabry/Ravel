@@ -12,6 +12,8 @@ namespace Ravel::SubML
 		OperatorMatcher(Matcher<ExpressionOperator> * value_matcher, CaptureMatcher<ExpressionOperator> * capture_matcher);
 		~OperatorMatcher();
 
+		virtual void PPrint(std::ostream & output) override;
+
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;

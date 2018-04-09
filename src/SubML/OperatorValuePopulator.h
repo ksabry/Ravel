@@ -12,6 +12,8 @@ namespace Ravel::SubML
 
 		virtual Error * Populate(void ** captures, uint32_t capture_count, ExpressionOperator & output) override;
 
+		virtual void PPrint(std::ostream & output) override;
+
 	private:
 		ExpressionOperator oper;
 	};

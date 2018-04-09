@@ -22,6 +22,11 @@ namespace Ravel::SubML
 		{
 		}
 
+		virtual void PPrint(std::ostream & output) override
+		{
+			output << "CaptureMatcher<" << typeid(T).name() << ">(" << capture_idx << ")";
+		}
+
 	protected:
 		uint32_t capture_idx;
 		

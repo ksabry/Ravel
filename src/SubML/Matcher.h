@@ -1,7 +1,9 @@
 #pragma once
 
+#include <ostream>
 #include "TypePackElement.h"
 #include "BitCast.h"
+#include "String.h"
 
 namespace Ravel::SubML
 {
@@ -70,6 +72,11 @@ namespace Ravel::SubML
 		inline bool HasFinished()
 		{
 			return finished;
+		}
+
+		virtual void PPrint(std::ostream & output)
+		{
+			output << "Matcher<<" << this << ">>";
 		}
 
 	protected:

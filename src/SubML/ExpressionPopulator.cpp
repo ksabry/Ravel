@@ -16,4 +16,17 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void ExpressionPopulator::PPrint(std::ostream & output)
+	{
+		output << "ExpressionPopulator {\n";
+		
+		std::stringstream inner;
+		oper->PPrint(inner);
+		inner << ",\n";
+		args->PPrint(inner);
+		output << Indent() << inner.str();
+
+		output << "\n}";
+	}
 }

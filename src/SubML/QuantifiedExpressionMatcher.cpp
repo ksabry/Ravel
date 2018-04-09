@@ -20,4 +20,16 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void QuantifiedExpressionMatcher::PPrint(std::ostream & output)
+	{
+		output << "QuantifiedExpressionMatcher {\n";
+
+		std::stringstream inner;
+		expression->PPrint(inner);
+		inner << ",\n";
+		quantifier.PPrint(inner);
+		inner << ",\n";
+		capture->PPrint(inner);
+	}
 }

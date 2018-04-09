@@ -17,6 +17,8 @@ namespace Ravel::SubML
 		OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
 		~OrderedArgsMatcher();
 
+		virtual void PPrint(std::ostream & output) override;
+
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;

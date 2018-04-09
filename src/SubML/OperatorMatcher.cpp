@@ -20,4 +20,17 @@ namespace Ravel::SubML
 	{
 		return nullptr;
 	}
+
+	void OperatorMatcher::PPrint(std::ostream & output)
+	{
+		output << "OperatorMatcher {\n";
+
+		std::stringstream inner;
+		value_matcher->PPrint(inner);
+		inner << ",\n";
+		capture_matcher->PPrint(inner);
+		output << Indent() << inner.str();
+
+		output << "\n}";
+	}
 }

@@ -660,7 +660,8 @@ namespace Ravel::SubML
 		}
 
 		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
-		output = OperatorFromString(iden_tok.string);
+		// TODO: Actually implement this
+		output = 1;
 		token_idx++;
 		return nullptr;
 	}
