@@ -30,6 +30,7 @@ namespace Ravel::SubML
 		std::vector<Token *> tokens;
 		uint32_t token_idx;
 		Program * program;
+		Substitution * substitution;
 
 		char * LineInfo();
 		inline Token & Tok()

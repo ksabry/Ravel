@@ -9,7 +9,7 @@ void ArrCpy(T * dest, T (&src)[COUNT])
 }
 
 template<typename T>
-void ArrCpy(T * dest, T * src, uint32_t count)
+void ArrCpy(T * dest, T const * src, uint32_t count)
 {
 	memcpy(dest, src, count * sizeof(T));
 }

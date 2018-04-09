@@ -75,7 +75,7 @@ namespace Ravel::SubML
 
 	Error * Compiler::ParseSubstitution(Substitution * & output)
 	{
-		uint32_t old_idx;
+		substitution = output = new Substitution();
 
 		QuantifiedExpressionMatcher * matcher;
 		Error * err = ParseQuantifiedExpressionMatcher(matcher);
@@ -95,7 +95,8 @@ namespace Ravel::SubML
 		err = ParseMultiExpressionPopulator(populator);
 		if (err) return err;
 
-		output = new Substitution(matcher, populator);
+		output->SetMatcher(matcher);
+		output->SetPopulator(populator);
 		return nullptr;
 	}
 
@@ -664,8 +665,7 @@ namespace Ravel::SubML
 		}
 
 		IdentifierToken & iden_tok = static_cast<IdentifierToken &>(Tok());
-		// TODO: Actually implement this
-		output = 1;
+		output = substitution->CaptureFromName(iden_tok.string);
 		token_idx++;
 		return nullptr;
 	}

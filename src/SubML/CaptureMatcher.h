@@ -40,25 +40,23 @@ namespace Ravel::SubML
 
 		virtual uint64_t * NextInternal() override
 		{
+			uint64_t * result = nullptr;
 			T value_to_capture = this->template MatchArgument<0>();
 
 			if (match_captures[capture_idx] == 0)
 			{
-				auto new_captures = new uint64_t [match_capture_count];
-				ArrCpy(new_captures, match_captures, match_capture_count);
-				new_captures[capture_idx] = bit_cast<uint64_t>(value_to_capture);
-
-				Finish();
-				return new_captures;
+				result = new uint64_t [match_capture_count];
+				ArrCpy(result, match_captures, match_capture_count);
+				result[capture_idx] = bit_cast<uint64_t>(value_to_capture);
 			}
-			else
+			// TODO: check types intelligently
+			else if (match_captures[capture_idx] == bit_cast<uint64_t>(value_to_capture)) 
 			{
-				// TODO: check types intelligently
-				if (match_captures[capture_idx] == bit_cast<uint64_t>(value_to_capture)) return match_captures;
-				
-				Finish();
-				return nullptr;
+				result = match_captures;
 			}
+
+			Finish();
+			return result;
 		}
 	};
 }
