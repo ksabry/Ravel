@@ -39,13 +39,15 @@ namespace Ravel::SubML
 
 		uint32_t CaptureFromName(char const * const name);
 
-		void PPrint(std::ostream & output);
-
 	private:
 		QuantifiedExpressionMatcher * matcher;
 		Populator<Expression ** &, uint32_t &> * populator;
 
 		std::vector<char const *> capture_names;
 		uint32_t capture_count;
+
+	public:
+		void PPrint(std::ostream & output);
+	
 	};
 }

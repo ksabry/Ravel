@@ -12,8 +12,6 @@ namespace Ravel::SubML
 	public:
 		ImmediateMatcher(DataType data_type, uint64_t data);
 		~ImmediateMatcher();
-
-		virtual void PPrint(std::ostream & output) override;
 	
 	protected:
 		virtual void BeginInternal() override;
@@ -22,5 +20,8 @@ namespace Ravel::SubML
 	private:
 		DataType data_type;
 		uint64_t data;
+
+	public:
+		virtual void PPrint(std::ostream & output) override;
 	};
 }

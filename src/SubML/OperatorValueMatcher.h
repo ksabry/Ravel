@@ -13,8 +13,6 @@ namespace Ravel::SubML
 		OperatorValueMatcher(ExpressionOperator * opers, uint32_t oper_count, bool neg);
 		~OperatorValueMatcher();
 
-		virtual void PPrint(std::ostream & output) override;
-
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;
@@ -23,5 +21,8 @@ namespace Ravel::SubML
 		ExpressionOperator * opers;
 		uint32_t oper_count;
 		bool neg;
+
+	public:
+		virtual void PPrint(std::ostream & output) override;
 	};
 }

@@ -21,12 +21,13 @@ namespace Ravel::SubML
 			return nullptr;
 		}
 
+	private:
+		uint32_t capture_idx;
+	
+	public:
 		virtual void PPrint(std::ostream & output) override
 		{
 			output << "CapturePopulator<" << typeid(T).name() << ">(" << capture_idx << ")";
 		}
-
-	private:
-		uint32_t capture_idx;
 	};
 }

@@ -12,10 +12,11 @@ namespace Ravel::SubML
 
 		virtual Error * Populate(void ** captures, uint32_t capture_count, Expression * & output);
 
-		virtual void PPrint(std::ostream & output) override;
-
 	private:
 		Populator<Expression * &> ** populators;
 		uint32_t populator_count;
+
+	public:
+		virtual void PPrint(std::ostream & output) override;
 	};
 }

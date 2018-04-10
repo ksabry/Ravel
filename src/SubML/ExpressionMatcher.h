@@ -13,8 +13,6 @@ namespace Ravel::SubML
 		ExpressionMatcher(Matcher<ExpressionOperator> * oper_matcher, Matcher<Expression *> * group_matcher);
 		~ExpressionMatcher();
 		
-		virtual void PPrint(std::ostream & output) override;
-
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;
@@ -22,5 +20,8 @@ namespace Ravel::SubML
 	private:
 		Matcher<ExpressionOperator> * oper_matcher;
 		Matcher<Expression *> * group_matcher;
+
+	public:
+		virtual void PPrint(std::ostream & output) override;
 	};
 }
