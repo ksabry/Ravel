@@ -5,19 +5,11 @@
 
 namespace Ravel::SubML
 {
-	struct Bounds
-	{
-		uint32_t start;
-		uint32_t end;
-	};
-
 	class OrderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
 		OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
 		~OrderedArgsMatcher();
-
-		virtual void PPrint(std::ostream & output) override;
 
 	protected:
 		virtual void BeginInternal() override;
@@ -26,22 +18,44 @@ namespace Ravel::SubML
 	private:
 		QuantifiedExpressionMatcher ** matchers;
 		uint32_t matcher_count;
+		
+		Expression ** exprs;
+		uint32_t expr_count;
 
+		struct Bounds
+		{
+			uint32_t start;
+			uint32_t end;
+		};
+
+		struct Frame
+		{
+			bool initialized = false;
+			QuantifiedExpressionMatcher * matcher = nullptr;
+
+			Expression ** remaining_exprs = nullptr;
+			QuantifiedExpressionMatcher ** remaining_matchers = nullptr;
+			Bounds * remaining_bounds = nullptr;
+		};
+
+		Frame * stack;
 		int32_t stack_idx;
-		
-		uint32_t * matchers_idx_stack;
-		Bounds * exprs_bounds_stack;
-		Expression ** exprs_stack;
-		Bounds * bounds_stack;
-		uint64_t * captures_stack;
 
-		bool PushStackUntilLast();
-		bool PushStack(uint64_t * new_captures, Bounds exprs_bounds);
-		bool SetupStack(bool bounds_set);
+		void BeginFrame(
+			uint32_t idx,
+			uint64_t * incoming_captures,
+			Expression ** remaining_exprs,
+			QuantifiedExpressionMatcher ** remaining_matchers,
+			Bounds * remaining_bounds);
 
-		bool CalculateBounds(uint32_t max_length, Bounds * result);
-		
-		bool MatcherAvailable(uint32_t idx);
-		void GetMatcherLowHigh(uint32_t idx, uint32_t * low, uint32_t * high);
+		void FinishFrame(uint32_t idx);
+
+		bool IsComplete(Expression ** exprs);
+
+		bool CalculateBounds(Bounds * & result, QuantifiedExpressionMatcher ** remaining_matchers);
+		void GetMatcherLowHigh(QuantifiedExpressionMatcher ** remaining_matchers, uint32_t matcher_idx, uint32_t * low, uint32_t * high);
+
+	public:
+		virtual void PPrint(std::ostream & output) override;
 	};
 }

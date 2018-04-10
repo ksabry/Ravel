@@ -1,16 +1,12 @@
 #include "OrderedArgsMatcher.h"
-
-#include <cstring>
-#include "ArrCpy.h"
+#include "Assert.h"
 
 namespace Ravel::SubML
 {
 	OrderedArgsMatcher::OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
-		: matchers(matchers), matcher_count(matcher_count), 
-			stack_idx(0), matchers_idx_stack(nullptr), exprs_bounds_stack(nullptr), exprs_stack(nullptr), bounds_stack(nullptr), captures_stack(nullptr)
+		: matchers(matchers), matcher_count(matcher_count), stack(nullptr), stack_idx(0)
 	{
 	}
-
 	OrderedArgsMatcher::~OrderedArgsMatcher()
 	{
 		for (uint32_t idx = 0; idx < matcher_count; idx++)
@@ -18,159 +14,129 @@ namespace Ravel::SubML
 			delete matchers[idx];
 		}
 		delete[] matchers;
-
-		if (matchers_idx_stack) delete[] matchers_idx_stack;
-		if (exprs_bounds_stack) delete[] exprs_bounds_stack;
-		if (exprs_stack) delete[] exprs_stack;
-		if (bounds_stack) delete[] bounds_stack;
-		if (captures_stack) delete[] captures_stack;
+		// TODO: delete stack
 	}
 
 	void OrderedArgsMatcher::BeginInternal()
 	{
 		Expression * parent = MatchArgument<0>();
-		Expression ** exprs = parent->Args();
-		uint32_t expr_count = parent->ArgCount();
+		exprs = parent->Args();
+		expr_count = parent->ArgCount();
 
+		stack = new Frame[matcher_count];
 		stack_idx = 0;
-		matchers_idx_stack = new uint32_t [matcher_count] { 0 };
-		exprs_bounds_stack = new Bounds [matcher_count];
-		exprs_stack = new Expression *[expr_count * matcher_count];
-		bounds_stack = new Bounds [matcher_count * matcher_count];
-		captures_stack = new uint64_t [match_capture_count * matcher_count] { 0 };
 
-		memcpy(exprs_stack, exprs, expr_count * sizeof(Expression *));
-		SetupStack(false);
-		PushStackUntilLast();
+		BeginFrame(0, match_captures, exprs, matchers, nullptr);
 	}
 
 	uint64_t * OrderedArgsMatcher::NextInternal()
 	{
-		uint32_t expr_count = MatchArgument<0>()->ArgCount();
-
-		uint64_t * result = nullptr;
-		while (!result)
+		while (stack_idx >= 0)
 		{
-			uint32_t matchers_idx = matchers_idx_stack[stack_idx];
-			uint64_t * result = matchers[matchers_idx]->Next();
-			if (!result)
-			{
-				stack_idx--;
-				if (!PushStackUntilLast())
-				{
-					Finish();
-					return nullptr;
-				}
-			}
-
-			bool all_exprs_used = true;
-			Expression ** exprs = exprs_stack + (expr_count * stack_idx);
-			for (int32_t i = 0; i < static_cast<int32_t>(expr_count); i++)
-			{
-				if (exprs[i])
-				{
-					all_exprs_used = false;
-					break;
-				}
-			}
-			if (!all_exprs_used) result = nullptr;
-		}
-
-		return result;
-	}
-
-	bool OrderedArgsMatcher::PushStackUntilLast()
-	{
-		while (stack_idx < static_cast<int32_t>(matcher_count) - 1)
-		{
-			if (stack_idx < 0)
-			{
-				return false;
-			}
-
-			uint32_t matchers_idx = matchers_idx_stack[stack_idx];
-			uint64_t * next_captures = matchers[matchers_idx]->Next();
-			if (!next_captures)
+			if (!stack[stack_idx].initialized)
 			{
 				stack_idx--;
 				continue;
 			}
 
-			uint32_t exprs_start_idx = bounds_stack[matcher_count * stack_idx + matchers_idx].start;
-			if (!PushStack(next_captures, { exprs_start_idx, exprs_start_idx + matchers[matchers_idx]->MatchLength() }))
+			uint64_t * frame_captures = stack[stack_idx].matcher->Next();
+			if (!frame_captures)
 			{
+				FinishFrame(stack_idx);
 				stack_idx--;
+				continue;
 			}
-		}
-		return true;
-	}
 
-	bool OrderedArgsMatcher::PushStack(uint64_t * new_captures, Bounds exprs_bounds)
-	{
-		uint32_t expr_count = MatchArgument<0>()->ArgCount();
-
-		Expression ** old_exprs = exprs_stack + (expr_count * stack_idx);
-		uint32_t old_matchers_idx = matchers_idx_stack[stack_idx];
-
-		stack_idx++;
-		
-		exprs_bounds_stack[stack_idx] = exprs_bounds;
-
-		Expression ** exprs = exprs_stack + (expr_count * stack_idx);
-		memcpy(exprs, old_exprs, expr_count * sizeof(Expression *));
-		for (int32_t i = exprs_bounds.start; i < static_cast<int32_t>(exprs_bounds.end); i++)
-		{
-			exprs[i] = nullptr;
-		}
-
-		bool bounds_set = false;
-		if (matchers[old_matchers_idx]->GetQuantifier().low == matchers[old_matchers_idx]->GetQuantifier().high)
-		{
-			bounds_stack[stack_idx] = bounds_stack[stack_idx - 1];
-			bounds_set = true;
-		}
-
-		uint64_t * captures = captures_stack + (match_capture_count * stack_idx);
-		ArrCpy(captures, new_captures, match_capture_count);
-
-		return SetupStack(bounds_set);
-	}
-
-	bool OrderedArgsMatcher::SetupStack(bool bounds_set)
-	{
-		uint32_t expr_count = MatchArgument<0>()->ArgCount();
-
-		Bounds * bounds = bounds_stack + (matcher_count * stack_idx);
-		Expression ** exprs = exprs_stack + (expr_count * stack_idx);
-		uint64_t * captures = captures_stack + (match_capture_count * stack_idx);
-
-		if (!bounds_set &&
-			!CalculateBounds(expr_count, bounds))
-		{
-			return false;
-		}
-
-		int32_t next_idx = -1;
-		for (int32_t i = 0; i < matcher_count; i++)
-		{
-			if (bounds[i].start == bounds[i].end && MatcherAvailable(i) && 
-				(next_idx == -1 || matchers[i]->GetQuantifier().high < matchers[next_idx]->GetQuantifier().high))
+			if (stack_idx == matcher_count - 1)
 			{
-				next_idx = i;
+				if (IsComplete(stack[stack_idx].remaining_exprs)) return frame_captures;
+			}
+			else
+			{
+				BeginFrame(
+					++stack_idx, 
+					frame_captures, 
+					stack[stack_idx].remaining_exprs, 
+					stack[stack_idx].remaining_matchers,
+					stack[stack_idx].remaining_bounds
+				);
 			}
 		}
-		matchers_idx_stack[stack_idx] = next_idx;
+		Finish();
+		return nullptr;
+	}
 
-		uint32_t next_start_idx = bounds[next_idx].start;
+	void OrderedArgsMatcher::BeginFrame(
+		uint32_t idx,
+		uint64_t * incoming_captures, 
+		Expression ** remaining_exprs, 
+		QuantifiedExpressionMatcher ** remaining_matchers, 
+		Bounds * remaining_bounds)
+	{
+		if (idx >= matcher_count) return;
+
+		if (!remaining_bounds)
+		{
+			if (!CalculateBounds(stack[idx].remaining_bounds, stack[idx].remaining_matchers)) return;
+		}
+		Bounds * bounds = stack[idx].remaining_bounds;
+
+		uint32_t next_matcher_idx;
+		for (uint32_t i = 0; i < matcher_count; i++)
+		{
+			if (bounds[i].start == bounds[i].end && matchers[i])
+			{
+				next_matcher_idx = i;
+				break;
+			}
+		}
+		stack[idx].matcher = matchers[next_matcher_idx];
+
+		uint32_t next_start_idx = bounds[next_matcher_idx].start;
 		uint32_t next_end_idx = next_start_idx;
 		while (next_end_idx < expr_count && !exprs[next_end_idx]) next_end_idx++;
 
-		matchers[next_idx]->Begin(captures, match_capture_count, exprs + next_start_idx, next_end_idx - next_start_idx);
+		stack[idx].matcher->Begin(incoming_captures, match_capture_count, exprs + next_start_idx, next_end_idx - next_start_idx);
+		stack[idx].initialized = true;
+
+		stack[idx].remaining_matchers = new QuantifiedExpressionMatcher * [matcher_count];
+		ArrCpy(stack[idx].remaining_matchers, remaining_matchers, matcher_count);
+		stack[idx].remaining_matchers[next_matcher_idx] = nullptr;
+		
+		if (stack[idx].matcher->GetQuantifier().low == stack[idx].matcher->GetQuantifier().high)
+		{
+			stack[idx].remaining_bounds = new Bounds [matcher_count];
+			ArrCpy(stack[idx].remaining_bounds, remaining_bounds, matcher_count);
+		}
+		else
+		{
+			stack[idx].remaining_bounds = nullptr;
+		}
+	}
+
+	void OrderedArgsMatcher::FinishFrame(uint32_t idx)
+	{
+		Assert(stack[idx].initialized);
+
+		if (stack[idx].remaining_exprs) delete[] stack[idx].remaining_exprs;
+		if (stack[idx].remaining_matchers) delete[] stack[idx].remaining_matchers;
+		if (stack[idx].remaining_bounds) delete[] stack[idx].remaining_bounds;
+		stack[idx].initialized = false;
+	}
+
+	bool OrderedArgsMatcher::IsComplete(Expression ** remaining_exprs)
+	{
+		for (uint32_t i = 0; i < expr_count; i++)
+		{
+			if (remaining_exprs[i]) return false;
+		}
 		return true;
 	}
 
-	bool OrderedArgsMatcher::CalculateBounds(uint32_t max_length, Bounds * result)
+	bool OrderedArgsMatcher::CalculateBounds(Bounds * & result, QuantifiedExpressionMatcher ** remaining_matchers)
 	{
+		result = new Bounds[matcher_count];
+
 		uint32_t start_low, start_high;
 		Bounds * ltr_bounds = new Bounds[matcher_count];
 		Bounds * rtl_bounds = new Bounds[matcher_count];
@@ -179,18 +145,18 @@ namespace Ravel::SubML
 		start_low = start_high = 0;
 		for (int32_t i = 0; i < matcher_count; i++)
 		{
-			GetMatcherLowHigh(i, &qlow, &qhigh);
+			GetMatcherLowHigh(remaining_matchers, i, &qlow, &qhigh);
 			ltr_bounds[i] = { start_low, start_high };
 
 			start_low += qlow;
 			start_high += qhigh;
-			start_high = start_high > max_length ? max_length : start_high;
+			start_high = start_high > expr_count ? expr_count : start_high;
 		}
 
-		start_low = start_high = max_length;
+		start_low = start_high = expr_count;
 		for (int32_t i = matcher_count - 1; i >= 0; i++)
 		{
-			GetMatcherLowHigh(i, &qlow, &qhigh);
+			GetMatcherLowHigh(remaining_matchers, i, &qlow, &qhigh);
 
 			start_low -= qhigh;
 			start_high -= qlow;
@@ -199,36 +165,34 @@ namespace Ravel::SubML
 			rtl_bounds[i] = { start_low, start_high };
 		}
 
+		bool success = true;
 		for (int32_t i = 0; i < matcher_count; i++)
 		{
 			result[i].start = ltr_bounds[i].start > rtl_bounds[i].start ? ltr_bounds[i].start : rtl_bounds[i].start;
 			result[i].end = ltr_bounds[i].end   < rtl_bounds[i].end ? ltr_bounds[i].end : rtl_bounds[i].end;
 
-			if (result[i].start > result[i].end) return false;
+			if (result[i].start > result[i].end)
+			{
+				success = false;
+				break;
+			}
 		}
 
-		return true;
+		delete[] ltr_bounds;
+		delete[] rtl_bounds;
+		return success;
 	}
 
-	bool OrderedArgsMatcher::MatcherAvailable(uint32_t idx)
+	void OrderedArgsMatcher::GetMatcherLowHigh(QuantifiedExpressionMatcher ** remaining_matchers, uint32_t matcher_idx, uint32_t * low, uint32_t * high)
 	{
-		for (int32_t i = 0; i < stack_idx; i++)
+		if (remaining_matchers[matcher_idx] == nullptr)
 		{
-			if (matchers_idx_stack[i] == idx) return false;
-		}
-		return true;
-	}
-
-	void OrderedArgsMatcher::GetMatcherLowHigh(uint32_t idx, uint32_t * low, uint32_t * high)
-	{
-		if (MatcherAvailable(idx))
-		{
-			*low = matchers[idx]->GetQuantifier().low;
-			*high = matchers[idx]->GetQuantifier().high;
+			*low = matchers[matcher_idx]->GetQuantifier().low;
+			*high = matchers[matcher_idx]->GetQuantifier().high;
 		}
 		else
 		{
-			*low = *high = matchers[idx]->MatchLength();
+			*low = *high = matchers[matcher_idx]->MatchLength();
 		}
 	}
 
