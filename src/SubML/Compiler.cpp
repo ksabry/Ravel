@@ -130,6 +130,7 @@ namespace Ravel::SubML
 		if (err) return err;
 
 		output = new OrderedQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
+		return nullptr;
 	}
 
 	Error * Compiler::ParseUnorderedQuantifiedExpressionMatcher(UnorderedQuantifiedExpressionMatcher * & output)
@@ -141,6 +142,7 @@ namespace Ravel::SubML
 		if (err) return err;
 
 		output = new UnorderedQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
+		return nullptr;
 	}
 
 	Error * Compiler::ParseExpressionMatcher(Matcher<Expression *> * & output)
