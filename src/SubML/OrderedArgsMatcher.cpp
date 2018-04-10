@@ -3,7 +3,7 @@
 
 namespace Ravel::SubML
 {
-	OrderedArgsMatcher::OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
+	OrderedArgsMatcher::OrderedArgsMatcher(OrderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
 		: matchers(matchers), matcher_count(matcher_count), stack(nullptr), stack_idx(0)
 	{
 	}
@@ -70,7 +70,7 @@ namespace Ravel::SubML
 		uint32_t idx,
 		uint64_t * incoming_captures, 
 		Expression ** remaining_exprs, 
-		QuantifiedExpressionMatcher ** remaining_matchers, 
+		OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
 		Bounds * remaining_bounds)
 	{
 		if (idx >= matcher_count) return;
@@ -99,7 +99,7 @@ namespace Ravel::SubML
 		stack[idx].matcher->Begin(incoming_captures, match_capture_count, exprs + next_start_idx, next_end_idx - next_start_idx);
 		stack[idx].initialized = true;
 
-		stack[idx].remaining_matchers = new QuantifiedExpressionMatcher * [matcher_count];
+		stack[idx].remaining_matchers = new OrderedQuantifiedExpressionMatcher * [matcher_count];
 		ArrCpy(stack[idx].remaining_matchers, remaining_matchers, matcher_count);
 		stack[idx].remaining_matchers[next_matcher_idx] = nullptr;
 		
@@ -133,7 +133,7 @@ namespace Ravel::SubML
 		return true;
 	}
 
-	bool OrderedArgsMatcher::CalculateBounds(Bounds * & result, QuantifiedExpressionMatcher ** remaining_matchers)
+	bool OrderedArgsMatcher::CalculateBounds(Bounds * & result, OrderedQuantifiedExpressionMatcher ** remaining_matchers)
 	{
 		result = new Bounds[matcher_count];
 
@@ -183,7 +183,11 @@ namespace Ravel::SubML
 		return success;
 	}
 
-	void OrderedArgsMatcher::GetMatcherLowHigh(QuantifiedExpressionMatcher ** remaining_matchers, uint32_t matcher_idx, uint32_t * low, uint32_t * high)
+	void OrderedArgsMatcher::GetMatcherLowHigh(
+		OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
+		uint32_t matcher_idx, 
+		uint32_t * low, 
+		uint32_t * high)
 	{
 		if (remaining_matchers[matcher_idx] == nullptr)
 		{

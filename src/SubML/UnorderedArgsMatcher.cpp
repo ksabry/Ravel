@@ -2,7 +2,7 @@
 
 namespace Ravel::SubML
 {
-	UnorderedArgsMatcher::UnorderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
+	UnorderedArgsMatcher::UnorderedArgsMatcher(UnorderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
 		: matchers(matchers), matcher_count(matcher_count)
 	{
 	}

@@ -5,11 +5,11 @@
 
 namespace Ravel::SubML
 {
-	class QuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
+	class OrderedQuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
 	public:
-		QuantifiedExpressionMatcher(Matcher<Expression *> * expression, Quantifier quantifier, CaptureMatcher<Expression *> * capture);
-		~QuantifiedExpressionMatcher();
+		OrderedQuantifiedExpressionMatcher(Matcher<Expression *> * expression, Quantifier quantifier, CaptureMatcher<Expression *> * capture);
+		~OrderedQuantifiedExpressionMatcher();
 
 		inline virtual Quantifier GetQuantifier()
 		{

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Expression.h"
-#include "QuantifiedExpressionMatcher.h"
+#include "OrderedQuantifiedExpressionMatcher.h"
 #include "Populator.h"
 
 namespace Ravel::SubML
@@ -14,14 +14,14 @@ namespace Ravel::SubML
 	class Substitution
 	{
 	public:
-		Substitution(QuantifiedExpressionMatcher * matcher = nullptr, Populator<Expression ** &, uint32_t &> * populator = nullptr);
+		Substitution(OrderedQuantifiedExpressionMatcher * matcher = nullptr, Populator<Expression ** &, uint32_t &> * populator = nullptr);
 		~Substitution();
 		
-		inline QuantifiedExpressionMatcher * GetMatcher()
+		inline OrderedQuantifiedExpressionMatcher * GetMatcher()
 		{
 			return matcher;
 		}
-		inline void SetMatcher(QuantifiedExpressionMatcher * matcher)
+		inline void SetMatcher(OrderedQuantifiedExpressionMatcher * matcher)
 		{
 			if (this->matcher) delete this->matcher;
 			this->matcher = matcher;
@@ -40,7 +40,7 @@ namespace Ravel::SubML
 		uint32_t CaptureFromName(char const * const name);
 
 	private:
-		QuantifiedExpressionMatcher * matcher;
+		OrderedQuantifiedExpressionMatcher * matcher;
 		Populator<Expression ** &, uint32_t &> * populator;
 
 		std::vector<char const *> capture_names;

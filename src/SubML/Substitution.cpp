@@ -2,7 +2,7 @@
 
 namespace Ravel::SubML
 {
-	Substitution::Substitution(QuantifiedExpressionMatcher * matcher, Populator<Expression ** &, uint32_t &> * populator)
+	Substitution::Substitution(OrderedQuantifiedExpressionMatcher * matcher, Populator<Expression ** &, uint32_t &> * populator)
 		: matcher(matcher), populator(populator), capture_count(1)
 	{
 		capture_names.push_back("<EMPTY>");

@@ -77,8 +77,8 @@ namespace Ravel::SubML
 	{
 		substitution = output = new Substitution();
 
-		QuantifiedExpressionMatcher * matcher;
-		Error * err = ParseQuantifiedExpressionMatcher(matcher);
+		OrderedQuantifiedExpressionMatcher * matcher;
+		Error * err = ParseOrderedQuantifiedExpressionMatcher(matcher);
 		if (err) return err;
 
 		if (matcher->GetQuantifier().low != 1 || matcher->GetQuantifier().high != 1)
@@ -100,13 +100,14 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
-	Error * Compiler::ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output)
+	Error * Compiler::ParseQuantifiedExpressionMatcher(
+		Matcher<Expression *> * & expression_matcher, 
+		Quantifier & quantifier, 
+		CaptureMatcher<Expression *> * & capture_matcher)
 	{
-		Matcher<Expression *> * expression_matcher;
 		Error * err = ParseExpressionMatcher(expression_matcher);
 		if (err) return err;
 		
-		Quantifier quantifier {1, 1};
 		err = TryParseQuantifier(quantifier);
 		if (err) return err;
 
@@ -114,11 +115,32 @@ namespace Ravel::SubML
 		err = TryParseCapture(capture_idx);
 		if (err) return err;
 
-		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		capture_matcher = nullptr;
 		if (capture_idx) capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
 		
-		output = new QuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 		return nullptr;
+	}
+
+	Error * Compiler::ParseOrderedQuantifiedExpressionMatcher(OrderedQuantifiedExpressionMatcher * & output)
+	{
+		Matcher<Expression *> * expression_matcher = nullptr;
+		Quantifier quantifier {1, 1};
+		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		Error * err = ParseQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
+		if (err) return err;
+
+		output = new OrderedQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
+	}
+
+	Error * Compiler::ParseUnorderedQuantifiedExpressionMatcher(UnorderedQuantifiedExpressionMatcher * & output)
+	{
+		Matcher<Expression *> * expression_matcher = nullptr;
+		Quantifier quantifier {1, 1};
+		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		Error * err = ParseQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
+		if (err) return err;
+
+		output = new UnorderedQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 	}
 
 	Error * Compiler::ParseExpressionMatcher(Matcher<Expression *> * & output)
@@ -326,13 +348,24 @@ namespace Ravel::SubML
 			return nullptr;
 		}
 
-		std::vector<QuantifiedExpressionMatcher *> matchers;
+		std::vector<OrderedQuantifiedExpressionMatcher *> ordered_matchers;
+		std::vector<UnorderedQuantifiedExpressionMatcher *> unordered_matchers;
 		while (true)
 		{
-			QuantifiedExpressionMatcher * matcher;
-			Error * err = ParseQuantifiedExpressionMatcher(matcher);
-			if (err) return err;
-			matchers.push_back(matcher);
+			if (ordered)
+			{
+				OrderedQuantifiedExpressionMatcher * matcher;
+				Error * err = ParseOrderedQuantifiedExpressionMatcher(matcher);
+				if (err) return err;
+				ordered_matchers.push_back(matcher);
+			}
+			else
+			{
+				UnorderedQuantifiedExpressionMatcher * matcher;
+				Error * err = ParseUnorderedQuantifiedExpressionMatcher(matcher);
+				if (err) return err;
+				unordered_matchers.push_back(matcher);
+			}
 
 			if (token_idx >= tokens.size())
 			{
@@ -353,10 +386,20 @@ namespace Ravel::SubML
 			token_idx++;
 		}
 
-		QuantifiedExpressionMatcher ** arr = new QuantifiedExpressionMatcher * [matchers.size()];
-		ArrCpy(arr, &matchers[0], matchers.size());
-		if (ordered) output = new OrderedArgsMatcher(arr, matchers.size());
-		else output = new UnorderedArgsMatcher(arr, matchers.size());
+		if (ordered)
+		{
+			uint32_t size = ordered_matchers.size();
+			auto arr = new OrderedQuantifiedExpressionMatcher * [size];
+			ArrCpy(arr, &ordered_matchers[0], size);
+			output = new OrderedArgsMatcher(arr, size);
+		}
+		else 
+		{
+			uint32_t size = unordered_matchers.size();
+			auto arr = new UnorderedQuantifiedExpressionMatcher * [size];
+			ArrCpy(arr, &unordered_matchers[0], size);
+			output = new UnorderedArgsMatcher(arr, size);
+		}
 		return nullptr;
 	}
 

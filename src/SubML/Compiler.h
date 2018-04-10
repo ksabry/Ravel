@@ -9,7 +9,8 @@
 #include "Substitution.h"
 #include "Matcher.h"
 #include "Populator.h"
-#include "QuantifiedExpressionMatcher.h"
+#include "OrderedQuantifiedExpressionMatcher.h"
+#include "UnorderedQuantifiedExpressionMatcher.h"
 
 namespace Ravel::SubML
 {
@@ -41,7 +42,12 @@ namespace Ravel::SubML
 		Error * CompileTokens(uint32_t token_idx = 0);
 
 		Error * ParseSubstitution(Substitution * & output);
-		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
+		Error * ParseQuantifiedExpressionMatcher(
+			Matcher<Expression *> * & expression_matcher, 
+			Quantifier & quantifier, 
+			CaptureMatcher<Expression *> * & capture_matcher);
+		Error * ParseOrderedQuantifiedExpressionMatcher(OrderedQuantifiedExpressionMatcher * & output);
+		Error * ParseUnorderedQuantifiedExpressionMatcher(UnorderedQuantifiedExpressionMatcher * & output);
 		Error * ParseExpressionMatcher(Matcher<Expression *> * & output);
 		Error * TryParseOperatorMatcher(Matcher<ExpressionOperator> * & output);
 		Error * TryParseOperatorMatcherAlternation(Matcher<ExpressionOperator> * & output);

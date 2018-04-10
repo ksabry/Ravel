@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Matcher.h"
-#include "QuantifiedExpressionMatcher.h"
+#include "OrderedQuantifiedExpressionMatcher.h"
 
 namespace Ravel::SubML
 {
 	class OrderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
-		OrderedArgsMatcher(QuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
+		OrderedArgsMatcher(OrderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
 		~OrderedArgsMatcher();
 
 	protected:
@@ -16,7 +16,7 @@ namespace Ravel::SubML
 		virtual uint64_t * NextInternal() override;
 
 	private:
-		QuantifiedExpressionMatcher ** matchers;
+		OrderedQuantifiedExpressionMatcher ** matchers;
 		uint32_t matcher_count;
 		
 		Expression ** exprs;
@@ -31,10 +31,10 @@ namespace Ravel::SubML
 		struct Frame
 		{
 			bool initialized = false;
-			QuantifiedExpressionMatcher * matcher = nullptr;
+			OrderedQuantifiedExpressionMatcher * matcher = nullptr;
 
 			Expression ** remaining_exprs = nullptr;
-			QuantifiedExpressionMatcher ** remaining_matchers = nullptr;
+			OrderedQuantifiedExpressionMatcher ** remaining_matchers = nullptr;
 			Bounds * remaining_bounds = nullptr;
 		};
 
@@ -45,15 +45,19 @@ namespace Ravel::SubML
 			uint32_t idx,
 			uint64_t * incoming_captures,
 			Expression ** remaining_exprs,
-			QuantifiedExpressionMatcher ** remaining_matchers,
+			OrderedQuantifiedExpressionMatcher ** remaining_matchers,
 			Bounds * remaining_bounds);
 
 		void FinishFrame(uint32_t idx);
 
 		bool IsComplete(Expression ** exprs);
 
-		bool CalculateBounds(Bounds * & result, QuantifiedExpressionMatcher ** remaining_matchers);
-		void GetMatcherLowHigh(QuantifiedExpressionMatcher ** remaining_matchers, uint32_t matcher_idx, uint32_t * low, uint32_t * high);
+		bool CalculateBounds(Bounds * & result, OrderedQuantifiedExpressionMatcher ** remaining_matchers);
+		void GetMatcherLowHigh(
+			OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
+			uint32_t matcher_idx, 
+			uint32_t * low, 
+			uint32_t * high);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;
