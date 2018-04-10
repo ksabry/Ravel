@@ -41,7 +41,6 @@ namespace Ravel::SubML
 		Error * CompileTokens(uint32_t token_idx = 0);
 
 		Error * ParseSubstitution(Substitution * & output);
-		
 		Error * ParseQuantifiedExpressionMatcher(QuantifiedExpressionMatcher * & output);
 		Error * ParseExpressionMatcher(Matcher<Expression *> * & output);
 		Error * TryParseOperatorMatcher(Matcher<ExpressionOperator> * & output);

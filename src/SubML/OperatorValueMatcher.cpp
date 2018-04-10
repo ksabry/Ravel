@@ -18,7 +18,12 @@ namespace Ravel::SubML
 
 	uint64_t * OperatorValueMatcher::NextInternal()
 	{
-		return nullptr;
+		ExpressionOperator to_match = MatchArgument<0>();
+		for (uint32_t i = 0; i < oper_count; i++)
+		{
+			if (opers[i] == to_match) return neg ? nullptr : match_captures;
+		}
+		return neg ? match_captures : nullptr;
 	}
 
 	void OperatorValueMatcher::PPrint(std::ostream & output)

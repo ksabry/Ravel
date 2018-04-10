@@ -20,7 +20,7 @@ namespace Ravel::SubML
 			if (child_match_captures && child_match_captures != match_captures) delete[] child_match_captures;
 		}
 
-		void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
+		virtual void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
 		{
 			begun = true;
 			SetMatchArguments(0, values...);
@@ -29,7 +29,7 @@ namespace Ravel::SubML
 			BeginInternal();
 		}
 
-		uint64_t * Next()
+		virtual uint64_t * Next()
 		{
 			if (child_match_captures && child_match_captures != match_captures) delete[] child_match_captures; 
 			if (finished) return nullptr;

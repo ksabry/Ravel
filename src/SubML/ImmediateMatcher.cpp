@@ -17,13 +17,14 @@ namespace Ravel::SubML
 
 	uint64_t * ImmediateMatcher::NextInternal()
 	{
+		uint64_t * result = nullptr;
 		Expression * expr = MatchArgument<0>();
-		if (expr->GetDataType() != data_type || !DataEqual(data_type, expr->GetData(), data)) 
+		if (expr->GetDataType() == data_type && DataEqual(data_type, expr->GetData(), data)) 
 		{
-			Finish();
-			return nullptr;
+			result = match_captures;
 		}
-		return match_captures;
+		Finish();
+		return result;
 	}
 
 	void ImmediateMatcher::PPrint(std::ostream & output)

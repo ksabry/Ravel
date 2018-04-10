@@ -10,21 +10,59 @@ namespace Ravel::SubML
 
 	ExpressionMatcher::~ExpressionMatcher()
 	{
-		delete oper_matcher;
-		delete group_matcher;
+		if (oper_matcher) delete oper_matcher;
+		if (group_matcher) delete group_matcher;
 	}
 
 	void ExpressionMatcher::BeginInternal()
 	{
 		Expression * expr = MatchArgument<0>();
-		oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
-		group_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
+		
+		if (oper_matcher && group_matcher)
+		{
+			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
+			group_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
+		}
+		else if (!oper_matcher && group_matcher)
+		{
+			group_matcher->Begin(match_captures, match_capture_count, expr);
+		}
+		else if (oper_matcher && !group_matcher)
+		{
+			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
+		}
 	}
 
 	uint64_t * ExpressionMatcher::NextInternal()
 	{
-		auto group_captures = group_matcher->Next();
-		while (!group_captures)
+		if (oper_matcher && group_matcher)
+		{
+			auto group_captures = group_matcher->Next();
+			while (!group_captures)
+			{
+				auto oper_captures = oper_matcher->Next();
+				if (!oper_captures)
+				{
+					Finish();
+					return nullptr;
+				}
+				Expression * expr = MatchArgument<0>();
+				group_matcher->Begin(oper_captures, match_capture_count, expr);
+				group_captures = group_matcher->Next();
+			}
+			return group_captures;
+		}
+		else if (!oper_matcher && group_matcher)
+		{
+			auto group_captures = group_matcher->Next();
+			if (!group_captures)
+			{
+				Finish();
+				return nullptr;
+			}
+			return group_captures;
+		}
+		else if (oper_matcher && !group_matcher)
 		{
 			auto oper_captures = oper_matcher->Next();
 			if (!oper_captures)
@@ -32,12 +70,13 @@ namespace Ravel::SubML
 				Finish();
 				return nullptr;
 			}
-
-			Expression * expr = MatchArgument<0>();
-			group_matcher->Begin(oper_captures, match_capture_count, expr);
-			group_captures = group_matcher->Next();
+			return oper_captures;
 		}
-		return group_captures;
+		else
+		{
+			Finish();
+			return match_captures;
+		}
 	}
 
 	void ExpressionMatcher::PPrint(std::ostream & output)
