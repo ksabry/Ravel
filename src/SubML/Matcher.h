@@ -23,6 +23,7 @@ namespace Ravel::SubML
 		virtual void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
 		{
 			begun = true;
+			finished = false;
 			SetMatchArguments(0, values...);
 			match_captures = captures;
 			match_capture_count = capture_count;
