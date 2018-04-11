@@ -59,6 +59,8 @@ namespace Ravel::SubML
 			return finished;
 		}
 
+		//virtual void DeepCopy() = 0;
+
 		virtual void PPrint(std::ostream & output)
 		{
 			output << "Matcher<<" << this << ">>";

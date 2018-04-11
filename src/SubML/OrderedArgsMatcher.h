@@ -51,9 +51,10 @@ namespace Ravel::SubML
 
 		void FinishFrame(uint32_t idx);
 
-		bool IsComplete(Expression ** exprs);
+		bool IsComplete(Expression ** remaining_exprs);
 
 		bool CalculateBounds(Bounds * & result, OrderedQuantifiedExpressionMatcher ** remaining_matchers);
+
 		void GetMatcherLowHigh(
 			OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
 			uint32_t matcher_idx, 

@@ -98,6 +98,15 @@ namespace Ravel::SubML
 		stack[idx].initialized = false;
 	}
 
+	bool UnorderedArgsMatcher::IsComplete(Expression ** remaining_exprs)
+	{
+		for (uint32_t i = 0; i < expr_count; i++)
+		{
+			if (remaining_exprs[i]) return false;
+		}
+		return true;
+	}
+
 	void UnorderedArgsMatcher::PPrint(std::ostream & output)
 	{
 		output << "UnorderedArgsMatcher {\n";
