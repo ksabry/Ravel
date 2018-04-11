@@ -218,6 +218,16 @@ namespace Ravel::SubML
 		}
 	}
 
+	OrderedArgsMatcher * OrderedArgsMatcher::DeepCopy()
+	{
+		auto new_matchers = new OrderedQuantifiedExpressionMatcher * [matcher_count];
+		for (uint32_t i = 0; i < matcher_count; i++)
+		{
+			new_matchers[i] = matchers[i]->DeepCopy();
+		}
+		return new OrderedArgsMatcher(new_matchers, matcher_count);
+	}
+
 	void OrderedArgsMatcher::PPrint(std::ostream & output)
 	{
 		output << "OrderedArgsmatcher {\n";

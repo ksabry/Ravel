@@ -22,6 +22,11 @@ namespace Ravel::SubML
 		{
 		}
 
+		virtual CaptureMatcher<T> * DeepCopy() override
+		{
+			return new CaptureMatcher<T>(capture_idx);
+		}
+
 		virtual void PPrint(std::ostream & output) override
 		{
 			output << "CaptureMatcher<" << typeid(T).name() << ">(" << capture_idx << ")";

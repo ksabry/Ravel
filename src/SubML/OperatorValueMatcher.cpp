@@ -1,4 +1,5 @@
 #include "OperatorValueMatcher.h"
+#include "ArrCpy.h"
 
 namespace Ravel::SubML
 {
@@ -24,6 +25,13 @@ namespace Ravel::SubML
 			if (opers[i] == to_match) return neg ? nullptr : match_captures;
 		}
 		return neg ? match_captures : nullptr;
+	}
+
+	OperatorValueMatcher * OperatorValueMatcher::DeepCopy()
+	{
+		auto new_opers = new ExpressionOperator [oper_count];
+		ArrCpy(new_opers, opers, oper_count);
+		return new OperatorValueMatcher(new_opers, oper_count, neg);
 	}
 
 	void OperatorValueMatcher::PPrint(std::ostream & output)

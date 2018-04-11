@@ -28,6 +28,11 @@ namespace Ravel::SubML
 		return nullptr;
 	}
 
+	UnorderedQuantifiedExpressionMatcher * UnorderedQuantifiedExpressionMatcher::DeepCopy()
+	{
+		return new UnorderedQuantifiedExpressionMatcher(expression_matcher->DeepCopy(), quantifier, capture_matcher->DeepCopy());
+	}
+
 	void UnorderedQuantifiedExpressionMatcher::PPrint(std::ostream & output)
 	{
 		output << "UnorderedQuantifiedExpressionMatcher {\n";

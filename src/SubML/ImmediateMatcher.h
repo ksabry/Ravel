@@ -13,6 +13,8 @@ namespace Ravel::SubML
 		ImmediateMatcher(DataType data_type, uint64_t data);
 		~ImmediateMatcher();
 	
+		virtual ImmediateMatcher * DeepCopy() override;
+
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;

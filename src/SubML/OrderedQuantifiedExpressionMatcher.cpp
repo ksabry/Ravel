@@ -75,6 +75,11 @@ namespace Ravel::SubML
 		match_length++;
 	}
 
+	OrderedQuantifiedExpressionMatcher * OrderedQuantifiedExpressionMatcher::DeepCopy()
+	{
+		return new OrderedQuantifiedExpressionMatcher(expression_matcher->DeepCopy(), quantifier, capture_matcher->DeepCopy());
+	}
+
 	void OrderedQuantifiedExpressionMatcher::PPrint(std::ostream & output)
 	{
 		output << "OrderedQuantifiedExpressionMatcher {\n";

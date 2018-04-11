@@ -107,6 +107,16 @@ namespace Ravel::SubML
 		return true;
 	}
 
+	UnorderedArgsMatcher * UnorderedArgsMatcher::DeepCopy()
+	{
+		auto new_matchers = new UnorderedQuantifiedExpressionMatcher * [matcher_count];
+		for (uint32_t i = 0; i < matcher_count; i++)
+		{
+			new_matchers[i] = matchers[i]->DeepCopy();
+		}
+		return new UnorderedArgsMatcher(new_matchers, matcher_count);
+	}
+
 	void UnorderedArgsMatcher::PPrint(std::ostream & output)
 	{
 		output << "UnorderedArgsMatcher {\n";

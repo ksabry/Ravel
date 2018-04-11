@@ -3,31 +3,31 @@
 
 namespace Ravel::SubML
 {
-	ExpressionMatcher::ExpressionMatcher(Matcher<ExpressionOperator> * oper_matcher, Matcher<Expression *> * group_matcher)
-		: oper_matcher(oper_matcher), group_matcher(group_matcher)
+	ExpressionMatcher::ExpressionMatcher(Matcher<ExpressionOperator> * oper_matcher, Matcher<Expression *> * args_matcher)
+		: oper_matcher(oper_matcher), args_matcher(args_matcher)
 	{
 	}
 
 	ExpressionMatcher::~ExpressionMatcher()
 	{
 		if (oper_matcher) delete oper_matcher;
-		if (group_matcher) delete group_matcher;
+		if (args_matcher) delete args_matcher;
 	}
 
 	void ExpressionMatcher::BeginInternal()
 	{
 		Expression * expr = MatchArgument<0>();
 		
-		if (oper_matcher && group_matcher)
+		if (oper_matcher && args_matcher)
 		{
 			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
-			group_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
+			args_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
 		}
-		else if (!oper_matcher && group_matcher)
+		else if (!oper_matcher && args_matcher)
 		{
-			group_matcher->Begin(match_captures, match_capture_count, expr);
+			args_matcher->Begin(match_captures, match_capture_count, expr);
 		}
-		else if (oper_matcher && !group_matcher)
+		else if (oper_matcher && !args_matcher)
 		{
 			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
 		}
@@ -35,9 +35,9 @@ namespace Ravel::SubML
 
 	uint64_t * ExpressionMatcher::NextInternal()
 	{
-		if (oper_matcher && group_matcher)
+		if (oper_matcher && args_matcher)
 		{
-			auto group_captures = group_matcher->Next();
+			auto group_captures = args_matcher->Next();
 			while (!group_captures)
 			{
 				auto oper_captures = oper_matcher->Next();
@@ -47,14 +47,14 @@ namespace Ravel::SubML
 					return nullptr;
 				}
 				Expression * expr = MatchArgument<0>();
-				group_matcher->Begin(oper_captures, match_capture_count, expr);
-				group_captures = group_matcher->Next();
+				args_matcher->Begin(oper_captures, match_capture_count, expr);
+				group_captures = args_matcher->Next();
 			}
 			return group_captures;
 		}
-		else if (!oper_matcher && group_matcher)
+		else if (!oper_matcher && args_matcher)
 		{
-			auto group_captures = group_matcher->Next();
+			auto group_captures = args_matcher->Next();
 			if (!group_captures)
 			{
 				Finish();
@@ -62,7 +62,7 @@ namespace Ravel::SubML
 			}
 			return group_captures;
 		}
-		else if (oper_matcher && !group_matcher)
+		else if (oper_matcher && !args_matcher)
 		{
 			auto oper_captures = oper_matcher->Next();
 			if (!oper_captures)
@@ -79,6 +79,11 @@ namespace Ravel::SubML
 		}
 	}
 
+	ExpressionMatcher * ExpressionMatcher::DeepCopy()
+	{
+		return new ExpressionMatcher(oper_matcher->DeepCopy(), args_matcher->DeepCopy());
+	}
+
 	void ExpressionMatcher::PPrint(std::ostream & output)
 	{
 		output << "ExpressionMatcher {\n";
@@ -87,7 +92,7 @@ namespace Ravel::SubML
 		if (oper_matcher) oper_matcher->PPrint(inner);
 		else inner << "NULL";
 		inner << ",\n";
-		if (group_matcher) group_matcher->PPrint(inner);
+		if (args_matcher) args_matcher->PPrint(inner);
 		else inner << "NULL";
 		output << Indent() << inner.str();
 

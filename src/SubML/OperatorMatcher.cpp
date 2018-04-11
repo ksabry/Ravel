@@ -77,6 +77,11 @@ namespace Ravel::SubML
 		}
 	}
 
+	OperatorMatcher * OperatorMatcher::DeepCopy()
+	{
+		return new OperatorMatcher(value_matcher->DeepCopy(), capture_matcher->DeepCopy());
+	}
+
 	void OperatorMatcher::PPrint(std::ostream & output)
 	{
 		output << "OperatorMatcher {\n";

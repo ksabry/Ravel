@@ -27,6 +27,11 @@ namespace Ravel::SubML
 		return result;
 	}
 
+	ImmediateMatcher * ImmediateMatcher::DeepCopy()
+	{
+		return new ImmediateMatcher(data_type, data);
+	}
+
 	void ImmediateMatcher::PPrint(std::ostream & output)
 	{
 		output << "ImmediateMatcher(" << data << ")";

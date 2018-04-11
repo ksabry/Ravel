@@ -21,6 +21,8 @@ namespace Ravel::SubML
 			index_count = this->match_length;
 		}
 
+		virtual UnorderedQuantifiedExpressionMatcher * DeepCopy() override;
+
 	protected:
 		virtual void BeginInternal() override;
 		virtual uint64_t * NextInternal() override;
