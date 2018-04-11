@@ -32,11 +32,18 @@ namespace Ravel::SubML
 		stack = new Frame[matcher_count];
 		stack_idx = 0;
 		
-		BeginFrame(0, match_captures, exprs);
+		if (matcher_count > 0) BeginFrame(0, match_captures, exprs);
 	}
 
 	uint64_t * UnorderedArgsMatcher::NextInternal()
 	{
+		if (matcher_count == 0)
+		{
+			Finish();
+			if (expr_count == 0) return match_captures;
+			return nullptr;
+		}
+
 		while (stack_idx >= 0)
 		{
 			Assert(stack[stack_idx].initialized);
@@ -75,6 +82,9 @@ namespace Ravel::SubML
 				);
 			}
 		}
+
+		Finish();
+		return nullptr;
 	}
 
 	void UnorderedArgsMatcher::BeginFrame(

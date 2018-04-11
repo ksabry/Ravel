@@ -22,7 +22,7 @@ namespace Ravel::SubML
 
 		inline uint32_t MatchLength()
 		{
-			return match_length;
+			return static_cast<uint32_t>(match_idx + 1);
 		}
 
 		virtual OrderedQuantifiedExpressionMatcher * DeepCopy() override;
@@ -36,13 +36,13 @@ namespace Ravel::SubML
 		Quantifier quantifier;
 		CaptureMatcher<Expression *> * capture_matcher;
 		
-		uint32_t match_length;
+		int32_t match_idx;
 		
-		std::vector<uint64_t *> intermediate_captures;
-		std::vector<uint64_t *> next_intermediate_captures;
-		uint32_t intermediate_captures_idx;
+		uint32_t cache_size;
+		std::vector<Matcher<Expression *> *> expression_matchers_cache;
+		std::vector<CaptureMatcher<Expression *> *> capture_matchers_cache;
 
-		void CalculateNextMatches();
+		void ResizeCache(uint32_t new_cache_size);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;

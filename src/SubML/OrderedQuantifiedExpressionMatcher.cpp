@@ -1,4 +1,5 @@
 #include "OrderedQuantifiedExpressionMatcher.hpp"
+#include "Numeric.hpp"
 
 namespace Ravel::SubML
 {
@@ -6,73 +7,103 @@ namespace Ravel::SubML
 		Matcher<Expression *> * expression_matcher, 
 		Quantifier quantifier, 
 		CaptureMatcher<Expression *> * capture_matcher)
-		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher)
+		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), cache_size(0)
 	{
+		ResizeCache(Min(10u, quantifier.high));
 	}
+
 	OrderedQuantifiedExpressionMatcher::~OrderedQuantifiedExpressionMatcher()
 	{
 		if (expression_matcher) delete expression_matcher;
 		if (capture_matcher) delete capture_matcher;
-		for (uint64_t * captures : intermediate_captures) delete[] captures;
-		for (uint64_t * captures : next_intermediate_captures) delete[] captures;
+		for (auto e_matcher : expression_matchers_cache) delete e_matcher;
+		for (auto c_matcher : capture_matchers_cache) delete c_matcher;
 	}
 
 	void OrderedQuantifiedExpressionMatcher::BeginInternal()
 	{
-		match_length = 0;
-		intermediate_captures_idx = 0;
-		intermediate_captures.push_back(match_captures);
-		while (match_length < quantifier.low) CalculateNextMatches();
+		Expression ** exprs = MatchArgument<0>();
+		uint32_t expr_count = MatchArgument<1>();
+
+		if (expr_count > cache_size) ResizeCache(expr_count);
+		match_idx = 0;
+		if (expr_count > 0) expression_matchers_cache[0]->Begin(match_captures, match_capture_count, exprs[0]);
 	}
 
 	uint64_t * OrderedQuantifiedExpressionMatcher::NextInternal()
 	{
 		Expression ** exprs = MatchArgument<0>();
 		uint32_t expr_count = MatchArgument<1>();
+		uint32_t match_idx_max = Min(expr_count - 1, quantifier.high);
 
-		while (intermediate_captures_idx >= intermediate_captures.size())
+		if (expr_count == 0)
 		{
-			if (match_length + 1 >= expr_count || match_length + 1 > quantifier.high)
+			match_idx = -1;
+			Finish();
+			if (quantifier.low == 0) return match_captures;
+			return nullptr;
+		}
+
+		while (match_idx >= 0)
+		{
+			auto e_matcher = expression_matchers_cache[match_idx];
+			auto c_matcher = capture_matchers_cache[match_idx];
+			
+			if (e_matcher->HasFinished())
 			{
-				Finish();
-				return nullptr;
+				match_idx--;
+				continue;
+			}
+			
+			uint64_t * capture_captures = c_matcher->Next();
+			while (!capture_captures)
+			{
+				uint64_t * expression_captures = e_matcher->Next();
+				if (!expression_captures)
+				{
+					match_idx--;
+					continue;
+				}
+				c_matcher->Begin(expression_captures, match_capture_count, exprs[match_idx]);
+				capture_captures = c_matcher->Next();
 			}
 
-			CalculateNextMatches();
-			intermediate_captures_idx = 0;
+			if (match_idx < match_idx_max)
+			{
+				match_idx++;
+				expression_matchers_cache[match_idx]->Begin(capture_captures, match_capture_count, exprs[match_idx]);
+			}
+
+			if (match_idx + 1 >= quantifier.low) return capture_captures;
 		}
-		return intermediate_captures[intermediate_captures_idx++];
+
+		Finish();
+		return nullptr;
 	}
 
-	void OrderedQuantifiedExpressionMatcher::CalculateNextMatches()
+	void OrderedQuantifiedExpressionMatcher::ResizeCache(uint32_t new_cache_size)
 	{
-		Expression ** exprs = MatchArgument<0>();
-		uint32_t expr_count = MatchArgument<1>();
-
-		for (uint64_t * captures : intermediate_captures)
+		if (new_cache_size > cache_size)
 		{
-			expression_matcher->Begin(captures, match_capture_count, exprs[match_length]);
-			uint64_t * expression_captures = expression_matcher->Next();
-			while (expression_captures)
+			expression_matchers_cache.resize(new_cache_size);
+			capture_matchers_cache.resize(new_cache_size);
+			for (uint32_t i = cache_size; i < new_cache_size; i++)
 			{
-				capture_matcher->Begin(expression_captures, match_capture_count, exprs[match_length]);
-				uint64_t * capture_captures = capture_matcher->Next();
-				while (capture_captures)
-				{
-					uint64_t * copied = new uint64_t [match_capture_count];
-					ArrCpy(copied, capture_captures, match_capture_count);
-					next_intermediate_captures.push_back(copied);
-
-					capture_captures = capture_matcher->Next();
-				}
-				expression_captures = expression_matcher->Next();
+				expression_matchers_cache[i] = expression_matcher->DeepCopy();
+				capture_matchers_cache[i] = capture_matcher->DeepCopy();
 			}
-			delete[] captures;
 		}
-
-		intermediate_captures = next_intermediate_captures;
-		next_intermediate_captures.clear();
-		match_length++;
+		else
+		{
+			for (uint32_t i = new_cache_size; i < cache_size; i++)
+			{
+				delete expression_matchers_cache[i];
+				delete capture_matchers_cache[i];
+			}
+			expression_matchers_cache.resize(new_cache_size);
+			capture_matchers_cache.resize(new_cache_size);
+		}
+		cache_size = new_cache_size;
 	}
 
 	OrderedQuantifiedExpressionMatcher * OrderedQuantifiedExpressionMatcher::DeepCopy()
