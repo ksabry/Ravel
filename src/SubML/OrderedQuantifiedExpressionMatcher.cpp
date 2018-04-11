@@ -22,7 +22,7 @@ namespace Ravel::SubML
 		match_length = 0;
 		intermediate_captures_idx = 0;
 		intermediate_captures.push_back(match_captures);
-		while (match_length < quantifier.low) CalculateNextMatchLength();
+		while (match_length < quantifier.low) CalculateNextMatches();
 	}
 
 	uint64_t * OrderedQuantifiedExpressionMatcher::NextInternal()
@@ -38,13 +38,13 @@ namespace Ravel::SubML
 				return nullptr;
 			}
 
-			CalculateNextMatchLength();
+			CalculateNextMatches();
 			intermediate_captures_idx = 0;
 		}
 		return intermediate_captures[intermediate_captures_idx++];
 	}
 
-	void OrderedQuantifiedExpressionMatcher::CalculateNextMatchLength()
+	void OrderedQuantifiedExpressionMatcher::CalculateNextMatches()
 	{
 		Expression ** exprs = MatchArgument<0>();
 		uint32_t expr_count = MatchArgument<1>();

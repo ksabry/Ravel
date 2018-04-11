@@ -14,7 +14,12 @@ namespace Ravel::SubML
 			delete matchers[idx];
 		}
 		delete[] matchers;
-		// TODO: delete stack
+		
+		for (uint32_t i = 0; i < matcher_count; i++)
+		{
+			if (stack[i].initialized) FinishFrame(i);
+		}
+		delete[] stack;
 	}
 
 	void OrderedArgsMatcher::BeginInternal()
@@ -47,16 +52,25 @@ namespace Ravel::SubML
 				continue;
 			}
 
+			auto new_remaining_exprs = new Expression * [matcher_count];
+			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, matcher_count);
+			for (uint32_t i = 0; i < stack[stack_idx].matcher->MatchLength(); i++)
+			{
+				new_remaining_exprs[stack[stack_idx].expr_start_idx + i] = nullptr;
+			}
+
 			if (stack_idx == matcher_count - 1)
 			{
-				if (IsComplete(stack[stack_idx].remaining_exprs)) return frame_captures;
+				bool complete = IsComplete(new_remaining_exprs);
+				delete[] new_remaining_exprs;
+				if (complete) return frame_captures;
 			}
 			else
 			{
 				BeginFrame(
 					++stack_idx, 
 					frame_captures, 
-					stack[stack_idx].remaining_exprs, 
+					new_remaining_exprs, 
 					stack[stack_idx].remaining_matchers,
 					stack[stack_idx].remaining_bounds
 				);
@@ -69,15 +83,16 @@ namespace Ravel::SubML
 	void OrderedArgsMatcher::BeginFrame(
 		uint32_t idx,
 		uint64_t * incoming_captures, 
-		Expression ** remaining_exprs, 
+		Expression ** new_remaining_exprs, 
 		OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
 		Bounds * remaining_bounds)
 	{
-		if (idx >= matcher_count) return;
+		Assert(idx < matcher_count);
 
-		if (!remaining_bounds)
+		if (!remaining_bounds && !CalculateBounds(stack[idx].remaining_bounds, stack[idx].remaining_matchers))
 		{
-			if (!CalculateBounds(stack[idx].remaining_bounds, stack[idx].remaining_matchers)) return;
+			delete[] new_remaining_exprs;
+			return;
 		}
 		Bounds * bounds = stack[idx].remaining_bounds;
 
@@ -97,7 +112,9 @@ namespace Ravel::SubML
 		while (next_end_idx < expr_count && !exprs[next_end_idx]) next_end_idx++;
 
 		stack[idx].matcher->Begin(incoming_captures, match_capture_count, exprs + next_start_idx, next_end_idx - next_start_idx);
-		stack[idx].initialized = true;
+
+		stack[idx].expr_start_idx = next_start_idx;
+		stack[idx].incoming_remaining_exprs = new_remaining_exprs;
 
 		stack[idx].remaining_matchers = new OrderedQuantifiedExpressionMatcher * [matcher_count];
 		ArrCpy(stack[idx].remaining_matchers, remaining_matchers, matcher_count);
@@ -112,13 +129,14 @@ namespace Ravel::SubML
 		{
 			stack[idx].remaining_bounds = nullptr;
 		}
+		stack[idx].initialized = true;
 	}
 
 	void OrderedArgsMatcher::FinishFrame(uint32_t idx)
 	{
 		Assert(stack[idx].initialized);
 
-		if (stack[idx].remaining_exprs) delete[] stack[idx].remaining_exprs;
+		if (stack[idx].incoming_remaining_exprs) delete[] stack[idx].incoming_remaining_exprs;
 		if (stack[idx].remaining_matchers) delete[] stack[idx].remaining_matchers;
 		if (stack[idx].remaining_bounds) delete[] stack[idx].remaining_bounds;
 		stack[idx].initialized = false;

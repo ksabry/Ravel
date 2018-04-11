@@ -1,9 +1,10 @@
 #include "UnorderedArgsMatcher.h"
+#include "Assert.h"
 
 namespace Ravel::SubML
 {
 	UnorderedArgsMatcher::UnorderedArgsMatcher(UnorderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
-		: matchers(matchers), matcher_count(matcher_count)
+		: matchers(matchers), matcher_count(matcher_count), stack(nullptr), stack_idx(0)
 	{
 	}
 	UnorderedArgsMatcher::~UnorderedArgsMatcher()
@@ -13,15 +14,88 @@ namespace Ravel::SubML
 			delete matchers[idx];
 		}
 		delete[] matchers;
+
+		for (uint32_t i = 0; i < matcher_count; i++)
+		{
+			if (stack[i].initialized) FinishFrame(i);
+		}
+		delete[] stack;
 	}
 
 	void UnorderedArgsMatcher::BeginInternal()
 	{
+		Expression * parent = MatchArgument<0>();
+
+		exprs = parent->Args();
+		expr_count = parent->ArgCount();
+
+		stack = new Frame[matcher_count];
+		stack_idx = 0;
+		
+		BeginFrame(0, match_captures, exprs);
 	}
 
 	uint64_t * UnorderedArgsMatcher::NextInternal()
 	{
-		return nullptr;
+		while (stack_idx >= 0)
+		{
+			Assert(stack[stack_idx].initialized);
+
+			uint64_t * frame_captures = matchers[stack_idx]->Next();
+			if (!frame_captures)
+			{
+				FinishFrame(stack_idx);
+				stack_idx--;
+				continue;
+			}
+
+			uint32_t * used_indices;
+			uint32_t used_index_count;
+			matchers[stack_idx]->GetUsedIndices(used_indices, used_index_count);
+			
+			auto new_remaining_exprs = new Expression * [matcher_count];
+			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, matcher_count);
+			for (uint32_t i = 0; i < used_index_count; i++)
+			{
+				new_remaining_exprs[used_indices[i]] = nullptr;
+			}
+
+			if (stack_idx == matcher_count - 1)
+			{
+				bool complete = IsComplete(new_remaining_exprs);
+				delete[] new_remaining_exprs;
+				if (complete) return frame_captures;
+			}
+			else
+			{
+				BeginFrame(
+					++stack_idx,
+					frame_captures,
+					new_remaining_exprs
+				);
+			}
+		}
+	}
+
+	void UnorderedArgsMatcher::BeginFrame(
+		uint32_t idx,
+		uint64_t * incoming_captures,
+		Expression ** new_remaining_exprs)
+	{
+		Assert(idx < matcher_count);
+
+		matchers[idx]->Begin(incoming_captures, match_capture_count, new_remaining_exprs, expr_count);
+		
+		stack[idx].incoming_remaining_exprs = nullptr;
+		stack[idx].initialized = true;
+	}
+
+	void UnorderedArgsMatcher::FinishFrame(uint32_t idx)
+	{
+		Assert(stack[idx].initialized);
+
+		if (stack[idx].incoming_remaining_exprs) delete[] stack[idx].incoming_remaining_exprs;
+		stack[idx].initialized = false;
 	}
 
 	void UnorderedArgsMatcher::PPrint(std::ostream & output)

@@ -33,7 +33,8 @@ namespace Ravel::SubML
 			bool initialized = false;
 			OrderedQuantifiedExpressionMatcher * matcher = nullptr;
 
-			Expression ** remaining_exprs = nullptr;
+			uint32_t expr_start_idx;
+			Expression ** incoming_remaining_exprs = nullptr;
 			OrderedQuantifiedExpressionMatcher ** remaining_matchers = nullptr;
 			Bounds * remaining_bounds = nullptr;
 		};
@@ -44,7 +45,7 @@ namespace Ravel::SubML
 		void BeginFrame(
 			uint32_t idx,
 			uint64_t * incoming_captures,
-			Expression ** remaining_exprs,
+			Expression ** new_remaining_exprs,
 			OrderedQuantifiedExpressionMatcher ** remaining_matchers,
 			Bounds * remaining_bounds);
 

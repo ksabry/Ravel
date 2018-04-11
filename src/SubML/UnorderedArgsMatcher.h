@@ -25,8 +25,20 @@ namespace Ravel::SubML
 		struct Frame
 		{
 			bool initialized = false;
-			Expression ** remaining_exprs = nullptr;
+			Expression ** incoming_remaining_exprs = nullptr;
 		};
+
+		Frame * stack;
+		int32_t stack_idx;
+
+		void BeginFrame(
+			uint32_t idx,
+			uint64_t * incoming_captures,
+			Expression ** new_remaining_exprs);
+
+		void FinishFrame(uint32_t idx);
+
+		bool IsComplete(Expression ** exprs);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;

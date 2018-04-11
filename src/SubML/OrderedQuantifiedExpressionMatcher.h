@@ -40,7 +40,7 @@ namespace Ravel::SubML
 		std::vector<uint64_t *> next_intermediate_captures;
 		uint32_t intermediate_captures_idx;
 
-		void CalculateNextMatchLength();
+		void CalculateNextMatches();
 
 	public:
 		virtual void PPrint(std::ostream & output) override;
