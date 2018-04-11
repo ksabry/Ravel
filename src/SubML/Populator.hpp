@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Expression.h"
-#include "Error.h"
-#include "String.h"
+#include "Expression.hpp"
+#include "Error.hpp"
+#include "String.hpp"
 
 namespace Ravel::SubML
 {

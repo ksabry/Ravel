@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "CaptureMatcher.h"
-#include "Quantifier.h"
+#include "CaptureMatcher.hpp"
+#include "Quantifier.hpp"
 
 namespace Ravel::SubML
 {

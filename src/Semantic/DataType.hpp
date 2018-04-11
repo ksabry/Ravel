@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "BitCast.h"
+#include "BitCast.hpp"
 
 namespace Ravel
 {

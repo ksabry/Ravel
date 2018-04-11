@@ -1,4 +1,4 @@
-#include "MultiExpressionPopulator.h"
+#include "MultiExpressionPopulator.hpp"
 
 namespace Ravel::SubML
 {

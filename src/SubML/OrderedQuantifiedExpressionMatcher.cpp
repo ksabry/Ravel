@@ -1,4 +1,4 @@
-#include "OrderedQuantifiedExpressionMatcher.h"
+#include "OrderedQuantifiedExpressionMatcher.hpp"
 
 namespace Ravel::SubML
 {

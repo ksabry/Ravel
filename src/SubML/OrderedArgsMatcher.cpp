@@ -1,5 +1,5 @@
-#include "OrderedArgsMatcher.h"
-#include "Assert.h"
+#include "OrderedArgsMatcher.hpp"
+#include "Assert.hpp"
 
 namespace Ravel::SubML
 {

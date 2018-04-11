@@ -2,9 +2,9 @@
 
 #include <cstring>
 
-#include "Matcher.h"
-#include "Expression.h"
-#include "ArrCpy.h"
+#include "Matcher.hpp"
+#include "Expression.hpp"
+#include "ArrCpy.hpp"
 
 namespace Ravel::SubML
 {

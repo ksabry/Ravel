@@ -3,14 +3,14 @@
 #include <iostream>
 #include <fstream>
 
-#include "Error.h"
-#include "Program.h"
-#include "Tokenizer.h"
-#include "Substitution.h"
-#include "Matcher.h"
-#include "Populator.h"
-#include "OrderedQuantifiedExpressionMatcher.h"
-#include "UnorderedQuantifiedExpressionMatcher.h"
+#include "Error.hpp"
+#include "Program.hpp"
+#include "Tokenizer.hpp"
+#include "Substitution.hpp"
+#include "Matcher.hpp"
+#include "Populator.hpp"
+#include "OrderedQuantifiedExpressionMatcher.hpp"
+#include "UnorderedQuantifiedExpressionMatcher.hpp"
 
 namespace Ravel::SubML
 {

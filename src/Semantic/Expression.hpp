@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ExpressionOperator.h"
-#include "DataType.h"
-#include "BitCast.h"
+#include "ExpressionOperator.hpp"
+#include "DataType.hpp"
+#include "BitCast.hpp"
 
 namespace Ravel
 {

@@ -1,4 +1,4 @@
-#include "Quantifier.h"
+#include "Quantifier.hpp"
 
 namespace Ravel::SubML
 {

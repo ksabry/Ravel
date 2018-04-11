@@ -1,4 +1,4 @@
-#include "ExpressionOperator.h"
+#include "ExpressionOperator.hpp"
 
 namespace Ravel
 {

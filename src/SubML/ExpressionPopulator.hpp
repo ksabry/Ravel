@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Populator.h"
+#include "Populator.hpp"
 
 namespace Ravel::SubML
 {

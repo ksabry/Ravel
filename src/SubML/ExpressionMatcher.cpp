@@ -1,5 +1,5 @@
-#include "ExpressionMatcher.h"
-#include "String.h"
+#include "ExpressionMatcher.hpp"
+#include "String.hpp"
 
 namespace Ravel::SubML
 {

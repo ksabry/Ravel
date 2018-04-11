@@ -1,4 +1,4 @@
-#include "Substitution.h"
+#include "Substitution.hpp"
 
 namespace Ravel::SubML
 {

@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "Tokenizer.h"
-#include "Assert.h"
-#include "Compiler.h"
-#include "Program.h"
+#include "Tokenizer.hpp"
+#include "Assert.hpp"
+#include "Compiler.hpp"
+#include "Program.hpp"
 
 using namespace Ravel;
 

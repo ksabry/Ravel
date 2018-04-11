@@ -1,19 +1,19 @@
-#include "Compiler.h"
+#include "Compiler.hpp"
 
 #include <vector>
 
-#include "Assert.h"
-#include "ArrCpy.h"
-#include "OrderedArgsMatcher.h"
-#include "UnorderedArgsMatcher.h"
-#include "ImmediateMatcher.h"
-#include "ExpressionMatcher.h"
-#include "OperatorMatcher.h"
-#include "MultiExpressionPopulator.h"
-#include "CapturePopulator.h"
-#include "OperatorValuePopulator.h"
-#include "ArgsPopulator.h"
-#include "ImmediatePopulator.h"
+#include "Assert.hpp"
+#include "ArrCpy.hpp"
+#include "OrderedArgsMatcher.hpp"
+#include "UnorderedArgsMatcher.hpp"
+#include "ImmediateMatcher.hpp"
+#include "ExpressionMatcher.hpp"
+#include "OperatorMatcher.hpp"
+#include "MultiExpressionPopulator.hpp"
+#include "CapturePopulator.hpp"
+#include "OperatorValuePopulator.hpp"
+#include "ArgsPopulator.hpp"
+#include "ImmediatePopulator.hpp"
 
 //TODO: ensure things are cleaned up even when errors are thrown
 

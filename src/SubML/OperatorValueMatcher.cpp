@@ -1,5 +1,5 @@
-#include "OperatorValueMatcher.h"
-#include "ArrCpy.h"
+#include "OperatorValueMatcher.hpp"
+#include "ArrCpy.hpp"
 
 namespace Ravel::SubML
 {

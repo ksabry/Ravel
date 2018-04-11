@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Matcher.h"
-#include "OrderedQuantifiedExpressionMatcher.h"
+#include "Matcher.hpp"
+#include "OrderedQuantifiedExpressionMatcher.hpp"
 
 namespace Ravel::SubML
 {

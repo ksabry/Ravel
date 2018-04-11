@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ostream>
-#include "TypePackElement.h"
-#include "BitCast.h"
-#include "String.h"
+#include "TypePackElement.hpp"
+#include "BitCast.hpp"
+#include "String.hpp"
 
 namespace Ravel::SubML
 {

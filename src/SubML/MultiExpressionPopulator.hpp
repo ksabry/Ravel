@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Populator.h"
-#include "ExpressionPopulator.h"
+#include "Populator.hpp"
+#include "ExpressionPopulator.hpp"
 
 namespace Ravel::SubML
 {

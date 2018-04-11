@@ -3,8 +3,8 @@
 #include <fstream>
 #include <vector>
 
-#include "Token.h"
-#include "Error.h"
+#include "Token.hpp"
+#include "Error.hpp"
 
 namespace Ravel::SubML
 {

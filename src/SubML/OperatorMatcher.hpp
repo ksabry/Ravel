@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Matcher.h"
-#include "OperatorValueMatcher.h"
-#include "CaptureMatcher.h"
+#include "Matcher.hpp"
+#include "OperatorValueMatcher.hpp"
+#include "CaptureMatcher.hpp"
 
 namespace Ravel::SubML
 {

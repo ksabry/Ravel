@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 
-#include "String.h"
+#include "String.hpp"
 
 namespace Ravel::SubML
 {

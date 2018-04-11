@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Matcher.h"
-#include "Expression.h"
+#include "Matcher.hpp"
+#include "Expression.hpp"
 
 namespace Ravel::SubML
 {
