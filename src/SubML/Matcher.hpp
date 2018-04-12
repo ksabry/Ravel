@@ -59,6 +59,12 @@ namespace Ravel::SubML
 			return finished;
 		}
 
+		inline void Reset()
+		{
+			begun = false;
+			finished = false;
+		}
+
 		virtual Matcher<TArgs...> * DeepCopy() = 0;
 
 		virtual void PPrint(std::ostream & output)

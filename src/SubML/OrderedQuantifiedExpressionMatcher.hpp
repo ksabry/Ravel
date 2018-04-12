@@ -37,12 +37,15 @@ namespace Ravel::SubML
 		CaptureMatcher<Expression *> * capture_matcher;
 		
 		int32_t match_idx;
-		
+		uint64_t ** captures_stack;
+
 		uint32_t cache_size;
 		std::vector<Matcher<Expression *> *> expression_matchers_cache;
 		std::vector<CaptureMatcher<Expression *> *> capture_matchers_cache;
 
 		void ResizeCache(uint32_t new_cache_size);
+
+		bool NextCaptures(uint64_t * & output);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;
