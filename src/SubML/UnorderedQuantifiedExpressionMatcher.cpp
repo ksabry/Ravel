@@ -1,5 +1,5 @@
 #include "UnorderedQuantifiedExpressionMatcher.hpp"
-#include "Numeric.h"
+#include "Numeric.hpp"
 
 namespace Ravel::SubML
 {
@@ -99,6 +99,7 @@ namespace Ravel::SubML
 	bool UnorderedQuantifiedExpressionMatcher::NextCaptures(uint64_t * & output)
 	{
 		Expression ** exprs = MatchArgument<0>();
+		uint32_t expr_count = MatchArgument<1>();
 
 		auto e_matcher = expression_matchers_cache[match_idx];
 		auto c_matcher = capture_matchers_cache[match_idx];
