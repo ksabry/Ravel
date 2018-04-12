@@ -6,16 +6,18 @@
 			"includePath": [
 				"/usr/include",
 				"/usr/local/include",
-				"${workspaceRoot}/src"
+				"${workspaceRoot}/src",
+				"${workspaceRoot}/test"
 			],
-			
+			"includePathRecursive" : [],
 			"defines": [],
 			"intelliSenseMode": "clang-x64",
 			"browse": {
 				"path": [
 					"/usr/include",
 					"/usr/local/include",
-					"${workspaceRoot}/src"
+					"${workspaceRoot}/src",
+					"${workspaceRoot}/test"
 				],
 				"limitSymbolsToIncludedHeaders": true,
 				"databaseFilename": ""

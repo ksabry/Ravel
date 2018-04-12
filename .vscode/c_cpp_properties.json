@@ -8,14 +8,16 @@
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
-                    "${workspaceRoot}/src"
+                    "${workspaceRoot}/src",
+                    "${workspaceRoot}/test"
                 ]
             },
             "defines": [],
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceRoot}/src"
+                "${workspaceRoot}/src",
+                "${workspaceRoot}/test"
             ],
             "intelliSenseMode": "clang-x64",
             "name": "Linux",

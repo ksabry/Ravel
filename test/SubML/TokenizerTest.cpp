@@ -1,14 +1,22 @@
 #include "catch.hpp"
+#include <sstream>
+#include "SubML/Tokenizer.hpp"
 
-namespace SubMLTest
+using namespace Ravel::SubML;
+
+// TEST_CASE( "Tokenizes identifiers", "[tokenize]" )
+// {
+// 	std::stringstream input_stream;
+// 	input_stream.str("identifiers with_underscore numbers1234 _underscore_start");
+
+// 	Tokenizer tokenizer;
+// 	std::vector<Token *> output;
+// 	tokenizer.Tokenize(&input_stream, &output);
+
+// 	REQUIRE( output.size() == 4 );
+// }
+
+TEST_CASE( "SimpleTest", "[simple]")
 {
-	 TEST_CLASS(TokenizerTest)
-	 {
-	 public:
-
-		 TEST_METHOD(TestMethod1)
-		 {
-			 Assert::IsTrue(true);
-		 }
-	 };
+	REQUIRE(true);
 }

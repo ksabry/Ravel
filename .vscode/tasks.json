@@ -8,19 +8,26 @@
 			"type": "shell",
 			"command": "make CONFIG=DEBUG",
 			"args": [],
-			"problemMatcher": "$msCompile"
+			"problemMatcher": "$gcc"
 		},
 		{
 			"label": "build release",
 			"type": "shell",
 			"command": "make CONFIG=RELEASE",
 			"args": [],
-			"problemMatcher": "$msCompile"
+			"problemMatcher": "$gcc"
+		},
+		{
+			"label": "build test",
+			"type": "shell",
+			"command": "make CONFIG=TEST",
+			"args": [],
+			"problemMatcher": "$gcc"
 		},
 		{
 			"label": "gen-properties",
 			"type": "shell",
-			"command": "python util/generate_c_cpp_properties.py",
+			"command": "python3 util/generate_c_cpp_properties.py",
 			"args": [],
 			"problemMatcher": []
 		}
