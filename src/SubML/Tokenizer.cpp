@@ -1,6 +1,7 @@
 #include "Tokenizer.hpp"
 
 #include <sstream>
+#include "Util/Assert.hpp"
 
 namespace Ravel::SubML
 {
@@ -196,10 +197,11 @@ namespace Ravel::SubML
 		while (true)
 		{
 			int chr = Peek();
+			Assert(chr != -1);
 			Next();
-			if (chr == '\\') chr = ConsumeEscapeChar();
 
 			if (chr == delim) break;
+			if (chr == '\\') chr = ConsumeEscapeChar();
 			string << static_cast<char>(chr);
 		}
 
@@ -211,8 +213,8 @@ namespace Ravel::SubML
 	{
 		static char const * op_strings[] = { "=>", "->", "<-", "$$", "(", ")", "{", "}", "[", "]", "<", ">", "@", "*", "+", "!", ",", "?", ":", "-", "=", ";", "/", "$", "~", "|" };
 		static TokenOperator op_values[] = { TokenOperator::DOUBLE_RIGHT_ARROW, TokenOperator::RIGHT_ARROW, TokenOperator::LEFT_ARROW, TokenOperator::DOUBLE_DOLLAR, TokenOperator::LEFT_PAREN, TokenOperator::RIGHT_PAREN, TokenOperator::LEFT_CURLY, TokenOperator::RIGHT_CURLY,
-											TokenOperator::LEFT_SQUARE, TokenOperator::RIGHT_SQUARE, TokenOperator::LEFT_ANGLE, TokenOperator::RIGHT_ANGLE, TokenOperator::AMPERSAT, TokenOperator::STAR, TokenOperator::PLUS, TokenOperator::BANG, TokenOperator::COMMA, 
-											TokenOperator::QUESTION_MARK, TokenOperator::COLON, TokenOperator::MINUS, TokenOperator::EQUALS, TokenOperator::SEMICOLON, TokenOperator::FORWARD_SLASH, TokenOperator::DOLLAR, TokenOperator::TILDE, TokenOperator::BAR };
+		                                     TokenOperator::LEFT_SQUARE, TokenOperator::RIGHT_SQUARE, TokenOperator::LEFT_ANGLE, TokenOperator::RIGHT_ANGLE, TokenOperator::AMPERSAT, TokenOperator::STAR, TokenOperator::PLUS, TokenOperator::BANG, TokenOperator::COMMA, 
+		                                     TokenOperator::QUESTION_MARK, TokenOperator::COLON, TokenOperator::MINUS, TokenOperator::EQUALS, TokenOperator::SEMICOLON, TokenOperator::FORWARD_SLASH, TokenOperator::DOLLAR, TokenOperator::TILDE, TokenOperator::BAR };
 		static uint32_t op_count = sizeof(op_values) / sizeof(TokenOperator);
 
 		auto start_pos = input->tellg();
