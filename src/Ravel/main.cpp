@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "Tokenizer.hpp"
-#include "Assert.hpp"
-#include "Compiler.hpp"
-#include "Program.hpp"
+#include "Util/Assert.hpp"
+#include "SubML/Tokenizer.hpp"
+#include "SubML/Compiler.hpp"
+#include "SubML/Program.hpp"
 
 using namespace Ravel;
 

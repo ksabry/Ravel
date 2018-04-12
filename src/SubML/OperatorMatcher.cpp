@@ -79,7 +79,9 @@ namespace Ravel::SubML
 
 	OperatorMatcher * OperatorMatcher::DeepCopy()
 	{
-		return new OperatorMatcher(value_matcher->DeepCopy(), capture_matcher->DeepCopy());
+		auto new_value_matcher = value_matcher == nullptr ? nullptr : value_matcher->DeepCopy();
+		auto new_capture_matcher = capture_matcher == nullptr ?  nullptr : capture_matcher->DeepCopy();
+		return new OperatorMatcher(new_value_matcher, new_capture_matcher);
 	}
 
 	void OperatorMatcher::PPrint(std::ostream & output)

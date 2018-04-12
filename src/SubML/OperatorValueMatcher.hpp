@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Matcher.hpp"
-#include "ExpressionOperator.hpp"
+#include "Semantic/ExpressionOperator.hpp"
 
 namespace Ravel::SubML
 {

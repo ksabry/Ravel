@@ -121,7 +121,9 @@ namespace Ravel::SubML
 
 	OrderedQuantifiedExpressionMatcher * OrderedQuantifiedExpressionMatcher::DeepCopy()
 	{
-		return new OrderedQuantifiedExpressionMatcher(expression_matcher->DeepCopy(), quantifier, capture_matcher->DeepCopy());
+		auto new_expression_matcher = expression_matcher == nullptr ? nullptr : expression_matcher->DeepCopy();
+		auto new_capture_matcher = capture_matcher == nullptr ? nullptr : capture_matcher->DeepCopy();
+		return new OrderedQuantifiedExpressionMatcher(new_expression_matcher, quantifier, new_capture_matcher);
 	}
 
 	void OrderedQuantifiedExpressionMatcher::PPrint(std::ostream & output)

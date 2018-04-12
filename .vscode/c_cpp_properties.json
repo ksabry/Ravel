@@ -1,62 +1,52 @@
 {
-	"__WARNING": "This file is generated and changes WILL NOT be kept; Refer to c_cpp_properties_base.json to make permanent changes or utils/generate_c_cpp_properties.py for generation script",
-	"configurations": [
-		{
-			"browse": {
-				"databaseFilename": "",
-				"limitSymbolsToIncludedHeaders": true,
-				"path": [
-					"/usr/include",
-					"/usr/local/include",
-					"${workspaceRoot}/src"
-				]
-			},
-			"defines": [],
-			"includePath": [
-				"${workspaceRoot}/src",
-				"${workspaceRoot}/src/Ravel",
-				"${workspaceRoot}/src/Semantic",
-				"${workspaceRoot}/src/SubML",
-				"${workspaceRoot}/src/SubMLTest",
-				"${workspaceRoot}/src/Util",
-				"/usr/include",
-				"/usr/local/include"
-			],
-			"intelliSenseMode": "clang-x64",
-			"name": "Linux",
-			"compilerPath": "/usr/bin/gcc",
-			"cStandard": "c11",
-			"cppStandard": "c++17"
-		},
-		{
-			"__UNUSED": [
-				"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
-				"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/x86_64-w64-mingw32/include"
-			],
-			"browse": {
-				"databaseFilename": "",
-				"limitSymbolsToIncludedHeaders": true,
-				"path": [
-					"C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
-					"${workspaceRoot}/src"
-				]
-			},
-			"defines": [
-				"_DEBUG",
-				"UNICODE",
-				"_UNICODE"
-			],
-			"includePath": [
-				"${workspaceRoot}/src",
-				"${workspaceRoot}/src/Ravel",
-				"${workspaceRoot}/src/Semantic",
-				"${workspaceRoot}/src/SubML",
-				"${workspaceRoot}/src/SubMLTest",
-				"${workspaceRoot}/src/Util"
-			],
-			"intelliSenseMode": "clang-x64",
-			"name": "Win32"
-		}
-	],
-	"version": 3
+    "__WARNING": "This file is generated and changes WILL NOT be kept; Refer to c_cpp_properties_base.json to make permanent changes or utils/generate_c_cpp_properties.py for generation script",
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}/src"
+                ]
+            },
+            "defines": [],
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}/src"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "name": "Linux",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        },
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
+                    "${workspaceRoot}/src"
+                ]
+            },
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "includePath": [
+                "${workspaceRoot}/src",
+                "${workspaceRoot}/src/Ravel",
+                "${workspaceRoot}/src/Semantic",
+                "${workspaceRoot}/src/SubML",
+                "${workspaceRoot}/src/Util"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "name": "Win32"
+        }
+    ],
+    "version": 3
 }

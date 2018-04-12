@@ -3,8 +3,8 @@
 #include <cstring>
 
 #include "Matcher.hpp"
-#include "Expression.hpp"
-#include "ArrCpy.hpp"
+#include "Semantic/Expression.hpp"
+#include "Util/ArrCpy.hpp"
 
 namespace Ravel::SubML
 {
@@ -25,11 +25,6 @@ namespace Ravel::SubML
 		virtual CaptureMatcher<T> * DeepCopy() override
 		{
 			return new CaptureMatcher<T>(capture_idx);
-		}
-
-		virtual void PPrint(std::ostream & output) override
-		{
-			output << "CaptureMatcher<" << typeid(T).name() << ">(" << capture_idx << ")";
 		}
 
 	protected:
@@ -62,6 +57,12 @@ namespace Ravel::SubML
 
 			Finish();
 			return result;
+		}
+	
+	public:
+		virtual void PPrint(std::ostream & output) override
+		{
+			output << "CaptureMatcher<" << typeid(T).name() << ">(" << capture_idx << ")";
 		}
 	};
 }

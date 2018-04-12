@@ -2,7 +2,7 @@
 
 #include "ExpressionOperator.hpp"
 #include "DataType.hpp"
-#include "BitCast.hpp"
+#include "Util/BitCast.hpp"
 
 namespace Ravel
 {

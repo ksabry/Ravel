@@ -3,9 +3,9 @@
 #include <ostream>
 #include <vector>
 
-#include "Expression.hpp"
 #include "OrderedQuantifiedExpressionMatcher.hpp"
 #include "Populator.hpp"
+#include "Semantic/Expression.hpp"
 
 namespace Ravel::SubML
 {

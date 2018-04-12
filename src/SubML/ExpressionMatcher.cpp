@@ -81,7 +81,9 @@ namespace Ravel::SubML
 
 	ExpressionMatcher * ExpressionMatcher::DeepCopy()
 	{
-		return new ExpressionMatcher(oper_matcher->DeepCopy(), args_matcher->DeepCopy());
+		auto new_oper_matcher = oper_matcher == nullptr ? nullptr : oper_matcher->DeepCopy();
+		auto new_args_matcher = args_matcher == nullptr ? nullptr : args_matcher->DeepCopy();
+		return new ExpressionMatcher(new_oper_matcher, new_args_matcher);
 	}
 
 	void ExpressionMatcher::PPrint(std::ostream & output)

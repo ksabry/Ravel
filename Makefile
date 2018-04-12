@@ -6,40 +6,50 @@ endif
 
 CXX := g++
 
-SRC_DIR := ./src
-DEP_DIR := ./.dep
+ifeq ($(CONFIG),TEST)
 
-ifeq ($(CONFIG),DEBUG)
+SRC_DIR := ./test
+OBJ_DIR := ./obj-test
+OUT_DIR := ./bin-test
+DEP_DIR := ./.dep-test
+OUT_NAME := test
+CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
+LDFLAGS := 
+INC_DIRS := ./src ./test
+
+else ifeq ($(CONFIG),DEBUG)
+
+SRC_DIR := ./src
 OBJ_DIR := ./obj-debug
 OUT_DIR := ./bin-debug
+DEP_DIR := ./.dep-debug
+OUT_NAME := main
+CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
+LDFLAGS := 
+INC_DIRS := ./src
+
 else ifeq ($(CONFIG),RELEASE)
+
+SRC_DIR := ./src
 OBJ_DIR := ./obj
 OUT_DIR := ./bin
+DEP_DIR := ./.dep
+OUT_NAME := main
+CXXFLAGS := -std=c++17 -g -Ofast -D_NDEBUG
+LDFLAGS := 
+INC_DIRS := ./src
+
 endif
 
-OUT_EXE := $(OUT_DIR)/main
+OUT_FILE := $(OUT_DIR)/$(OUT_NAME)
 
-SRC_SUBDIRS := $(wildcard $(SRC_DIR)/**)
 SRC_FILES := $(wildcard $(SRC_DIR)/**/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
-
-CXXFLAGS_DEBUG := -g -Og -D_DEBUG
-LDFLAGS_DEBUG := 
-CXXFLAGS_RELEASE := -g -Ofast -D_NDEBUG
-LDFLAGS_RELEASE := 
-
-ifeq ($(CONFIG),DEBUG)
-CXXFLAGS := -std=c++17 $(CXXFLAGS_DEBUG)
-LDFLAGS := $(LDFLAGS_DEBUG)
-else ifeq ($(CONFIG),RELEASE)
-CXXFLAGS := -std=c++17 $(CXXFLAGS_RELEASE)
-LDFLAGS := $(LDFLAGS_RELEASE)
-endif
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 INCLUDE_FLAG := $(EMPTY) -I$(EMPTY)
-CXXFLAGS += $(INCLUDE_FLAG)$(subst $(SPACE),$(INCLUDE_FLAG),$(SRC_SUBDIRS))
+CXXFLAGS += $(INCLUDE_FLAG)$(subst $(SPACE),$(INCLUDE_FLAG),$(INC_DIRS))
 
 ifeq (,$(wildcard $(DEP_DIR)))
 $(shell mkdir -p $(DEP_DIR))
@@ -65,5 +75,5 @@ ifeq (,$(wildcard $(dir $@)))
 endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OUT_EXE): $(OBJ_FILES)
+$(OUT_FILE): $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
