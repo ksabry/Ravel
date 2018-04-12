@@ -170,11 +170,12 @@ namespace Ravel::SubML
 		{
 			int chr = Peek();
 			int32_t digit = ('0' <= chr && chr <= '9') ? chr - '0' :
-				('a' <= chr && chr <= 'z') ? chr - 'a' + 10 :
-				('A' <= chr && chr <= 'Z') ? chr - 'A' + 10 : -1;
+			                ('a' <= chr && chr <= 'z') ? chr - 'a' + 10 :
+			                ('A' <= chr && chr <= 'Z') ? chr - 'A' + 10 : -1;
 
 			if (digit == -1 || digit >= base) break;
 			value = value * base + digit;
+			Next();
 		}
 
 		output->push_back(new IntegerToken(value, start_line, start_column));

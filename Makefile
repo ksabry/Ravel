@@ -16,6 +16,8 @@ OUT_NAME := test
 CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
 LDFLAGS := 
 INC_DIRS := ./src ./test
+LNK_DIRS := ./obj-debug
+LNK_IGNORE := *main.o
 
 else ifeq ($(CONFIG),DEBUG)
 
@@ -27,6 +29,8 @@ OUT_NAME := main
 CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
 LDFLAGS := 
 INC_DIRS := ./src
+LNK_DIRS := 
+LNK_IGNORE := 
 
 else ifeq ($(CONFIG),RELEASE)
 
@@ -38,13 +42,17 @@ OUT_NAME := main
 CXXFLAGS := -std=c++17 -g -Ofast -D_NDEBUG
 LDFLAGS := 
 INC_DIRS := ./src
+LNK_DIRS := 
+LNK_IGNORE := 
 
 endif
 
 OUT_FILE := $(OUT_DIR)/$(OUT_NAME)
 
-SRC_FILES := $(wildcard $(SRC_DIR)/**/*.cpp)
+SRC_FILES := $(shell find $(SRC_DIR) -name '*.cpp')
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
+OBJ_FILES += $(foreach DIR,$(LNK_DIRS),$(shell find $(DIR) -name '*.o'))
+OBJ_FILES := $(filter-out $(shell find $(OBJ_FILES) -name '$(LNK_IGNORE)'),$(OBJ_FILES))
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)

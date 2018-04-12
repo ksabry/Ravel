@@ -22,7 +22,8 @@
 			"type": "shell",
 			"command": "make CONFIG=TEST",
 			"args": [],
-			"problemMatcher": "$gcc"
+			"problemMatcher": "$gcc",
+			"dependsOn": "build debug"
 		},
 		{
 			"label": "gen-properties",
