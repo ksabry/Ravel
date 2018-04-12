@@ -1,5 +1,7 @@
 #include "UnorderedQuantifiedExpressionMatcher.hpp"
-#include "Numeric.hpp"
+#include "Util/Numeric.hpp"
+
+// TODO: submatchers can be nullptr
 
 namespace Ravel::SubML
 {

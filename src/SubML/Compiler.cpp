@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include "Assert.hpp"
-#include "ArrCpy.hpp"
 #include "OrderedArgsMatcher.hpp"
 #include "UnorderedArgsMatcher.hpp"
 #include "ImmediateMatcher.hpp"
@@ -14,6 +12,8 @@
 #include "OperatorValuePopulator.hpp"
 #include "ArgsPopulator.hpp"
 #include "ImmediatePopulator.hpp"
+#include "Util/Assert.hpp"
+#include "Util/ArrCpy.hpp"
 
 //TODO: ensure things are cleaned up even when errors are thrown
 
