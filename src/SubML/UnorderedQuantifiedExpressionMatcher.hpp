@@ -1,18 +1,21 @@
 #pragma once
 
 #include <vector>
-#include "CaptureMatcher.hpp"
+#include "Matcher.hpp"
 #include "Quantifier.hpp"
+#include "Semantic/Expression.hpp"
 
 namespace Ravel::SubML
 {
+	using namespace Semantic;
+
 	class UnorderedQuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
 	public:
 		UnorderedQuantifiedExpressionMatcher(
 			Matcher<Expression *> * expression_matcher, 
 			Quantifier quantifier, 
-			CaptureMatcher<Expression *> * capture_matcher);
+			Matcher<Expression *> * capture_matcher);
 		~UnorderedQuantifiedExpressionMatcher();
 
 		inline void GetUsedIndices(uint32_t * & indices, uint32_t & index_count)
@@ -30,7 +33,7 @@ namespace Ravel::SubML
 	private:
 		Matcher<Expression *> * expression_matcher;
 		Quantifier quantifier;
-		CaptureMatcher<Expression *> * capture_matcher;
+		Matcher<Expression *> * capture_matcher;
 
 		uint32_t * expr_indices;
 		int32_t match_idx;
@@ -38,7 +41,7 @@ namespace Ravel::SubML
 
 		uint32_t cache_size;
 		std::vector<Matcher<Expression *> *> expression_matchers_cache;
-		std::vector<CaptureMatcher<Expression *> *> capture_matchers_cache;
+		std::vector<Matcher<Expression *> *> capture_matchers_cache;
 
 		void ResizeCache(uint32_t new_cache_size);
 

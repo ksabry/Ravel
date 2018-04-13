@@ -7,6 +7,8 @@
 #include "ImmediateMatcher.hpp"
 #include "ExpressionMatcher.hpp"
 #include "OperatorMatcher.hpp"
+#include "CaptureMatcher.hpp"
+#include "PassMatcher.hpp"
 #include "MultiExpressionPopulator.hpp"
 #include "CapturePopulator.hpp"
 #include "OperatorValuePopulator.hpp"
@@ -103,7 +105,7 @@ namespace Ravel::SubML
 	Error * Compiler::ParseQuantifiedExpressionMatcher(
 		Matcher<Expression *> * & expression_matcher, 
 		Quantifier & quantifier, 
-		CaptureMatcher<Expression *> * & capture_matcher)
+		Matcher<Expression *> * & capture_matcher)
 	{
 		Error * err = ParseExpressionMatcher(expression_matcher);
 		if (err) return err;
@@ -114,18 +116,18 @@ namespace Ravel::SubML
 		uint32_t capture_idx = 0;
 		err = TryParseCapture(capture_idx);
 		if (err) return err;
-
-		capture_matcher = nullptr;
-		if (capture_idx) capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
 		
+		if (capture_idx) capture_matcher = new CaptureMatcher<Expression *>(capture_idx);
+		else capture_matcher = new PassMatcher<Expression *>();
+
 		return nullptr;
 	}
 
 	Error * Compiler::ParseOrderedQuantifiedExpressionMatcher(OrderedQuantifiedExpressionMatcher * & output)
 	{
-		Matcher<Expression *> * expression_matcher = nullptr;
+		Matcher<Expression *> * expression_matcher;
 		Quantifier quantifier {1, 1};
-		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		Matcher<Expression *> * capture_matcher;
 		Error * err = ParseQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 		if (err) return err;
 
@@ -135,9 +137,9 @@ namespace Ravel::SubML
 
 	Error * Compiler::ParseUnorderedQuantifiedExpressionMatcher(UnorderedQuantifiedExpressionMatcher * & output)
 	{
-		Matcher<Expression *> * expression_matcher = nullptr;
+		Matcher<Expression *> * expression_matcher;
 		Quantifier quantifier {1, 1};
-		CaptureMatcher<Expression *> * capture_matcher = nullptr;
+		Matcher<Expression *> * capture_matcher;
 		Error * err = ParseQuantifiedExpressionMatcher(expression_matcher, quantifier, capture_matcher);
 		if (err) return err;
 
@@ -150,10 +152,12 @@ namespace Ravel::SubML
 		Matcher<ExpressionOperator> * oper_matcher = nullptr;
 		Error * err = TryParseOperatorMatcher(oper_matcher);
 		if (err) return err;
+		if (!oper_matcher) oper_matcher = new PassMatcher<ExpressionOperator>();
 
 		Matcher<Expression *> * args_matcher = nullptr;
 		err = TryParseArgsMatcher(args_matcher);
 		if (err) return err;
+		if (!args_matcher) args_matcher = new PassMatcher<Expression *>();
 
 		output = new ExpressionMatcher(oper_matcher, args_matcher);
 		return nullptr;
@@ -172,13 +176,15 @@ namespace Ravel::SubML
 			err = TryParseOperatorMatcherSingle(value_matcher);
 			if (err) return err;
 		}
+		if (!value_matcher) value_matcher = new PassMatcher<ExpressionOperator>();
 
 		uint32_t capture_idx = 0;
 		err = TryParseCapture(capture_idx);
 		if (err) return err;
 
-		CaptureMatcher<ExpressionOperator> * capture_matcher = nullptr;
+		Matcher<ExpressionOperator> * capture_matcher;
 		if (capture_idx) capture_matcher = new CaptureMatcher<ExpressionOperator>(capture_idx);
+		else capture_matcher = new PassMatcher<ExpressionOperator>();
 
 		OperatorMatcher * result = new OperatorMatcher(value_matcher, capture_matcher);
 	

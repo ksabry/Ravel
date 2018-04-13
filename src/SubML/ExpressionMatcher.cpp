@@ -10,59 +10,22 @@ namespace Ravel::SubML
 
 	ExpressionMatcher::~ExpressionMatcher()
 	{
-		if (oper_matcher) delete oper_matcher;
-		if (args_matcher) delete args_matcher;
+		delete oper_matcher;
+		delete args_matcher;
 	}
 
 	void ExpressionMatcher::BeginInternal()
 	{
 		Expression * expr = MatchArgument<0>();
 		
-		if (oper_matcher && args_matcher)
-		{
-			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
-			args_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
-		}
-		else if (!oper_matcher && args_matcher)
-		{
-			args_matcher->Begin(match_captures, match_capture_count, expr);
-		}
-		else if (oper_matcher && !args_matcher)
-		{
-			oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
-		}
+		oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
+		args_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
 	}
 
 	uint64_t * ExpressionMatcher::NextInternal()
 	{
-		if (oper_matcher && args_matcher)
-		{
-			auto group_captures = args_matcher->Next();
-			while (!group_captures)
-			{
-				auto oper_captures = oper_matcher->Next();
-				if (!oper_captures)
-				{
-					Finish();
-					return nullptr;
-				}
-				Expression * expr = MatchArgument<0>();
-				args_matcher->Begin(oper_captures, match_capture_count, expr);
-				group_captures = args_matcher->Next();
-			}
-			return group_captures;
-		}
-		else if (!oper_matcher && args_matcher)
-		{
-			auto group_captures = args_matcher->Next();
-			if (!group_captures)
-			{
-				Finish();
-				return nullptr;
-			}
-			return group_captures;
-		}
-		else if (oper_matcher && !args_matcher)
+		auto group_captures = args_matcher->Next();
+		while (!group_captures)
 		{
 			auto oper_captures = oper_matcher->Next();
 			if (!oper_captures)
@@ -70,20 +33,16 @@ namespace Ravel::SubML
 				Finish();
 				return nullptr;
 			}
-			return oper_captures;
+			Expression * expr = MatchArgument<0>();
+			args_matcher->Begin(oper_captures, match_capture_count, expr);
+			group_captures = args_matcher->Next();
 		}
-		else
-		{
-			Finish();
-			return match_captures;
-		}
+		return group_captures;
 	}
 
 	ExpressionMatcher * ExpressionMatcher::DeepCopy()
 	{
-		auto new_oper_matcher = oper_matcher == nullptr ? nullptr : oper_matcher->DeepCopy();
-		auto new_args_matcher = args_matcher == nullptr ? nullptr : args_matcher->DeepCopy();
-		return new ExpressionMatcher(new_oper_matcher, new_args_matcher);
+		return new ExpressionMatcher(oper_matcher->DeepCopy(), args_matcher->DeepCopy());
 	}
 
 	void ExpressionMatcher::PPrint(std::ostream & output)
@@ -91,11 +50,9 @@ namespace Ravel::SubML
 		output << "ExpressionMatcher {\n";
 		
 		std::stringstream inner;
-		if (oper_matcher) oper_matcher->PPrint(inner);
-		else inner << "NULL";
+		oper_matcher->PPrint(inner);
 		inner << ",\n";
-		if (args_matcher) args_matcher->PPrint(inner);
-		else inner << "NULL";
+		args_matcher->PPrint(inner);
 		output << Indent() << inner.str();
 
 		output << "\n}";

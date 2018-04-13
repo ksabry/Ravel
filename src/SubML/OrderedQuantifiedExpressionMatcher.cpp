@@ -1,14 +1,12 @@
 #include "OrderedQuantifiedExpressionMatcher.hpp"
 #include "Util/Numeric.hpp"
 
-// TODO: submatchers can be nullptr
-
 namespace Ravel::SubML
 {
 	OrderedQuantifiedExpressionMatcher::OrderedQuantifiedExpressionMatcher(
 		Matcher<Expression *> * expression_matcher, 
 		Quantifier quantifier, 
-		CaptureMatcher<Expression *> * capture_matcher)
+		Matcher<Expression *> * capture_matcher)
 		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), cache_size(0), captures_stack(nullptr)
 	{
 		ResizeCache(Min(10u, quantifier.high));
@@ -16,8 +14,8 @@ namespace Ravel::SubML
 
 	OrderedQuantifiedExpressionMatcher::~OrderedQuantifiedExpressionMatcher()
 	{
-		if (expression_matcher) delete expression_matcher;
-		if (capture_matcher) delete capture_matcher;
+		delete expression_matcher;
+		delete capture_matcher;
 		if (captures_stack) delete[] captures_stack;
 		for (auto e_matcher : expression_matchers_cache) delete e_matcher;
 		for (auto c_matcher : capture_matchers_cache) delete c_matcher;
@@ -123,9 +121,7 @@ namespace Ravel::SubML
 
 	OrderedQuantifiedExpressionMatcher * OrderedQuantifiedExpressionMatcher::DeepCopy()
 	{
-		auto new_expression_matcher = expression_matcher == nullptr ? nullptr : expression_matcher->DeepCopy();
-		auto new_capture_matcher = capture_matcher == nullptr ? nullptr : capture_matcher->DeepCopy();
-		return new OrderedQuantifiedExpressionMatcher(new_expression_matcher, quantifier, new_capture_matcher);
+		return new OrderedQuantifiedExpressionMatcher(expression_matcher->DeepCopy(), quantifier, capture_matcher->DeepCopy());
 	}
 
 	void OrderedQuantifiedExpressionMatcher::PPrint(std::ostream & output)
@@ -133,13 +129,11 @@ namespace Ravel::SubML
 		output << "OrderedQuantifiedExpressionMatcher {\n";
 
 		std::stringstream inner;
-		if (expression_matcher) expression_matcher->PPrint(inner);
-		else inner << "NULL";
+		expression_matcher->PPrint(inner);
 		inner << ",\n";
 		quantifier.PPrint(inner);
 		inner << ",\n";
-		if (capture_matcher) capture_matcher->PPrint(inner);
-		else inner << "NULL";
+		capture_matcher->PPrint(inner);
 		output << Indent() << inner.str();
 		
 		output << "\n}";

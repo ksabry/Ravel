@@ -1,18 +1,21 @@
 #pragma once
 
 #include <vector>
-#include "CaptureMatcher.hpp"
+#include "Matcher.hpp"
 #include "Quantifier.hpp"
+#include "Semantic/Expression.hpp"
 
 namespace Ravel::SubML
 {
+	using namespace Semantic;
+
 	class OrderedQuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
 	public:
 		OrderedQuantifiedExpressionMatcher(
 			Matcher<Expression *> * expression_matcher, 
 			Quantifier quantifier, 
-			CaptureMatcher<Expression *> * capture_matcher);
+			Matcher<Expression *> * capture_matcher);
 		~OrderedQuantifiedExpressionMatcher();
 
 		inline virtual Quantifier GetQuantifier()
@@ -34,14 +37,14 @@ namespace Ravel::SubML
 	private:
 		Matcher<Expression *> * expression_matcher;
 		Quantifier quantifier;
-		CaptureMatcher<Expression *> * capture_matcher;
+		Matcher<Expression *> * capture_matcher;
 		
 		int32_t match_idx;
 		uint64_t ** captures_stack;
 
 		uint32_t cache_size;
 		std::vector<Matcher<Expression *> *> expression_matchers_cache;
-		std::vector<CaptureMatcher<Expression *> *> capture_matchers_cache;
+		std::vector<Matcher<Expression *> *> capture_matchers_cache;
 
 		void ResizeCache(uint32_t new_cache_size);
 

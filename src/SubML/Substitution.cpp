@@ -1,4 +1,5 @@
 #include "Substitution.hpp"
+#include "Util/ArrCpy.hpp"
 
 namespace Ravel::SubML
 {

@@ -45,7 +45,7 @@ namespace Ravel::SubML
 		Error * ParseQuantifiedExpressionMatcher(
 			Matcher<Expression *> * & expression_matcher, 
 			Quantifier & quantifier, 
-			CaptureMatcher<Expression *> * & capture_matcher);
+			Matcher<Expression *> * & capture_matcher);
 		Error * ParseOrderedQuantifiedExpressionMatcher(OrderedQuantifiedExpressionMatcher * & output);
 		Error * ParseUnorderedQuantifiedExpressionMatcher(UnorderedQuantifiedExpressionMatcher * & output);
 		Error * ParseExpressionMatcher(Matcher<Expression *> * & output);

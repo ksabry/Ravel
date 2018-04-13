@@ -6,16 +6,16 @@
 namespace Ravel::SubML
 {
 	UnorderedQuantifiedExpressionMatcher::UnorderedQuantifiedExpressionMatcher(
-		Matcher<Expression *> * expression, 
+		Matcher<Expression *> * expression_matcher, 
 		Quantifier quantifier, 
-		CaptureMatcher<Expression *> * capture)
+		Matcher<Expression *> * capture_matcher)
 		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), expr_indices(nullptr), captures_stack(nullptr)
 	{
 	}
 	UnorderedQuantifiedExpressionMatcher::~UnorderedQuantifiedExpressionMatcher()
 	{
-		if (expression_matcher) delete expression_matcher;
-		if (capture_matcher) delete capture_matcher;
+		delete expression_matcher;
+		delete capture_matcher;
 		if (expr_indices) delete[] expr_indices;
 		if (captures_stack) delete[] captures_stack;
 	}
@@ -128,9 +128,7 @@ namespace Ravel::SubML
 
 	UnorderedQuantifiedExpressionMatcher * UnorderedQuantifiedExpressionMatcher::DeepCopy()
 	{
-		auto new_expression_matcher = expression_matcher == nullptr ? nullptr : expression_matcher->DeepCopy();
-		auto new_capture_matcher = capture_matcher == nullptr ? nullptr : capture_matcher->DeepCopy();
-		return new UnorderedQuantifiedExpressionMatcher(new_expression_matcher, quantifier, new_capture_matcher);
+		return new UnorderedQuantifiedExpressionMatcher(expression_matcher->DeepCopy(), quantifier, capture_matcher->DeepCopy());
 	}
 
 	void UnorderedQuantifiedExpressionMatcher::PPrint(std::ostream & output)
@@ -138,13 +136,11 @@ namespace Ravel::SubML
 		output << "UnorderedQuantifiedExpressionMatcher {\n";
 
 		std::stringstream inner;
-		if (expression_matcher) expression_matcher->PPrint(inner);
-		else inner << "NULL";
+		expression_matcher->PPrint(inner);
 		inner << ",\n";
 		quantifier.PPrint(inner);
 		inner << ",\n";
-		if (capture_matcher) capture_matcher->PPrint(inner);
-		else inner << "NULL";
+		capture_matcher->PPrint(inner);
 		output << Indent() << inner.str();
 		
 		output << "\n}";
