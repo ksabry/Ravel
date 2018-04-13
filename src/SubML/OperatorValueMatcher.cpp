@@ -22,8 +22,13 @@ namespace Ravel::SubML
 		ExpressionOperator to_match = MatchArgument<0>();
 		for (uint32_t i = 0; i < oper_count; i++)
 		{
-			if (opers[i] == to_match) return neg ? nullptr : match_captures;
+			if (opers[i] == to_match)
+			{
+				Finish();
+				return neg ? nullptr : match_captures;
+			}
 		}
+		Finish();
 		return neg ? match_captures : nullptr;
 	}
 

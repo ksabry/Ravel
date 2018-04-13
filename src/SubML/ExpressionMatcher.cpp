@@ -19,13 +19,12 @@ namespace Ravel::SubML
 		Expression * expr = MatchArgument<0>();
 		
 		oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
-		args_matcher->Begin(oper_matcher->Next(), match_capture_count, expr);
 	}
 
 	uint64_t * ExpressionMatcher::NextInternal()
 	{
-		auto group_captures = args_matcher->Next();
-		while (!group_captures)
+		auto arg_captures = args_matcher->HasBegun() ? args_matcher->Next() : nullptr;
+		while (!arg_captures)
 		{
 			auto oper_captures = oper_matcher->Next();
 			if (!oper_captures)
@@ -35,9 +34,9 @@ namespace Ravel::SubML
 			}
 			Expression * expr = MatchArgument<0>();
 			args_matcher->Begin(oper_captures, match_capture_count, expr);
-			group_captures = args_matcher->Next();
+			arg_captures = args_matcher->Next();
 		}
-		return group_captures;
+		return arg_captures;
 	}
 
 	ExpressionMatcher * ExpressionMatcher::DeepCopy()

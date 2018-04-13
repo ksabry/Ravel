@@ -1,16 +1,16 @@
 #include "UnorderedQuantifiedExpressionMatcher.hpp"
 #include "Util/Numeric.hpp"
 
-// TODO: submatchers can be nullptr
-
 namespace Ravel::SubML
 {
 	UnorderedQuantifiedExpressionMatcher::UnorderedQuantifiedExpressionMatcher(
 		Matcher<Expression *> * expression_matcher, 
 		Quantifier quantifier, 
 		Matcher<Expression *> * capture_matcher)
-		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), expr_indices(nullptr), captures_stack(nullptr)
+		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), 
+		  cache_size(0), expr_indices(nullptr), captures_stack(nullptr)
 	{
+		ResizeCache(Min(10u, quantifier.high));
 	}
 	UnorderedQuantifiedExpressionMatcher::~UnorderedQuantifiedExpressionMatcher()
 	{
@@ -112,7 +112,8 @@ namespace Ravel::SubML
 			uint64_t * expression_captures = e_matcher->HasBegun() ? e_matcher->Next() : nullptr;
 			while (!expression_captures)
 			{
-				while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]) expr_indices[match_idx]++;
+				do { expr_indices[match_idx]++; } 
+				while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]);
 
 				if (expr_indices[match_idx] >= expr_count) return false;
 

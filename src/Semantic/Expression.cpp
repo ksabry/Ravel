@@ -4,8 +4,14 @@ namespace Ravel
 {
 	namespace Semantic
 	{
+		Expression::Expression(ExpressionOperator oper)
+			: oper(oper), data_type(DataType::UNKNOWN), arg_count(0), args(nullptr)
+		{
+		}
 		Expression::~Expression()
 		{
+			for (uint32_t i = 0; i < arg_count; i++) delete args[i];
+			if (args) delete[] args;
 		}
 
 		bool operator==(Expression const & left, Expression const & right)

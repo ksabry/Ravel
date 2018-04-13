@@ -11,7 +11,7 @@ using namespace Ravel;
 int main(int argc, const char * argv[])
 {
 	// Input::ElfReader reader;
-	// Error *err = reader.Read("example/ex0/main");
+	// Error *err = reader.Read("example/exec/main");
 	// if (err)
 	// {
 	// 	std::cout << *err << std::endl;
@@ -21,7 +21,7 @@ int main(int argc, const char * argv[])
 	SubML::Compiler compiler;
 	SubML::Program program;
 
-	auto err = compiler.Compile("bin/test.subml", &program);
+	auto err = compiler.Compile("example/subml/test.subml", &program);
 	if (err)
 	{
 		std::cout << *err << std::endl;

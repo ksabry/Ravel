@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "ExpressionOperator.hpp"
 #include "DataType.hpp"
 #include "Util/BitCast.hpp"
@@ -13,25 +15,24 @@ namespace Ravel
 		public:
 			template<typename... TArgs>
 			Expression(ExpressionOperator oper, TArgs... args)
-				: oper(oper), data_type(DataType::UNKNOWN), args{ args... }
+				: oper(oper), data_type(DataType::UNKNOWN)
 			{
-			}
-			template<typename... TArgs>
-			Expression(char const * const oper_str, TArgs... args)
-				: oper(OperatorFromString(oper_str)), args{ args... }
-			{
+				arg_count = sizeof...(TArgs);
+				this->args = new Expression * [arg_count];
+				InitArgs<0>(args...);
 			}
 			template<typename IMM_T>
 			Expression(ExpressionOperator oper, IMM_T data)
-				: oper(oper)
+				: oper(oper), arg_count(0), args(nullptr)
 			{
 				SetData(data);
 			}
-			template<typename IMM_T>
-			Expression(char const * const oper_str, IMM_T data)
+			template<typename... TArgs>
+			Expression(char const * const oper_str, TArgs... args)
+				: Expression(OperatorFromString(oper_str), args...)
 			{
-				SetData(data);
 			}
+			Expression(ExpressionOperator oper);
 			~Expression();
 
 			inline ExpressionOperator Oper() const
@@ -59,7 +60,7 @@ namespace Ravel
 			{
 				static_assert(sizeof(T) <= 8, "Expression data must be no more than 64 bits");
 				data_type = GetAssociatedDataType<T>();
-				data = bit_cast<uint64_t>(data);
+				this->data = bit_cast<uint64_t, T>(data);
 			}
 			
 			inline uint64_t GetData() const
@@ -83,9 +84,20 @@ namespace Ravel
 			ExpressionOperator oper;
 			Expression ** args;
 			uint32_t arg_count;
-			uint32_t arg_container_count;
 			DataType data_type;
 			uint64_t data;
+
+			template<uint32_t idx, typename... TArgs>
+			inline void InitArgs(Expression * head, TArgs... tail)
+			{
+				args[idx] = head;
+				InitArgs<idx + 1>(tail...);
+			}
+			template<uint32_t idx>
+			inline void InitArgs(Expression * head)
+			{
+				args[idx] = head;
+			}
 		};
 	}
 }

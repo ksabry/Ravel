@@ -39,6 +39,11 @@ namespace Ravel::SubML
 
 		uint32_t CaptureFromName(char const * const name);
 
+		inline uint32_t CaptureCount()
+		{
+			return capture_count;
+		}
+
 	private:
 		OrderedQuantifiedExpressionMatcher * matcher;
 		Populator<Expression ** &, uint32_t &> * populator;

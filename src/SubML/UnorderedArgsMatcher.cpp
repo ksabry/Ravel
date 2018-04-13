@@ -97,7 +97,7 @@ namespace Ravel::SubML
 
 		matchers[idx]->Begin(incoming_captures, match_capture_count, new_remaining_exprs, expr_count);
 		
-		stack[idx].incoming_remaining_exprs = nullptr;
+		stack[idx].incoming_remaining_exprs = new_remaining_exprs;
 		stack[idx].initialized = true;
 	}
 

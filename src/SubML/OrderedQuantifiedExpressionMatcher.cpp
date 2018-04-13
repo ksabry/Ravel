@@ -7,7 +7,8 @@ namespace Ravel::SubML
 		Matcher<Expression *> * expression_matcher, 
 		Quantifier quantifier, 
 		Matcher<Expression *> * capture_matcher)
-		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), cache_size(0), captures_stack(nullptr)
+		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), 
+		  cache_size(0), captures_stack(nullptr)
 	{
 		ResizeCache(Min(10u, quantifier.high));
 	}

@@ -3,8 +3,17 @@
 namespace Ravel
 {
 	template<typename To, typename From>
-	static inline To bit_cast(From data)
+	inline To bit_cast(From data)
 	{
-		return *reinterpret_cast<To*>(&data);
+		if (sizeof(To) > sizeof(From))
+		{
+			To result = static_cast<To>(0);
+			*reinterpret_cast<From*>(&result) = data;
+			return result;
+		}
+		else 
+		{
+			return *reinterpret_cast<To*>(&data);
+		}
 	}
 }

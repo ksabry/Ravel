@@ -13,7 +13,7 @@ OBJ_DIR := ./obj-test
 OUT_DIR := ./bin-test
 DEP_DIR := ./.dep-test
 OUT_NAME := test
-CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
+CXXFLAGS := -std=c++17 -g -O0 -D_DEBUG
 LDFLAGS := 
 INC_DIRS := ./src ./test
 LNK_DIRS := ./obj-debug
@@ -26,7 +26,7 @@ OBJ_DIR := ./obj-debug
 OUT_DIR := ./bin-debug
 DEP_DIR := ./.dep-debug
 OUT_NAME := main
-CXXFLAGS := -std=c++17 -g -Og -D_DEBUG
+CXXFLAGS := -std=c++17 -g -O0 -D_DEBUG
 LDFLAGS := 
 INC_DIRS := ./src
 LNK_DIRS := 
