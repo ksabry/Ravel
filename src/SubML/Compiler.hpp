@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "Error.hpp"
+#include "Util/Error.hpp"
 #include "Program.hpp"
 #include "Tokenizer.hpp"
 #include "Substitution.hpp"

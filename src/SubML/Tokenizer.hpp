@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Token.hpp"
-#include "Error.hpp"
+#include "Util/Error.hpp"
 
 namespace Ravel::SubML
 {

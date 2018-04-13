@@ -52,7 +52,6 @@ namespace Ravel::SubML
 
 		Error * result = Tokenize(infile, output);
 		infile->close();
-
 		return result;
 	}
 

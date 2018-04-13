@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Error.hpp"
+#include "Util/Error.hpp"
 #include "Semantic/Expression.hpp"
 #include "Util/String.hpp"
 
