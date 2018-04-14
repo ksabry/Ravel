@@ -14,20 +14,16 @@ namespace Ravel::SubML
 
 	void OperatorMatcher::BeginInternal()
 	{
-		ExpressionOperator oper = MatchArgument<0>();
-
-		value_matcher->Begin(match_captures, match_capture_count, oper);
 	}
 
 	uint64_t * OperatorMatcher::NextInternal()
 	{
+		ExpressionOperator oper = MatchArgument<0>();
+
 		auto capture_captures = capture_matcher->HasBegun() ? capture_matcher->Next() : nullptr;
 		while (!capture_captures)
 		{
-			std::stringstream sstream;
-			value_matcher->PPrint(sstream);
-			auto name = sstream.str();
-
+			if (!value_matcher->HasBegun()) value_matcher->Begin(match_captures, match_capture_count, oper);
 			auto value_captures = value_matcher->Next();
 			if (!value_captures)
 			{

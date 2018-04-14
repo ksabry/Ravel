@@ -16,16 +16,16 @@ namespace Ravel::SubML
 
 	void ExpressionMatcher::BeginInternal()
 	{
-		Expression * expr = MatchArgument<0>();
-		
-		oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
 	}
 
 	uint64_t * ExpressionMatcher::NextInternal()
 	{
+		Expression * expr = MatchArgument<0>();
+
 		auto arg_captures = args_matcher->HasBegun() ? args_matcher->Next() : nullptr;
 		while (!arg_captures)
 		{
+			if (!oper_matcher->HasBegun()) oper_matcher->Begin(match_captures, match_capture_count, expr->Oper());
 			auto oper_captures = oper_matcher->Next();
 			if (!oper_captures)
 			{
