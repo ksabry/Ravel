@@ -15,7 +15,8 @@ TEST_CASE( "Matcher", "[matcher]" )
 
 	REQUIRE(err == nullptr);
 
-	Expression expr ("add", 
+	Expression expr ("add",
+		new Expression("imm", 0u),
 		new Expression("imm", 1u),
 		new Expression("imm", 0u),
 		new Expression("mul",
@@ -32,8 +33,8 @@ TEST_CASE( "Matcher", "[matcher]" )
 	
 	uint32_t capture_count = program.substitutions[3]->CaptureCount();
 	REQUIRE(capture_count == 3);
-
-	uint64_t captures[capture_count];
+	
+	uint64_t captures[3] = {};
 	Expression * exprs[1] = {&expr};
 	test_matcher->Begin(captures, capture_count, exprs, 1);
 	uint64_t * result = test_matcher->Next();

@@ -28,7 +28,7 @@ namespace Ravel
 			case DataType::UINT64:  return bit_cast<uint64_t>(data_left) == bit_cast<uint64_t>(data_right);
 			case DataType::INT32:   return bit_cast<int32_t>(data_left)  == bit_cast<int32_t>(data_right);
 			case DataType::INT64:   return bit_cast<int64_t>(data_left)  == bit_cast<int64_t>(data_right);
-			case DataType::FLOAT32: return bit_cast<float>(data_left)	== bit_cast<float>(data_right);
+			case DataType::FLOAT32: return bit_cast<float>(data_left)    == bit_cast<float>(data_right);
 			case DataType::FLOAT64: return bit_cast<double>(data_left)   == bit_cast<double>(data_right);
 			}
 		}

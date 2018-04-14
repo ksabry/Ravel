@@ -21,7 +21,7 @@ namespace Ravel::SubML
 		inline void GetUsedIndices(uint32_t * & indices, uint32_t & index_count)
 		{
 			indices = this->expr_indices;
-			index_count = static_cast<uint32_t>(this->match_idx + 1);
+			index_count = this->expr_indices_count;
 		}
 
 		virtual UnorderedQuantifiedExpressionMatcher * DeepCopy() override;
@@ -36,6 +36,7 @@ namespace Ravel::SubML
 		Matcher<Expression *> * capture_matcher;
 
 		uint32_t * expr_indices;
+		uint32_t expr_indices_count;
 		int32_t match_idx;
 		uint64_t ** captures_stack;
 

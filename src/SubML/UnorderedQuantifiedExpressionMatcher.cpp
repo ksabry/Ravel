@@ -27,13 +27,13 @@ namespace Ravel::SubML
 		
 		if (expr_indices) delete[] expr_indices;
 		expr_indices = new uint32_t [expr_count] {0};
+		expr_indices_count = 0;
 
 		if (captures_stack) delete[] captures_stack;
 		captures_stack = new uint64_t * [Min(expr_count, quantifier.high)];
 
 		if (expr_count > cache_size) ResizeCache(expr_count);
 		match_idx = 0;
-		if (expr_count > 0) expression_matchers_cache[0]->Begin(match_captures, match_capture_count, exprs[0]);
 	}
 
 	uint64_t * UnorderedQuantifiedExpressionMatcher::NextInternal()
@@ -44,7 +44,6 @@ namespace Ravel::SubML
 
 		if (match_idx_max == -1)
 		{
-			match_idx = -1;
 			Finish();
 			if (quantifier.low == 0) return match_captures;
 			return nullptr;
@@ -59,13 +58,15 @@ namespace Ravel::SubML
 				continue;
 			}
 
+			bool returning = (match_idx + 1 >= quantifier.low);
+			expr_indices_count = match_idx + 1;
 			if (match_idx < match_idx_max)
 			{
 				match_idx++;
 				captures_stack[match_idx] = next_captures;
 				expr_indices[match_idx] = expr_indices[match_idx - 1];
 			}
-			if (match_idx + 1 >= quantifier.low) return next_captures;
+			if (returning) return next_captures;
 		}
 
 		Finish();
@@ -112,8 +113,11 @@ namespace Ravel::SubML
 			uint64_t * expression_captures = e_matcher->HasBegun() ? e_matcher->Next() : nullptr;
 			while (!expression_captures)
 			{
-				do { expr_indices[match_idx]++; } 
-				while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]);
+				if (e_matcher->HasBegun())
+				{
+					do { expr_indices[match_idx]++; } 
+					while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]);
+				}
 
 				if (expr_indices[match_idx] >= expr_count) return false;
 
