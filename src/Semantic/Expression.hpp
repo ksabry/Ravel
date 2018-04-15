@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "ExpressionOperator.hpp"
 #include "DataType.hpp"
 #include "Util/BitCast.hpp"

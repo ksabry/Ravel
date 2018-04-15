@@ -48,11 +48,13 @@ namespace Ravel::SubML
 				result = new uint64_t [match_capture_count];
 				ArrCpy(result, match_captures, match_capture_count);
 				result[capture_idx] = bit_cast<uint64_t>(value_to_capture);
+				this->delete_result = true;
 			}
 			// TODO: check types intelligently
 			else if (match_captures[capture_idx] == bit_cast<uint64_t>(value_to_capture)) 
 			{
 				result = match_captures;
+				this->delete_result = false;
 			}
 
 			Finish();

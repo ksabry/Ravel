@@ -26,13 +26,20 @@ namespace Ravel::SubML
 		uint32_t expr_count = MatchArgument<1>();
 		
 		if (expr_indices) delete[] expr_indices;
-		expr_indices = new uint32_t [expr_count] {0};
+		expr_indices = new int32_t [expr_count] {-1};
 		expr_indices_count = 0;
 
 		if (captures_stack) delete[] captures_stack;
 		captures_stack = new uint64_t * [Min(expr_count, quantifier.high)];
+		captures_stack[0] = match_captures;
 
 		if (expr_count > cache_size) ResizeCache(expr_count);
+		for (uint32_t i = 0; i < cache_size; i++)
+		{
+			expression_matchers_cache[i]->Reset();
+			capture_matchers_cache[i]->Reset();
+		}
+		
 		match_idx = 0;
 	}
 
@@ -54,6 +61,9 @@ namespace Ravel::SubML
 			uint64_t * next_captures;
 			if (!NextCaptures(next_captures))
 			{
+				expression_matchers_cache[match_idx]->Reset();
+				capture_matchers_cache[match_idx]->Reset();
+
 				match_idx--;
 				continue;
 			}
@@ -113,11 +123,8 @@ namespace Ravel::SubML
 			uint64_t * expression_captures = e_matcher->HasBegun() ? e_matcher->Next() : nullptr;
 			while (!expression_captures)
 			{
-				if (e_matcher->HasBegun())
-				{
-					do { expr_indices[match_idx]++; } 
-					while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]);
-				}
+				do { expr_indices[match_idx]++; }
+				while (expr_indices[match_idx] < expr_count && !exprs[expr_indices[match_idx]]);
 
 				if (expr_indices[match_idx] >= expr_count) return false;
 

@@ -16,6 +16,8 @@ namespace Ravel::SubML
 
 	void ExpressionMatcher::BeginInternal()
 	{
+		oper_matcher->Reset();
+		args_matcher->Reset();
 	}
 
 	uint64_t * ExpressionMatcher::NextInternal()
@@ -32,7 +34,6 @@ namespace Ravel::SubML
 				Finish();
 				return nullptr;
 			}
-			Expression * expr = MatchArgument<0>();
 			args_matcher->Begin(oper_captures, match_capture_count, expr);
 			arg_captures = args_matcher->Next();
 		}

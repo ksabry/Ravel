@@ -31,6 +31,12 @@ namespace Ravel::SubML
 		captures_stack = new uint64_t * [Min(expr_count, quantifier.high)];
 
 		if (expr_count > cache_size) ResizeCache(expr_count);
+		for (uint32_t i = 0; i < cache_size; i++)
+		{
+			expression_matchers_cache[i]->Reset();
+			capture_matchers_cache[i]->Reset();
+		}
+
 		match_idx = 0;
 		captures_stack[0] = match_captures;
 	}
@@ -106,17 +112,13 @@ namespace Ravel::SubML
 		output = c_matcher->HasBegun() ? c_matcher->Next() : nullptr;
 		while (!output)
 		{
-			if (!e_matcher->HasBegun())
-			{
-				e_matcher->Begin(captures_stack[match_idx], match_capture_count, exprs[match_idx]);
-			}
+			if (!e_matcher->HasBegun()) e_matcher->Begin(captures_stack[match_idx], match_capture_count, exprs[match_idx]);
 			uint64_t * expression_captures = e_matcher->Next();
 			if (!expression_captures) return false;
 			
 			c_matcher->Begin(expression_captures, match_capture_count, exprs[match_idx]);
 			output = c_matcher->Next();
 		}
-
 		return true;
 	}
 

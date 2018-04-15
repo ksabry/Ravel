@@ -12,13 +12,14 @@ namespace Ravel::SubML
 	class UnorderedQuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
 	{
 	public:
+		// TODO: capture matcher must be different (ordered too)
 		UnorderedQuantifiedExpressionMatcher(
 			Matcher<Expression *> * expression_matcher, 
 			Quantifier quantifier, 
 			Matcher<Expression *> * capture_matcher);
 		~UnorderedQuantifiedExpressionMatcher();
 
-		inline void GetUsedIndices(uint32_t * & indices, uint32_t & index_count)
+		inline void GetUsedIndices(int32_t * & indices, uint32_t & index_count)
 		{
 			indices = this->expr_indices;
 			index_count = this->expr_indices_count;
@@ -35,7 +36,7 @@ namespace Ravel::SubML
 		Quantifier quantifier;
 		Matcher<Expression *> * capture_matcher;
 
-		uint32_t * expr_indices;
+		int32_t * expr_indices;
 		uint32_t expr_indices_count;
 		int32_t match_idx;
 		uint64_t ** captures_stack;

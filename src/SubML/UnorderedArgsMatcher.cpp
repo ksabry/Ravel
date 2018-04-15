@@ -57,12 +57,12 @@ namespace Ravel::SubML
 				continue;
 			}
 
-			uint32_t * used_indices;
+			int32_t * used_indices;
 			uint32_t used_index_count;
 			matchers[stack_idx]->GetUsedIndices(used_indices, used_index_count);
 			
-			auto new_remaining_exprs = new Expression * [matcher_count];
-			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, matcher_count);
+			auto new_remaining_exprs = new Expression * [expr_count];
+			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, expr_count);
 			for (uint32_t i = 0; i < used_index_count; i++)
 			{
 				new_remaining_exprs[used_indices[i]] = nullptr;

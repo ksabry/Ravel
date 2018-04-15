@@ -12,12 +12,12 @@ namespace Ravel::SubML
 	{
 	public:
 		Matcher()
-			: begun(false), finished(false), match_captures(nullptr), child_match_captures(nullptr)
+			: begun(false), finished(false), match_captures(nullptr), child_match_captures(nullptr), delete_result(false)
 		{
 		}
 		~Matcher()
 		{
-			if (child_match_captures && child_match_captures != match_captures) delete[] child_match_captures;
+			if (child_match_captures && delete_result) delete[] child_match_captures;
 		}
 
 		virtual void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
@@ -32,7 +32,7 @@ namespace Ravel::SubML
 
 		virtual uint64_t * Next()
 		{
-			if (child_match_captures && child_match_captures != match_captures) delete[] child_match_captures; 
+			if (child_match_captures && delete_result) delete[] child_match_captures; 
 			if (finished) return nullptr;
 			child_match_captures = NextInternal();
 			return child_match_captures;
@@ -80,6 +80,7 @@ namespace Ravel::SubML
 		
 		bool begun;
 		bool finished;
+		bool delete_result;
 
 		virtual void BeginInternal() = 0;
 		virtual uint64_t * NextInternal() = 0;
