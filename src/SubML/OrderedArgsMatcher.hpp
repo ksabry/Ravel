@@ -8,21 +8,17 @@ namespace Ravel::SubML
 	class OrderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
-		OrderedArgsMatcher(OrderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
+		OrderedArgsMatcher(std::vector<OrderedQuantifiedExpressionMatcher *> matchers);
 		~OrderedArgsMatcher();
 
 		virtual OrderedArgsMatcher * DeepCopy() override;
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual uint64_t * NextInternal() override;
+		virtual bool NextInternal() override;
 
 	private:
-		OrderedQuantifiedExpressionMatcher ** matchers;
-		uint32_t matcher_count;
-		
-		Expression ** exprs;
-		uint32_t expr_count;
+		std::vector<OrderedQuantifiedExpressionMatcher *> matchers;
 
 		struct Bounds
 		{
@@ -32,13 +28,15 @@ namespace Ravel::SubML
 
 		struct Frame
 		{
+
 			bool initialized = false;
 			OrderedQuantifiedExpressionMatcher * matcher = nullptr;
 
 			uint32_t expr_start_idx;
-			Expression ** incoming_remaining_exprs = nullptr;
-			OrderedQuantifiedExpressionMatcher ** remaining_matchers = nullptr;
-			Bounds * remaining_bounds = nullptr;
+			std::vector<Expression *> incoming_remaining_exprs;
+			std::vector<OrderedQuantifiedExpressionMatcher *> remaining_matchers;
+			std::vector<Bounds> remaining_bounds;
+			bool has_bounds = false;
 		};
 
 		Frame * stack;
@@ -46,22 +44,22 @@ namespace Ravel::SubML
 
 		void BeginFrame(
 			uint32_t idx,
-			uint64_t * incoming_captures,
-			Expression ** new_remaining_exprs,
-			OrderedQuantifiedExpressionMatcher ** remaining_matchers,
-			Bounds * remaining_bounds);
+			std::vector<uint64_t> & incoming_captures,
+			std::vector<Expression *> & new_remaining_exprs,
+			std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers,
+			std::vector<Bounds> * remaining_bounds);
 
 		void FinishFrame(uint32_t idx);
 
-		bool IsComplete(Expression ** remaining_exprs);
+		bool IsComplete(std::vector<Expression *> & remaining_exprs);
 
-		bool CalculateBounds(Bounds * & result, OrderedQuantifiedExpressionMatcher ** remaining_matchers);
+		bool CalculateBounds(std::vector<Bounds> & result, std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers);
 
 		void GetMatcherLowHigh(
-			OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
+			std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers, 
 			uint32_t matcher_idx, 
-			uint32_t * low, 
-			uint32_t * high);
+			uint32_t & low, 
+			uint32_t & high);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 #include "Util/TypePackElement.hpp"
 #include "Util/BitCast.hpp"
 #include "Util/String.hpp"
@@ -12,30 +13,32 @@ namespace Ravel::SubML
 	{
 	public:
 		Matcher()
-			: begun(false), finished(false), match_captures(nullptr), child_match_captures(nullptr), delete_result(false)
+			: begun(false), finished(false), match_captures(nullptr), child_match_captures(nullptr)
 		{
 		}
 		~Matcher()
 		{
-			if (child_match_captures && delete_result) delete[] child_match_captures;
 		}
 
-		virtual void Begin(uint64_t * captures, uint32_t capture_count, TArgs... values)
+		virtual void Begin(std::vector<uint64_t> & captures, uint32_t capture_count, TArgs... values)
 		{
 			begun = true;
 			finished = false;
 			SetMatchArguments(0, values...);
-			match_captures = captures;
-			match_capture_count = capture_count;
+			input_captures = captures;
+			capture_count = capture_count;
 			BeginInternal();
 		}
 
-		virtual uint64_t * Next()
+		virtual std::vector<uint64_t> * Next()
 		{
-			if (child_match_captures && delete_result) delete[] child_match_captures; 
 			if (finished) return nullptr;
-			child_match_captures = NextInternal();
-			return child_match_captures;
+			if (!NextInternal())
+			{
+				Finish();
+				return nullptr;
+			}
+			return &result_captures;
 		}
 
 		inline void Finish()
@@ -74,16 +77,15 @@ namespace Ravel::SubML
 
 	protected:
 		uint64_t match_arguments[sizeof...(TArgs)];
-		uint64_t * match_captures;
-		uint32_t match_capture_count;
-		uint64_t * child_match_captures;
+		std::vector<uint64_t> & input_captures;
+		std::vector<uint64_t> output_captures;
+		uint32_t capture_count;
 		
 		bool begun;
 		bool finished;
-		bool delete_result;
 
 		virtual void BeginInternal() = 0;
-		virtual uint64_t * NextInternal() = 0;
+		virtual bool NextInternal() = 0;
 
 	private:
 		template<typename Head, typename... Tail>

@@ -18,24 +18,21 @@ namespace Ravel::SubML
 		capture_matcher->Reset();
 	}
 
-	uint64_t * OperatorMatcher::NextInternal()
+	bool OperatorMatcher::NextInternal()
 	{
 		ExpressionOperator oper = MatchArgument<0>();
 
 		auto capture_captures = capture_matcher->HasBegun() ? capture_matcher->Next() : nullptr;
 		while (!capture_captures)
 		{
-			if (!value_matcher->HasBegun()) value_matcher->Begin(match_captures, match_capture_count, oper);
+			if (!value_matcher->HasBegun()) value_matcher->Begin(input_captures, capture_count, oper);
 			auto value_captures = value_matcher->Next();
-			if (!value_captures)
-			{
-				Finish();
-				return nullptr;
-			}
-			capture_matcher->Begin(value_captures, match_capture_count, oper);
+			if (!value_captures) return false;
+			capture_matcher->Begin(input_captures, capture_count, oper);
 			capture_captures = capture_matcher->Next();
 		}
-		return capture_captures;
+		output_captures = *capture_captures;
+		return true;
 	}
 
 	OperatorMatcher * OperatorMatcher::DeepCopy()

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "ExpressionOperator.hpp"
 #include "DataType.hpp"
 #include "Util/BitCast.hpp"
@@ -16,8 +17,7 @@ namespace Ravel
 				: oper(oper), data_type(DataType::UNKNOWN)
 			{
 				arg_count = sizeof...(TArgs);
-				this->args = new Expression * [arg_count];
-				InitArgs<0>(args...);
+				this->args = std::vector<Expression *> {args...};
 			}
 			template<typename IMM_T>
 			Expression(ExpressionOperator oper, IMM_T data)
@@ -38,14 +38,9 @@ namespace Ravel
 				return oper;
 			}
 			
-			inline Expression ** Args()
+			inline std::vector<Expression *> & Args()
 			{
 				return args;
-			}
-
-			inline uint32_t ArgCount() const
-			{
-				return arg_count;
 			}
 
 			inline DataType GetDataType() const
@@ -80,22 +75,21 @@ namespace Ravel
 
 		private:
 			ExpressionOperator oper;
-			Expression ** args;
-			uint32_t arg_count;
+			std::vector<Expression *> args;
 			DataType data_type;
 			uint64_t data;
 
-			template<uint32_t idx, typename... TArgs>
-			inline void InitArgs(Expression * head, TArgs... tail)
-			{
-				args[idx] = head;
-				InitArgs<idx + 1>(tail...);
-			}
-			template<uint32_t idx>
-			inline void InitArgs(Expression * head)
-			{
-				args[idx] = head;
-			}
+			// template<uint32_t idx, typename... TArgs>
+			// inline void InitArgs(Expression * head, TArgs... tail)
+			// {
+			// 	args[idx] = head;
+			// 	InitArgs<idx + 1>(tail...);
+			// }
+			// template<uint32_t idx>
+			// inline void InitArgs(Expression * head)
+			// {
+			// 	args[idx] = head;
+			// }
 		};
 	}
 }

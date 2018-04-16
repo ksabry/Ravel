@@ -17,19 +17,28 @@ namespace Ravel::SubML
 	{
 	}
 
-	uint64_t * OperatorValueMatcher::NextInternal()
+	bool OperatorValueMatcher::NextInternal()
 	{
 		ExpressionOperator to_match = MatchArgument<0>();
+		bool result;
 		for (uint32_t i = 0; i < oper_count; i++)
 		{
 			if (opers[i] == to_match)
 			{
-				Finish();
-				return neg ? nullptr : match_captures;
+				if (!neg)
+				{
+					output_captures = input_captures;
+					Finish(); return true;
+				}
+				return false;
 			}
 		}
-		Finish();
-		return neg ? match_captures : nullptr;
+		if (neg)
+		{
+			output_captures = input_captures;
+			Finish(); return true;
+		}
+		return false;
 	}
 
 	OperatorValueMatcher * OperatorValueMatcher::DeepCopy()

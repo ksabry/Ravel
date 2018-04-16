@@ -15,16 +15,15 @@ namespace Ravel::SubML
 	{
 	}
 
-	uint64_t * ImmediateMatcher::NextInternal()
+	bool ImmediateMatcher::NextInternal()
 	{
-		uint64_t * result = nullptr;
 		Expression * expr = MatchArgument<0>();
 		if (expr->GetDataType() == data_type && DataEqual(data_type, expr->GetData(), data)) 
 		{
-			result = match_captures;
+			output_captures = input_captures;
+			Finish(); return true;
 		}
-		Finish();
-		return result;
+		return false;
 	}
 
 	ImmediateMatcher * ImmediateMatcher::DeepCopy()

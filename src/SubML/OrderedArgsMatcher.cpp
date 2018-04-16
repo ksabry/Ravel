@@ -1,47 +1,44 @@
 #include "OrderedArgsMatcher.hpp"
 #include "Util/Assert.hpp"
-#include "Util/ArrCpy.hpp"
 
 namespace Ravel::SubML
 {
-	OrderedArgsMatcher::OrderedArgsMatcher(OrderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
-		: matchers(matchers), matcher_count(matcher_count), stack(nullptr), stack_idx(0)
+	OrderedArgsMatcher::OrderedArgsMatcher(std::vector<OrderedQuantifiedExpressionMatcher *> matchers)
+		: matchers(matchers), stack(nullptr), stack_idx(0)
 	{
 	}
 	OrderedArgsMatcher::~OrderedArgsMatcher()
 	{
-		for (uint32_t idx = 0; idx < matcher_count; idx++)
-		{
-			delete matchers[idx];
-		}
-		delete[] matchers;
-		
-		for (uint32_t i = 0; i < matcher_count; i++)
+		for (uint32_t i = 0; i < matchers.size(); i++)
 		{
 			if (stack[i].initialized) FinishFrame(i);
 		}
 		delete[] stack;
+		for (auto matcher : matchers) delete matcher;
 	}
 
 	void OrderedArgsMatcher::BeginInternal()
 	{
 		Expression * parent = MatchArgument<0>();
-		exprs = parent->Args();
-		expr_count = parent->ArgCount();
 
-		stack = new Frame[matcher_count];
+		stack = new Frame[matchers.size()];
 		stack_idx = 0;
 
-		if (matcher_count > 0) BeginFrame(0, match_captures, exprs, matchers, nullptr);
+		if (matchers.size() > 0) BeginFrame(0, input_captures, parent->Args(), matchers, nullptr);
 	}
 
-	uint64_t * OrderedArgsMatcher::NextInternal()
+	bool OrderedArgsMatcher::NextInternal()
 	{
-		if (matcher_count == 0)
+		Expression * parent = MatchArgument<0>();
+
+		if (matchers.size() == 0)
 		{
-			Finish();
-			if (expr_count == 0) return match_captures;
-			return nullptr;
+			if (parent->Args().size() == 0)
+			{
+				output_captures = input_captures;
+				Finish(); return true;
+			}
+			return false;
 		}
 
 		while (stack_idx >= 0)
@@ -52,7 +49,7 @@ namespace Ravel::SubML
 				continue;
 			}
 
-			uint64_t * frame_captures = stack[stack_idx].matcher->Next();
+			auto frame_captures = stack[stack_idx].matcher->Next();
 			if (!frame_captures)
 			{
 				FinishFrame(stack_idx);
@@ -60,53 +57,50 @@ namespace Ravel::SubML
 				continue;
 			}
 
-			auto new_remaining_exprs = new Expression * [matcher_count];
-			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, matcher_count);
+			auto new_remaining_exprs = stack[stack_idx].incoming_remaining_exprs;
 			for (uint32_t i = 0; i < stack[stack_idx].matcher->MatchLength(); i++)
 			{
 				new_remaining_exprs[stack[stack_idx].expr_start_idx + i] = nullptr;
 			}
 
-			if (stack_idx == matcher_count - 1)
+			if (stack_idx == matchers.size() - 1)
 			{
-				bool complete = IsComplete(new_remaining_exprs);
-				delete[] new_remaining_exprs;
-				if (complete) return frame_captures;
+				if (IsComplete(new_remaining_exprs))
+				{
+					output_captures = *frame_captures;
+					return true;
+				}
 			}
 			else
 			{
 				BeginFrame(
 					++stack_idx, 
-					frame_captures, 
+					*frame_captures, 
 					new_remaining_exprs, 
 					stack[stack_idx].remaining_matchers,
-					stack[stack_idx].remaining_bounds
+					stack[stack_idx].has_bounds ? &stack[stack_idx].remaining_bounds : nullptr
 				);
 			}
 		}
 
-		Finish();
-		return nullptr;
+		return false;
 	}
 
 	void OrderedArgsMatcher::BeginFrame(
 		uint32_t idx,
-		uint64_t * incoming_captures, 
-		Expression ** new_remaining_exprs, 
-		OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
-		Bounds * remaining_bounds)
+		std::vector<uint64_t> & incoming_captures,
+		std::vector<Expression *> & new_remaining_exprs,
+		std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers,
+		std::vector<Bounds> * remaining_bounds)
 	{
-		Assert(idx < matcher_count);
+		Assert(idx < matchers.size());
+		Expression * parent = MatchArgument<0>();
 
-		if (!remaining_bounds && !CalculateBounds(stack[idx].remaining_bounds, stack[idx].remaining_matchers))
-		{
-			delete[] new_remaining_exprs;
-			return;
-		}
-		Bounds * bounds = stack[idx].remaining_bounds;
+		if (!remaining_bounds && !CalculateBounds(stack[idx].remaining_bounds, stack[idx].remaining_matchers)) return;
+		auto bounds = stack[idx].remaining_bounds;
 
 		uint32_t next_matcher_idx;
-		for (uint32_t i = 0; i < matcher_count; i++)
+		for (uint32_t i = 0; i < matchers.size(); i++)
 		{
 			if (bounds[i].start == bounds[i].end && matchers[i])
 			{
@@ -118,25 +112,24 @@ namespace Ravel::SubML
 
 		uint32_t next_start_idx = bounds[next_matcher_idx].start;
 		uint32_t next_end_idx = next_start_idx;
-		while (next_end_idx < expr_count && !exprs[next_end_idx]) next_end_idx++;
+		while (next_end_idx < parent->Args().size() && !parent->Args()[next_end_idx]) next_end_idx++;
 
-		stack[idx].matcher->Begin(incoming_captures, match_capture_count, exprs + next_start_idx, next_end_idx - next_start_idx);
+		stack[idx].matcher->Begin(incoming_captures, capture_count, &parent->Args()[next_start_idx], next_end_idx - next_start_idx);
 
 		stack[idx].expr_start_idx = next_start_idx;
 		stack[idx].incoming_remaining_exprs = new_remaining_exprs;
 
-		stack[idx].remaining_matchers = new OrderedQuantifiedExpressionMatcher * [matcher_count];
-		ArrCpy(stack[idx].remaining_matchers, remaining_matchers, matcher_count);
+		stack[idx].remaining_matchers = remaining_matchers;
 		stack[idx].remaining_matchers[next_matcher_idx] = nullptr;
 		
 		if (stack[idx].matcher->GetQuantifier().low == stack[idx].matcher->GetQuantifier().high)
 		{
-			stack[idx].remaining_bounds = new Bounds [matcher_count];
-			ArrCpy(stack[idx].remaining_bounds, remaining_bounds, matcher_count);
+			stack[idx].remaining_bounds = *remaining_bounds;
+			stack[idx].has_bounds = true;
 		}
 		else
 		{
-			stack[idx].remaining_bounds = nullptr;
+			stack[idx].has_bounds = false;
 		}
 		stack[idx].initialized = true;
 	}
@@ -144,35 +137,32 @@ namespace Ravel::SubML
 	void OrderedArgsMatcher::FinishFrame(uint32_t idx)
 	{
 		Assert(stack[idx].initialized);
-
-		if (stack[idx].incoming_remaining_exprs) delete[] stack[idx].incoming_remaining_exprs;
-		if (stack[idx].remaining_matchers) delete[] stack[idx].remaining_matchers;
-		if (stack[idx].remaining_bounds) delete[] stack[idx].remaining_bounds;
 		stack[idx].initialized = false;
 	}
 
-	bool OrderedArgsMatcher::IsComplete(Expression ** remaining_exprs)
+	bool OrderedArgsMatcher::IsComplete(std::vector<Expression *> & remaining_exprs)
 	{
-		for (uint32_t i = 0; i < expr_count; i++)
+		for (auto expr : remaining_exprs)
 		{
-			if (remaining_exprs[i]) return false;
+			if (expr) return false;
 		}
 		return true;
 	}
 
-	bool OrderedArgsMatcher::CalculateBounds(Bounds * & result, OrderedQuantifiedExpressionMatcher ** remaining_matchers)
+	bool OrderedArgsMatcher::CalculateBounds(std::vector<Bounds> & result, std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers)
 	{
-		result = new Bounds[matcher_count];
+		Expression * parent = MatchArgument<0>();
+		uint32_t expr_count = parent->Args().size();
 
 		uint32_t start_low, start_high;
-		Bounds * ltr_bounds = new Bounds[matcher_count];
-		Bounds * rtl_bounds = new Bounds[matcher_count];
+		Bounds * ltr_bounds = new Bounds[matchers.size()];
+		Bounds * rtl_bounds = new Bounds[matchers.size()];
 		uint32_t qlow, qhigh;
 
 		start_low = start_high = 0;
-		for (int32_t i = 0; i < matcher_count; i++)
+		for (int32_t i = 0; i < matchers.size(); i++)
 		{
-			GetMatcherLowHigh(remaining_matchers, i, &qlow, &qhigh);
+			GetMatcherLowHigh(remaining_matchers, i, qlow, qhigh);
 			ltr_bounds[i] = { start_low, start_high };
 
 			start_low += qlow;
@@ -181,9 +171,9 @@ namespace Ravel::SubML
 		}
 
 		start_low = start_high = expr_count;
-		for (int32_t i = matcher_count - 1; i >= 0; i++)
+		for (int32_t i = matchers.size() - 1; i >= 0; i++)
 		{
-			GetMatcherLowHigh(remaining_matchers, i, &qlow, &qhigh);
+			GetMatcherLowHigh(remaining_matchers, i, qlow, qhigh);
 
 			start_low -= qhigh;
 			start_high -= qlow;
@@ -193,7 +183,7 @@ namespace Ravel::SubML
 		}
 
 		bool success = true;
-		for (int32_t i = 0; i < matcher_count; i++)
+		for (int32_t i = 0; i < matchers.size(); i++)
 		{
 			result[i].start = ltr_bounds[i].start > rtl_bounds[i].start ? ltr_bounds[i].start : rtl_bounds[i].start;
 			result[i].end = ltr_bounds[i].end   < rtl_bounds[i].end ? ltr_bounds[i].end : rtl_bounds[i].end;
@@ -211,30 +201,30 @@ namespace Ravel::SubML
 	}
 
 	void OrderedArgsMatcher::GetMatcherLowHigh(
-		OrderedQuantifiedExpressionMatcher ** remaining_matchers, 
+		std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers, 
 		uint32_t matcher_idx, 
-		uint32_t * low, 
-		uint32_t * high)
+		uint32_t & low, 
+		uint32_t & high)
 	{
 		if (remaining_matchers[matcher_idx] == nullptr)
 		{
-			*low = matchers[matcher_idx]->GetQuantifier().low;
-			*high = matchers[matcher_idx]->GetQuantifier().high;
+			low = matchers[matcher_idx]->GetQuantifier().low;
+			high = matchers[matcher_idx]->GetQuantifier().high;
 		}
 		else
 		{
-			*low = *high = matchers[matcher_idx]->MatchLength();
+			low = high = matchers[matcher_idx]->MatchLength();
 		}
 	}
 
 	OrderedArgsMatcher * OrderedArgsMatcher::DeepCopy()
 	{
-		auto new_matchers = new OrderedQuantifiedExpressionMatcher * [matcher_count];
-		for (uint32_t i = 0; i < matcher_count; i++)
+		std::vector<OrderedQuantifiedExpressionMatcher *> new_matchers;
+		for (auto matcher : matchers)
 		{
-			new_matchers[i] = matchers[i]->DeepCopy();
+			new_matchers.push_back(matcher->DeepCopy());
 		}
-		return new OrderedArgsMatcher(new_matchers, matcher_count);
+		return new OrderedArgsMatcher(new_matchers);
 	}
 
 	void OrderedArgsMatcher::PPrint(std::ostream & output)
@@ -242,8 +232,8 @@ namespace Ravel::SubML
 		output << "OrderedArgsmatcher {\n";
 
 		std::stringstream inner;
-		if (matcher_count > 0) matchers[0]->PPrint(inner);
-		for (uint32_t i = 1; i < matcher_count; i++)
+		if (matchers.size() > 0) matchers[0]->PPrint(inner);
+		for (uint32_t i = 1; i < matchers.size(); i++)
 		{
 			inner << ",\n";
 			matchers[i]->PPrint(inner);
