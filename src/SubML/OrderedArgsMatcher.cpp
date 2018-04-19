@@ -9,11 +9,7 @@ namespace Ravel::SubML
 	}
 	OrderedArgsMatcher::~OrderedArgsMatcher()
 	{
-		for (uint32_t i = 0; i < matchers.size(); i++)
-		{
-			if (stack[i].initialized) FinishFrame(i);
-		}
-		delete[] stack;
+		DeleteStack();
 		for (auto matcher : matchers) delete matcher;
 	}
 
@@ -21,6 +17,7 @@ namespace Ravel::SubML
 	{
 		Expression * parent = MatchArgument<0>();
 
+		if (stack) DeleteStack();
 		stack = new Frame[matchers.size()];
 		stack_idx = 0;
 
@@ -57,15 +54,15 @@ namespace Ravel::SubML
 				continue;
 			}
 
-			auto new_remaining_exprs = stack[stack_idx].incoming_remaining_exprs;
+			auto incoming_remaining_exprs = stack[stack_idx].incoming_remaining_exprs;
 			for (uint32_t i = 0; i < stack[stack_idx].matcher->MatchLength(); i++)
 			{
-				new_remaining_exprs[stack[stack_idx].expr_start_idx + i] = nullptr;
+				incoming_remaining_exprs[stack[stack_idx].expr_start_idx + i] = nullptr;
 			}
 
 			if (stack_idx == matchers.size() - 1)
 			{
-				if (IsComplete(new_remaining_exprs))
+				if (IsComplete(incoming_remaining_exprs))
 				{
 					output_captures = *frame_captures;
 					return true;
@@ -76,7 +73,7 @@ namespace Ravel::SubML
 				BeginFrame(
 					++stack_idx, 
 					*frame_captures, 
-					new_remaining_exprs, 
+					incoming_remaining_exprs, 
 					stack[stack_idx].remaining_matchers,
 					stack[stack_idx].has_bounds ? &stack[stack_idx].remaining_bounds : nullptr
 				);
@@ -86,10 +83,19 @@ namespace Ravel::SubML
 		return false;
 	}
 
+	void OrderedArgsMatcher::DeleteStack()
+	{
+		for (uint32_t i = 0; i < matchers.size(); i++)
+		{
+			if (stack[i].initialized) FinishFrame(i);
+		}
+		delete[] stack;
+	}
+
 	void OrderedArgsMatcher::BeginFrame(
 		uint32_t idx,
 		std::vector<uint64_t> & incoming_captures,
-		std::vector<Expression *> & new_remaining_exprs,
+		std::vector<Expression *> & incoming_remaining_exprs,
 		std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers,
 		std::vector<Bounds> * remaining_bounds)
 	{
@@ -114,10 +120,10 @@ namespace Ravel::SubML
 		uint32_t next_end_idx = next_start_idx;
 		while (next_end_idx < parent->Args().size() && !parent->Args()[next_end_idx]) next_end_idx++;
 
-		stack[idx].matcher->Begin(incoming_captures, capture_count, &parent->Args()[next_start_idx], next_end_idx - next_start_idx);
+		stack[idx].matcher->Begin(incoming_captures, &parent->Args(), next_start_idx, next_end_idx);
 
 		stack[idx].expr_start_idx = next_start_idx;
-		stack[idx].incoming_remaining_exprs = new_remaining_exprs;
+		stack[idx].incoming_remaining_exprs = incoming_remaining_exprs;
 
 		stack[idx].remaining_matchers = remaining_matchers;
 		stack[idx].remaining_matchers[next_matcher_idx] = nullptr;

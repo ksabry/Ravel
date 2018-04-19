@@ -20,13 +20,12 @@ namespace Ravel::SubML
 		{
 		}
 
-		virtual void Begin(std::vector<uint64_t> & captures, uint32_t capture_count, TArgs... values)
+		virtual void Begin(std::vector<uint64_t> & captures, TArgs... values)
 		{
 			begun = true;
 			finished = false;
 			SetMatchArguments(0, values...);
 			input_captures = captures;
-			capture_count = capture_count;
 			BeginInternal();
 		}
 
@@ -47,17 +46,17 @@ namespace Ravel::SubML
 		}
 
 		template<uint32_t idx>
-		inline type_pack_element<idx, TArgs...> MatchArgument()
+		inline type_pack_element<idx, TArgs...> MatchArgument() const
 		{
 			return bit_cast<type_pack_element<idx, TArgs...>>(match_arguments[idx]);
 		}
 
-		inline bool HasBegun()
+		inline bool HasBegun() const
 		{
 			return begun;
 		}
 
-		inline bool HasFinished()
+		inline bool HasFinished() const
 		{
 			return finished;
 		}
@@ -66,6 +65,11 @@ namespace Ravel::SubML
 		{
 			begun = false;
 			finished = false;
+		}
+
+		inline std::vector<uint64_t> & OutputCaptures()
+		{
+			return output_captures;
 		}
 
 		virtual Matcher<TArgs...> * DeepCopy() = 0;
@@ -79,7 +83,6 @@ namespace Ravel::SubML
 		uint64_t match_arguments[sizeof...(TArgs)];
 		std::vector<uint64_t> & input_captures;
 		std::vector<uint64_t> output_captures;
-		uint32_t capture_count;
 		
 		bool begun;
 		bool finished;

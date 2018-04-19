@@ -9,10 +9,9 @@ namespace Ravel::SubML
 {
 	using namespace Semantic;
 
-	class UnorderedQuantifiedExpressionMatcher : public Matcher<Expression **, uint32_t>
+	class UnorderedQuantifiedExpressionMatcher : public Matcher<std::vector<Expression *> *>
 	{
 	public:
-		// TODO: capture matcher must be different (ordered too)
 		UnorderedQuantifiedExpressionMatcher(
 			Matcher<Expression *> * expression_matcher, 
 			Quantifier quantifier, 
@@ -21,7 +20,7 @@ namespace Ravel::SubML
 
 		inline void GetUsedIndices(int32_t * & indices, uint32_t & index_count)
 		{
-			indices = this->expr_indices;
+			indices = &this->expr_indices[0];
 			index_count = this->expr_indices_count;
 		}
 
@@ -29,17 +28,17 @@ namespace Ravel::SubML
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual uint64_t * NextInternal() override;
+		virtual bool NextInternal() override;
 
 	private:
 		Matcher<Expression *> * expression_matcher;
 		Quantifier quantifier;
 		Matcher<Expression *> * capture_matcher;
 
-		int32_t * expr_indices;
+		std::vector<int32_t> expr_indices;
 		uint32_t expr_indices_count;
 		int32_t match_idx;
-		uint64_t ** captures_stack;
+		std::vector<std::vector<uint64_t>> captures_stack;
 
 		uint32_t cache_size;
 		std::vector<Matcher<Expression *> *> expression_matchers_cache;
@@ -47,7 +46,7 @@ namespace Ravel::SubML
 
 		void ResizeCache(uint32_t new_cache_size);
 
-		bool NextCaptures(uint64_t * & output);
+		bool NextCaptures(std::vector<uint64_t> & output);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;

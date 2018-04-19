@@ -8,39 +8,37 @@ namespace Ravel::SubML
 	class UnorderedArgsMatcher : public Matcher<Expression *>
 	{
 	public:
-		UnorderedArgsMatcher(UnorderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count);
+		UnorderedArgsMatcher(std::vector<UnorderedQuantifiedExpressionMatcher *> matchers);
 		~UnorderedArgsMatcher();
 
 		virtual UnorderedArgsMatcher * DeepCopy() override;
 
 	protected:
 		virtual void BeginInternal() override;
-		virtual uint64_t * NextInternal() override;
+		virtual bool NextInternal() override;
 
 	private:
-		UnorderedQuantifiedExpressionMatcher ** matchers;
-		uint32_t matcher_count;
-
-		Expression ** exprs;
-		uint32_t expr_count;
+		std::vector<UnorderedQuantifiedExpressionMatcher *> matchers;
 
 		struct Frame
 		{
 			bool initialized = false;
-			Expression ** incoming_remaining_exprs = nullptr;
+			std::vector<Expression *> incoming_remaining_exprs;
 		};
 
 		Frame * stack;
 		int32_t stack_idx;
 
+		void DeleteStack();
+
 		void BeginFrame(
 			uint32_t idx,
-			uint64_t * incoming_captures,
-			Expression ** new_remaining_exprs);
+			std::vector<uint64_t> & incoming_captures,
+			std::vector<Expression *> & incoming_remaining_exprs);
 
 		void FinishFrame(uint32_t idx);
 
-		bool IsComplete(Expression ** remaining_exprs);
+		bool IsComplete(std::vector<Expression *> & remaining_exprs);
 
 	public:
 		virtual void PPrint(std::ostream & output) override;

@@ -42,10 +42,12 @@ namespace Ravel::SubML
 		Frame * stack;
 		int32_t stack_idx;
 
+		void DeleteStack();
+
 		void BeginFrame(
 			uint32_t idx,
 			std::vector<uint64_t> & incoming_captures,
-			std::vector<Expression *> & new_remaining_exprs,
+			std::vector<Expression *> & incoming_remaining_exprs,
 			std::vector<OrderedQuantifiedExpressionMatcher *> & remaining_matchers,
 			std::vector<Bounds> * remaining_bounds);
 

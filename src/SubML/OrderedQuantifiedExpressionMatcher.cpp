@@ -8,7 +8,7 @@ namespace Ravel::SubML
 		Quantifier quantifier, 
 		Matcher<Expression *> * capture_matcher)
 		: expression_matcher(expression_matcher), quantifier(quantifier), capture_matcher(capture_matcher), 
-		  cache_size(0), captures_stack(nullptr)
+		  cache_size(0)
 	{
 		ResizeCache(Min(10u, quantifier.high));
 	}
@@ -17,18 +17,18 @@ namespace Ravel::SubML
 	{
 		delete expression_matcher;
 		delete capture_matcher;
-		if (captures_stack) delete[] captures_stack;
 		for (auto e_matcher : expression_matchers_cache) delete e_matcher;
 		for (auto c_matcher : capture_matchers_cache) delete c_matcher;
 	}
 
 	void OrderedQuantifiedExpressionMatcher::BeginInternal()
 	{
-		Expression ** exprs = MatchArgument<0>();
-		uint32_t expr_count = MatchArgument<1>();
+		auto exprs = MatchArgument<0>();
+		uint32_t expr_start_idx = MatchArgument<1>();
+		uint32_t expr_end_idx = MatchArgument<2>();
+		uint32_t expr_count = expr_end_idx - expr_start_idx;
 
-		if (captures_stack) delete[] captures_stack;
-		captures_stack = new uint64_t * [Min(expr_count, quantifier.high)];
+		captures_stack.resize(Min(expr_count, quantifier.high));
 
 		if (expr_count > cache_size) ResizeCache(expr_count);
 		for (uint32_t i = 0; i < cache_size; i++)
@@ -38,43 +38,52 @@ namespace Ravel::SubML
 		}
 
 		match_idx = 0;
-		captures_stack[0] = match_captures;
+		captures_stack[0] = input_captures;
 	}
 
-	uint64_t * OrderedQuantifiedExpressionMatcher::NextInternal()
+	bool OrderedQuantifiedExpressionMatcher::NextInternal()
 	{
-		Expression ** exprs = MatchArgument<0>();
-		uint32_t expr_count = MatchArgument<1>();
-		int32_t match_idx_max = Min(expr_count, quantifier.high) - 1;
+		auto exprs = MatchArgument<0>();
+		uint32_t expr_start_idx = MatchArgument<1>();
+		uint32_t expr_end_idx = MatchArgument<2>();
 
-		if (match_idx_max == -1)
+		if (captures_stack.size() == 0)
 		{
 			match_idx = -1;
-			Finish();
-			if (quantifier.low == 0) return match_captures;
-			return nullptr;
+			if (quantifier.low == 0)
+			{
+				output_captures = input_captures;
+				Finish(); return true;
+			}
+			return false;
 		}
 
 		while (match_idx >= 0)
 		{
-			uint64_t * next_captures;
+			std::vector<uint64_t> next_captures;
 			if (!NextCaptures(next_captures))
 			{
 				match_idx--;
 				continue;
 			}
 
-			if (match_idx < match_idx_max)
+			if (match_idx < captures_stack.size() - 1)
 			{
-				match_idx++;
-				captures_stack[match_idx] = next_captures;
+				captures_stack[++match_idx] = next_captures;
 			}
-			if (match_idx + 1 >= quantifier.low) return next_captures;
+			if (match_idx + 1 >= quantifier.low)
+			{
+				output_captures = next_captures;
+				return true;
+			}
 		}
 
-		Finish();
-		if (quantifier.low == 0) return match_captures;
-		return nullptr;
+		if (quantifier.low == 0)
+		{
+			output_captures = input_captures;
+			Finish(); return true;
+		}
+		return false;
 	}
 
 	void OrderedQuantifiedExpressionMatcher::ResizeCache(uint32_t new_cache_size)
@@ -102,23 +111,25 @@ namespace Ravel::SubML
 		cache_size = new_cache_size;
 	}
 
-	bool OrderedQuantifiedExpressionMatcher::NextCaptures(uint64_t * & output)
+	bool OrderedQuantifiedExpressionMatcher::NextCaptures(std::vector<uint64_t> & output)
 	{
-		Expression ** exprs = MatchArgument<0>();
+		auto exprs = MatchArgument<0>();
 
 		auto e_matcher = expression_matchers_cache[match_idx];
 		auto c_matcher = capture_matchers_cache[match_idx];
 
-		output = c_matcher->HasBegun() ? c_matcher->Next() : nullptr;
-		while (!output)
+		bool c_found = c_matcher->HasBegun() ? c_matcher->Next() : false;
+		while (!c_found)
 		{
-			if (!e_matcher->HasBegun()) e_matcher->Begin(captures_stack[match_idx], match_capture_count, exprs[match_idx]);
-			uint64_t * expression_captures = e_matcher->Next();
-			if (!expression_captures) return false;
+			if (!e_matcher->HasBegun()) e_matcher->Begin(captures_stack[match_idx], (*exprs)[match_idx]);
+			bool e_found = e_matcher->Next();
+			if (!e_found) return false;
 			
-			c_matcher->Begin(expression_captures, match_capture_count, exprs[match_idx]);
-			output = c_matcher->Next();
+			c_matcher->Begin(e_matcher->OutputCaptures(), (*exprs)[match_idx]);
+			c_found = c_matcher->Next();
 		}
+		
+		output = c_matcher->OutputCaptures();
 		return true;
 	}
 

@@ -2,15 +2,17 @@
 
 namespace Ravel
 {
-	template<typename T>
-	T Min(T a, T b)
+	template<typename T, typename U>
+	T Min(T a, U b)
 	{
-		return a < b ? a : b;
+		static_assert(std::is_convertible<U, T>::value);
+		return a < b ? a : static_cast<T>(b);
 	}
 
-	template<typename T>
-	T Max(T a, T b)
+	template<typename T, typename U>
+	T Max(T a, U b)
 	{
-		return a > b ? a : b;
+		static_assert(std::is_convertible<U, T>::value);
+		return a > b ? a : static_cast<T>(b);
 	}
 }

@@ -4,52 +4,54 @@
 
 namespace Ravel::SubML
 {
-	UnorderedArgsMatcher::UnorderedArgsMatcher(UnorderedQuantifiedExpressionMatcher ** matchers, uint32_t matcher_count)
-		: matchers(matchers), matcher_count(matcher_count), stack(nullptr), stack_idx(0)
+	UnorderedArgsMatcher::UnorderedArgsMatcher(std::vector<UnorderedQuantifiedExpressionMatcher *> matchers)
+		: matchers(matchers), stack(nullptr), stack_idx(0)
 	{
 	}
 	UnorderedArgsMatcher::~UnorderedArgsMatcher()
 	{
-		for (uint32_t idx = 0; idx < matcher_count; idx++)
-		{
-			delete matchers[idx];
-		}
-		delete[] matchers;
-
-		for (uint32_t i = 0; i < matcher_count; i++)
+		for (uint32_t i = 0; i < matchers.size(); i++)
 		{
 			if (stack[i].initialized) FinishFrame(i);
 		}
 		delete[] stack;
+		
+		for (auto matcher : matchers)
+		{
+			delete matcher;
+		}
 	}
 
 	void UnorderedArgsMatcher::BeginInternal()
 	{
 		Expression * parent = MatchArgument<0>();
 
-		exprs = parent->Args();
-		expr_count = parent->ArgCount();
-
-		stack = new Frame[matcher_count];
+		if (stack) DeleteStack();
+		stack = new Frame[matchers.size()];
 		stack_idx = 0;
 		
-		if (matcher_count > 0) BeginFrame(0, match_captures, exprs);
+		if (matchers.size() > 0) BeginFrame(0, input_captures, parent->Args());
 	}
 
-	uint64_t * UnorderedArgsMatcher::NextInternal()
+	bool UnorderedArgsMatcher::NextInternal()
 	{
-		if (matcher_count == 0)
+		Expression * parent = MatchArgument<0>();
+
+		if (matchers.size() == 0)
 		{
-			Finish();
-			if (expr_count == 0) return match_captures;
-			return nullptr;
+			if (parent->Args().size() == 0)
+			{
+				output_captures = input_captures;
+				Finish(); return true;
+			}
+			return false;
 		}
 
 		while (stack_idx >= 0)
 		{
 			Assert(stack[stack_idx].initialized);
 
-			uint64_t * frame_captures = matchers[stack_idx]->Next();
+			auto frame_captures = matchers[stack_idx]->Next();
 			if (!frame_captures)
 			{
 				FinishFrame(stack_idx);
@@ -61,71 +63,78 @@ namespace Ravel::SubML
 			uint32_t used_index_count;
 			matchers[stack_idx]->GetUsedIndices(used_indices, used_index_count);
 			
-			auto new_remaining_exprs = new Expression * [expr_count];
-			ArrCpy(new_remaining_exprs, stack[stack_idx].incoming_remaining_exprs, expr_count);
+			auto new_remaining_exprs = stack[stack_idx].incoming_remaining_exprs;
 			for (uint32_t i = 0; i < used_index_count; i++)
 			{
 				new_remaining_exprs[used_indices[i]] = nullptr;
 			}
 
-			if (stack_idx == matcher_count - 1)
+			if (stack_idx == matchers.size() - 1)
 			{
-				bool complete = IsComplete(new_remaining_exprs);
-				delete[] new_remaining_exprs;
-				if (complete) return frame_captures;
+				if (IsComplete(new_remaining_exprs))
+				{
+					output_captures = *frame_captures;
+					return true;
+				}
 			}
 			else
 			{
 				BeginFrame(
 					++stack_idx,
-					frame_captures,
+					*frame_captures,
 					new_remaining_exprs
 				);
 			}
 		}
 
-		Finish();
-		return nullptr;
+		return false;
+	}
+
+	void UnorderedArgsMatcher::DeleteStack()
+	{
+		for (uint32_t i = 0; i < matchers.size(); i++)
+		{
+			if (stack[i].initialized) FinishFrame(i);
+		}
+		delete[] stack;
 	}
 
 	void UnorderedArgsMatcher::BeginFrame(
 		uint32_t idx,
-		uint64_t * incoming_captures,
-		Expression ** new_remaining_exprs)
+		std::vector<uint64_t> & incoming_captures,
+		std::vector<Expression *> & incoming_remaining_exprs)
 	{
-		Assert(idx < matcher_count);
+		Assert(idx < matchers.size());
 
-		matchers[idx]->Begin(incoming_captures, match_capture_count, new_remaining_exprs, expr_count);
+		matchers[idx]->Begin(incoming_captures, &incoming_remaining_exprs);
 		
-		stack[idx].incoming_remaining_exprs = new_remaining_exprs;
+		stack[idx].incoming_remaining_exprs = incoming_remaining_exprs;
 		stack[idx].initialized = true;
 	}
 
 	void UnorderedArgsMatcher::FinishFrame(uint32_t idx)
 	{
 		Assert(stack[idx].initialized);
-
-		if (stack[idx].incoming_remaining_exprs) delete[] stack[idx].incoming_remaining_exprs;
 		stack[idx].initialized = false;
 	}
 
-	bool UnorderedArgsMatcher::IsComplete(Expression ** remaining_exprs)
+	bool UnorderedArgsMatcher::IsComplete(std::vector<Expression *> & remaining_exprs)
 	{
-		for (uint32_t i = 0; i < expr_count; i++)
+		for (auto expr : remaining_exprs)
 		{
-			if (remaining_exprs[i]) return false;
+			if (expr) return false;
 		}
 		return true;
 	}
 
 	UnorderedArgsMatcher * UnorderedArgsMatcher::DeepCopy()
 	{
-		auto new_matchers = new UnorderedQuantifiedExpressionMatcher * [matcher_count];
-		for (uint32_t i = 0; i < matcher_count; i++)
+		auto new_matchers = new std::vector<UnorderedQuantifiedExpressionMatcher *>();
+		for (auto & matcher : matchers)
 		{
-			new_matchers[i] = matchers[i]->DeepCopy();
+			new_matchers->push_back(matcher->DeepCopy());
 		}
-		return new UnorderedArgsMatcher(new_matchers, matcher_count);
+		return new UnorderedArgsMatcher(*new_matchers);
 	}
 
 	void UnorderedArgsMatcher::PPrint(std::ostream & output)
@@ -133,11 +142,11 @@ namespace Ravel::SubML
 		output << "UnorderedArgsMatcher {\n";
 		
 		std::stringstream inner;
-		if (matcher_count > 0) matchers[0]->PPrint(inner);
-		for (uint32_t i = 1; i < matcher_count; i++)
+		if (matchers.size() > 0) matchers[0]->PPrint(inner);
+		for (auto & matcher : matchers)
 		{
 			inner << ",\n";
-			matchers[i]->PPrint(inner);
+			matcher->PPrint(inner);
 		}
 		output << Indent() << inner.str();
 
